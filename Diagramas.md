@@ -146,7 +146,7 @@ flowchart TD
 ```
 
 <details>
-<summary><strong>Código do diagrama</strong></summary>
+<summary><strong>Código do Diagrama de Classe</strong></summary>
 <pre>
 classDiagram
 
