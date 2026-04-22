@@ -1,7 +1,7 @@
 <details>
 <summary><strong>Código do Diagrama de Uso</strong></summary>
 <pre>
-    flowchart TD
+flowchart TD
 %% ATORES
     A4["ADMINISTRADOR"]
     A3["GESTOR DA UNIDADE"]
