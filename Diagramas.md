@@ -346,7 +346,11 @@ class Usuario {
   -senha: String
   -foto: String
   -ativo: boolean
-  -perfil_id: Perfil
+  -perfil: Perfil
+  +autenticar(senhaFornecida: String): boolean
+  +alterarSenha(novaSenha: String): void
+  +ativar(): void
+  +desativar(): void
 }
 
 class Unidade {
@@ -380,6 +384,10 @@ class PlanoDeRisco {
   -excluido_em: Date
   -usuario_criador_id: int
   -setor_id: int
+  +atualizarStatus(): void
+  +remanejarParaSetor(novoSetorId: int): void
+  +excluirLogicamente(): void
+  +gerarRelatorioPDF(): File
 }
 
 Setor "1" --> "N" PlanoDeRisco
@@ -451,6 +459,10 @@ class AvaliacaoRisco {
   -descricao_controles: String
   -risco_residual: int
   -nivel_risco_residual: String
+  +calcularRiscoInerente(): int
+  +calcularRiscoResidual(fatorAvaliacao: float): int
+  +determinarNivelRisco(valorCalculado: int): String
+  +validarRespostaPermitida(respostaEscolhida: String): boolean
 }
 
 PlanoDeRisco "1" *-- "1" AvaliacaoRisco
@@ -470,6 +482,10 @@ class TratamentoRisco {
   -observacoes: String
   -resultados_observados: String
   -analise_critica: String
+  +atualizarSituacao(novaSituacao: String): void
+  +registrarResultados(resultados: String): void
+  +registrarAnaliseCritica(analise: String): void
+  +verificarAtraso(): boolean
 }
 
 class TratamentoParceiro {
@@ -489,6 +505,7 @@ class HistoricoAlteracao {
   -valor_anterior: String
   -valor_novo: String
   -data_hora: DateTime
+  +registrarLog(campo: String, vAntigo: String, vNovo: String): void
 }
 
 PlanoDeRisco "1" --> "N" HistoricoAlteracao
@@ -496,5 +513,6 @@ Usuario "1" --> "N" HistoricoAlteracao : realiza
 </pre>
 </details>
 
-<img width="8107" height="7950" alt="User and Role Management-2026-04-22-180758" src="https://github.com/user-attachments/assets/1f7e4454-4d06-43e5-8db2-827c50efa349" />
+<img width="8192" height="6914" alt="diagramaClasse" src="https://github.com/user-attachments/assets/ef1b902a-dd70-4278-b7f5-092afba3b2da" />
+
 
