@@ -327,39 +327,43 @@ Ref: TratamentoParceiro.idUsuario > Usuario.idUsuario
 <details>
 <summary><strong>Código do Diagrama de Classe</strong></summary>
 <pre>
+---
+config:
+  layout: elk
+---
 classDiagram
 
 class Perfil {
-    +int id
-    +String nome
-    +String permissoes
+  -id: int
+  -nome: String
+  -permissoes: String
 }
 
 class Usuario {
-    +int id
-    +String nome
-    +String email
-    +String senha
-    +String foto
-    +boolean ativo
-    +int perfil_id
+  -id: int
+  -nome: String
+  -email: String
+  -senha: String
+  -foto: String
+  -ativo: boolean
+  -perfil_id: Perfil
 }
 
 class Unidade {
-    +int id
-    +String nome
-    +String tipo
+  -id: int
+  -nome: String
+  -tipo: String
 }
 
 class Setor {
-    +int id
-    +String nome
-    +int unidade_id
+  -id: int
+  -nome: String
+  -unidade_id: int
 }
 
 class UsuarioSetor {
-    +int usuario_id
-    +int setor_id
+  -usuario_id: int
+  -setor_id: int
 }
 
 Perfil "1" --> "N" Usuario
@@ -368,55 +372,55 @@ Usuario "1" --> "N" UsuarioSetor
 Setor "1" --> "N" UsuarioSetor
 
 class PlanoDeRisco {
-    +int id
-    +String status
-    +Date data_criacao
-    +Date data_ultima_atualizacao
-    +int versao
-    +Date excluido_em
-    +int usuario_criador_id
-    +int setor_id
+  -id: int
+  -status: String
+  -data_criacao: Date
+  -data_ultima_atualizacao: Date
+  -versao: int
+  -excluido_em: Date
+  -usuario_criador_id: int
+  -setor_id: int
 }
 
 Setor "1" --> "N" PlanoDeRisco
 Usuario "1" --> "N" PlanoDeRisco : cria
 
 class DesafioPDI {
-    +int id
-    +int numero
-    +String descricao
+  -id: int
+  -numero: int
+  -descricao: String
 }
 
 class Macroprocesso {
-    +int id
-    +String nome
-    +int desafio_id
+  -id: int
+  -nome: String
+  -desafio_id: int
 }
 
 class ObjetivoPDI {
-    +int id
-    +String codigo
-    +String descricao
-    +int desafio_id
+  -id: int
+  -codigo: String
+  -descricao: String
+  -desafio_id: int
 }
 
 class CategoriaRisco {
-    +int id
-    +String nome
+  -id: int
+  -nome: String
 }
 
 DesafioPDI "1" --> "N" Macroprocesso
 DesafioPDI "1" --> "N" ObjetivoPDI
 
 class IdentificacaoRisco {
-    +int id
-    +int plano_id
-    +int categoria_id
-    +String descricao_evento
-    +String causas
-    +String consequencias
-    +int macroprocesso_id   
-    +int objetivo_pdi_id
+  -id: int
+  -plano_id: int
+  -categoria_id: int
+  -descricao_evento: String
+  -causas: String
+  -consequencias: String
+  -macroprocesso_id: int
+  -objetivo_pdi_id: int
 }
 
 PlanoDeRisco "1" *-- "1" IdentificacaoRisco
@@ -425,28 +429,28 @@ IdentificacaoRisco --> Macroprocesso
 IdentificacaoRisco --> ObjetivoPDI
 
 class EscalaProbabilidade {
-    +int id
-    +String nivel
-    +int valor
+  -id: int
+  -nivel: String
+  -valor: int
 }
 
 class EscalaImpacto {
-    +int id
-    +String nivel
-    +int valor
+  -id: int
+  -nivel: String
+  -valor: int
 }
 
 class AvaliacaoRisco {
-    +int id
-    +int plano_id
-    +int probabilidade_id
-    +int impacto_id
-    +int risco_inerente
-    +String nivel_risco_inerente
-    +String eficacia_controles
-    +String descricao_controles
-    +int risco_residual
-    +String nivel_risco_residual
+  -id: int
+  -plano_id: int
+  -probabilidade_id: int
+  -impacto_id: int
+  -risco_inerente: int
+  -nivel_risco_inerente: String
+  -eficacia_controles: String
+  -descricao_controles: String
+  -risco_residual: int
+  -nivel_risco_residual: String
 }
 
 PlanoDeRisco "1" *-- "1" AvaliacaoRisco
@@ -454,23 +458,23 @@ EscalaProbabilidade "1" --> "N" AvaliacaoRisco
 EscalaImpacto "1" --> "N" AvaliacaoRisco
 
 class TratamentoRisco {
-    +int id
-    +int plano_id
-    +String resposta
-    +String tipo_acao
-    +String descricao_acao
-    +String situacao
-    +Date data_inicio
-    +Date data_conclusao_prevista
-    +int responsavel_id
-    +String observacoes
-    +String resultados_observados
-    +String analise_critica
+  -id: int
+  -plano_id: int
+  -resposta: String
+  -tipo_acao: String
+  -descricao_acao: String
+  -situacao: String
+  -data_inicio: Date
+  -data_conclusao_prevista: Date
+  -responsavel_id: int
+  -observacoes: String
+  -resultados_observados: String
+  -analise_critica: String
 }
 
 class TratamentoParceiro {
-    +int tratamento_id
-    +int usuario_id
+  -tratamento_id: int
+  -usuario_id: int
 }
 
 PlanoDeRisco "1" *-- "0..1" TratamentoRisco
@@ -478,31 +482,19 @@ TratamentoRisco "1" --> "N" TratamentoParceiro
 Usuario "1" --> "N" TratamentoParceiro
 
 class HistoricoAlteracao {
-    +int id
-    +int plano_id
-    +int usuario_id
-    +String campo_alterado
-    +String valor_anterior
-    +String valor_novo
-    +DateTime data_hora
-}
-
-class Notificacao {
-    +int id
-    +int usuario_id
-    +int plano_id
-    +String tipo
-    +String mensagem
-    +boolean lida
-    +DateTime data_hora
+  -id: int
+  -plano_id: int
+  -usuario_id: int
+  -campo_alterado: String
+  -valor_anterior: String
+  -valor_novo: String
+  -data_hora: DateTime
 }
 
 PlanoDeRisco "1" --> "N" HistoricoAlteracao
 Usuario "1" --> "N" HistoricoAlteracao : realiza
-
-PlanoDeRisco "1" --> "N" Notificacao
-Usuario "1" --> "N" Notificacao
 </pre>
 </details>
 
-![diagramaClasse.png](diagramaClasse.png)
+<img width="8107" height="7950" alt="User and Role Management-2026-04-22-180758" src="https://github.com/user-attachments/assets/1f7e4454-4d06-43e5-8db2-827c50efa349" />
+
