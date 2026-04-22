@@ -141,149 +141,149 @@ flowchart TD
 
 
 Table Unidade {
-idUnidade int [pk, increment]
-nomeUnidade varchar
-tipoUnidade varchar
+    idUnidade int [pk, increment]
+    nomeUnidade varchar
+    tipoUnidade varchar
 }
 
 Table Setor {
-idSetor int [pk, increment]
-nomeSetor varchar
-idUnidade int
+    idSetor int [pk, increment]
+    nomeSetor varchar
+    idUnidade int
 }
 
 Table Perfil {
-idPerfil int [pk, increment]
-nomePerfil varchar
-permissoesPerfil varchar
+    idPerfil int [pk, increment]
+    nomePerfil varchar
+    permissoesPerfil varchar
 }
 
 Table Usuario {
-idUsuario int [pk, increment]
-nomeUsuario varchar
-emailUsuario varchar
-senhaUsuario varchar
-fotoUsuario varchar
-ativoUsuario boolean
-idPerfil int
+    idUsuario int [pk, increment]
+    nomeUsuario varchar
+    emailUsuario varchar
+    senhaUsuario varchar
+    fotoUsuario varchar
+    ativoUsuario boolean
+    idPerfil int
 }
 
 Table UsuarioSetor {
-idUsuario int
-idSetor int
+    idUsuario int
+    idSetor int
 }
 
 Table CategoriaRisco {
-idCategoria int [pk, increment]
-nomeCategoria varchar
+    idCategoria int [pk, increment]
+    nomeCategoria varchar
 }
 
 Table EscalaProbabilidade {
-idEscalaProbabilidade int [pk, increment]
-nivelProbabilidade varchar
-valorProbabilidade int
+    idEscalaProbabilidade int [pk, increment]
+    nivelProbabilidade varchar
+    valorProbabilidade int
 }
 
 Table EscalaImpacto {
-idEscalaImpacto int [pk, increment]
-nivelImpacto varchar
-valorImpacto int
+    idEscalaImpacto int [pk, increment]
+    nivelImpacto varchar
+    valorImpacto int
 }
 
 Table PlanoDeRisco {
-idPlanoRisco int [pk, increment]
-statusPlano varchar
-dataCriacao date
-dataUltimaAtualizacao date
-versaoPlano int
-dataExclusao date
-idUsuarioCriador int
-idSetor int
+    idPlanoRisco int [pk, increment]
+    statusPlano varchar
+    dataCriacao date
+    dataUltimaAtualizacao date
+    versaoPlano int
+    dataExclusao date
+    idUsuarioCriador int
+    idSetor int
 }
 
 Table IdentificacaoRisco {
-idIdentificacao int [pk, increment]
-idPlanoRisco int
-idCategoria int
-descricaoEvento string
-causasRisco string
-consequenciasRisco string
-idMacroprocesso int
-idObjetivoPDI int
+    idIdentificacao int [pk, increment]
+    idPlanoRisco int
+    idCategoria int
+    descricaoEvento string
+    causasRisco string
+    consequenciasRisco string
+    idMacroprocesso int
+    idObjetivoPDI int
 }
 
 Table AvaliacaoRisco {
-idAvaliacao int [pk, increment]
-idPlanoRisco int
-idEscalaProbabilidade int
-idEscalaImpacto int
-valorRiscoInerente int
-nivelRiscoInerente varchar
-eficaciaControles varchar
-descricaoControles varchar
-valorRiscoResidual int
-nivelRiscoResidual varchar
+    idAvaliacao int [pk, increment]
+    idPlanoRisco int
+    idEscalaProbabilidade int
+    idEscalaImpacto int
+    valorRiscoInerente int
+    nivelRiscoInerente varchar
+    eficaciaControles varchar
+    descricaoControles varchar
+    valorRiscoResidual int
+    nivelRiscoResidual varchar
 }
 
 Table TratamentoRisco {
-idTratamento int [pk, increment]
-idPlanoRisco int
-respostaTratamento varchar
-tipoAcao varchar
-descricaoAcao string
-situacaoTratamento string
-dataInicio date
-dataConclusaoPrevista date
-idUsuarioResponsavel int
-observacoesTratamento string
-resultadosObservados string
-analiseCritica string
+    idTratamento int [pk, increment]
+    idPlanoRisco int
+    respostaTratamento varchar
+    tipoAcao varchar
+    descricaoAcao string
+    situacaoTratamento string
+    dataInicio date
+    dataConclusaoPrevista date
+    idUsuarioResponsavel int
+    observacoesTratamento string
+    resultadosObservados string
+    analiseCritica string
 }
 
 
 Table DesafioPDI {
-idDesafio int [pk, increment]
-numeroDesafio int
-descricaoDesafio string
+    idDesafio int [pk, increment]
+    numeroDesafio int
+    descricaoDesafio string
 }
 
 Table ObjetivoPDI {
-idObjetivo int [pk, increment]
-codigoObjetivo varchar
-descricaoObjetivo string
-idDesafio int
+    idObjetivo int [pk, increment]
+    codigoObjetivo varchar
+    descricaoObjetivo string
+    idDesafio int
 }
 
 Table Macroprocesso {
-idMacroprocesso int [pk, increment]
-nomeMacroprocesso varchar
-idDesafio int
+    idMacroprocesso int [pk, increment]
+    nomeMacroprocesso varchar
+    idDesafio int
 }
 
 
 Table HistoricoAlteracao {
-idHistorico int [pk, increment]
-idPlanoRisco int
-idUsuario int
-campoAlterado varchar
-valorAnterior varchar
-valorNovo varchar
-dataHoraAlteracao datetime
+    idHistorico int [pk, increment]
+    idPlanoRisco int
+    idUsuario int
+    campoAlterado varchar
+    valorAnterior varchar
+    valorNovo varchar
+    dataHoraAlteracao datetime
 }
 
 Table Notificacao {
-idNotificacao int [pk, increment]
-idUsuario int
-idPlanoRisco int
-tipoNotificacao varchar
-mensagemNotificacao string
-lidaNotificacao boolean
-dataHoraNotificacao datetime
+    idNotificacao int [pk, increment]
+    idUsuario int
+    idPlanoRisco int
+    tipoNotificacao varchar
+    mensagemNotificacao string
+    lidaNotificacao boolean
+    dataHoraNotificacao datetime
 }
 
 Table TratamentoParceiro {
-idTratamento int
-idUsuario int
+    idTratamento int
+    idUsuario int
 }
 
 
@@ -319,8 +319,6 @@ Ref: Notificacao.idUsuario > Usuario.idUsuario
 
 Ref: TratamentoParceiro.idTratamento > TratamentoRisco.idTratamento
 Ref: TratamentoParceiro.idUsuario > Usuario.idUsuario
-
-
 </pre>
 </details>
 
