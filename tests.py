@@ -1,6 +1,6 @@
 import pytest
 
-from accounts.models import Perfil
+from accounts.models import Perfil, Usuario
 from accounts.views import _qs_escopo
 from django.contrib.auth import get_user_model
 
