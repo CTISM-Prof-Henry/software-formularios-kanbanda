@@ -1,7 +1,7 @@
 import pytest
 
 from accounts.models import Perfil
-from accounts.views import _filtrar_usuarios
+from accounts.views import _qs_escopo
 from django.contrib.auth import get_user_model
 
 Usuario = get_user_model()
@@ -99,22 +99,33 @@ def test_ler_usuario():
     # cria usuários
     Usuario.objects.create(
         matricula="1",
-        email="u1.br"
+        email="u1@ufsm.br",
+        primeiro_nome="Usuario",
+        sobrenome="Um",
+        perfil=Perfil.SERVIDOR,
+        conta_ativada=True,
     )
 
     Usuario.objects.create(
         matricula="2",
-        email="u2.br"
+        email="u2@ufsm.br",
+        primeiro_nome="Usuario",
+        sobrenome="Dois",
+        perfil=Perfil.SERVIDOR,
+        conta_ativada=True,
     )
 
     # cria admin
     admin = Usuario.objects.create(
         matricula="adm",
-        email="adm.br",
-        perfil=Perfil.ADMIN
+        email="adm@ufsm.br",
+        primeiro_nome="Administrador",
+        sobrenome="Sistema",
+        perfil=Perfil.ADMIN,
+        conta_ativada=True,
     )
 
-    resultado_qs = _filtrar_usuarios(admin)
+    resultado_qs = _qs_escopo(admin)
 
     # admin consegue ver todos
     assert resultado_qs.count() == 3
@@ -123,15 +134,23 @@ def test_ler_usuario():
     # cria usuário comum
     u1 = Usuario.objects.create(
         matricula="10",
-        email="u10.br"
+        email="u10@ufsm.br",
+        primeiro_nome="Usuario",
+        sobrenome="Dez",
+        perfil=Perfil.SERVIDOR,
+        conta_ativada=True,
     )
 
     Usuario.objects.create(
         matricula="20",
-        email="u20.br"
+        email="u20@ufsm.br",
+        primeiro_nome="Usuario",
+        sobrenome="Vinte",
+        perfil=Perfil.SERVIDOR,
+        conta_ativada=True,
     )
 
-    resultado_qs = _filtrar_usuarios(u1)
+    resultado_qs = _qs_escopo(u1)
 
     # usuário comum vê apenas ele
     assert resultado_qs.count() == 1
