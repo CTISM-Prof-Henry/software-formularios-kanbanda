@@ -1,0 +1,19 @@
+{% extends 'base_auth.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="card-gov">
+  <div class="card-gov-header" style="background:#b91c1c;">
+    <h2>{{ titulo }}</h2>
+  </div>
+  <div class="card-gov-body" style="text-align:center; padding:2rem;">
+    <div style="font-size:3rem; margin-bottom:1rem;">🔗</div>
+    <p style="color:#444; margin-bottom:1.5rem;">{{ mensagem }}</p>
+    {% if mostrar_recuperar %}
+    <a href="{% url 'recuperar_senha' %}" class="btn btn-primary">Solicitar Novo Link</a>
+    {% endif %}
+    <div style="margin-top:1rem;">
+      <a href="{% url 'login' %}" class="link-gov" style="font-size:.83rem;">← Voltar ao login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

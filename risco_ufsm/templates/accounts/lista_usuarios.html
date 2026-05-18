@@ -1,0 +1,130 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Usuários{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>Usuários <span class="badge bg-secondary fw-normal">{{ total }}</span></h1>
+    <ol class="breadcrumb mb-0"><li class="breadcrumb-item active">Usuários</li></ol>
+  </div>
+  {% if request.user.pode_criar_usuario %}
+  <a href="{% url 'cadastro_usuario' %}" class="btn btn-primary btn-sm">➕ Novo Usuário</a>
+  {% endif %}
+</div>
+
+<!-- Filtros -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-sm-4">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Buscar por nome, matrícula, e-mail..." value="{{ busca }}">
+      </div>
+      <div class="col-sm-2">
+        <select name="perfil" class="form-select form-select-sm">
+          <option value="">Todos os perfis</option>
+          {% for val, lbl in perfis %}
+          <option value="{{ val }}" {% if filtro_perfil == val %}selected{% endif %}>{{ lbl }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-2">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">Todos os status</option>
+          <option value="ativo" {% if filtro_status == 'ativo' %}selected{% endif %}>Ativos</option>
+          <option value="inativo" {% if filtro_status == 'inativo' %}selected{% endif %}>Inativos</option>
+          <option value="nao_ativado" {% if filtro_status == 'nao_ativado' %}selected{% endif %}>Aguardando ativação</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+        <a href="{% url 'lista_usuarios' %}" class="btn btn-outline-secondary btn-sm">Limpar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabela -->
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover table-sm mb-0 table-gov">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Matrícula</th>
+          <th>E-mail</th>
+          <th>Perfil</th>
+          <th>Setor(es)</th>
+          <th>Status</th>
+          <th>Conta</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr class="{% if not u.ativo %}table-secondary text-muted{% endif %}">
+          <td>
+            <div style="display:flex; align-items:center; gap:.5rem;">
+              <div style="width:30px;height:30px;border-radius:50%;background:#1351B4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:700;flex-shrink:0;overflow:hidden;">
+                {% if u.foto %}<img src="{{ u.foto.url }}" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}{{ u.get_iniciais }}{% endif %}
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:.83rem;">{{ u.get_nome_completo }}</div>
+                {% if u.cargo %}<div style="font-size:.72rem;color:#888;">{{ u.cargo }}</div>{% endif %}
+              </div>
+            </div>
+          </td>
+          <td><code style="font-size:.78rem;">{{ u.matricula }}</code></td>
+          <td style="font-size:.8rem;">{{ u.email }}</td>
+          <td>
+            <span class="badge badge-{% if u.is_admin %}admin{% elif u.is_gestor_unidade %}gu{% elif u.is_gestor_setor %}gs{% else %}serv{% endif %} rounded-pill">
+              {{ u.get_perfil_display }}
+            </span>
+          </td>
+          <td style="font-size:.78rem; max-width:160px;">
+            {% for vs in u.usuario_setores.all %}
+              {% if vs.ativo %}
+                <span class="badge bg-light text-dark border d-inline-block mb-1">{{ vs.setor.sigla|default:vs.setor.nome }}</span>
+              {% endif %}
+            {% empty %}—{% endfor %}
+          </td>
+          <td>
+            {% if u.ativo %}
+              <span class="badge bg-success">Ativo</span>
+            {% else %}
+              <span class="badge bg-danger">Inativo</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.conta_ativada %}
+              <span class="badge bg-success">Ativada</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">Pendente</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1 flex-wrap">
+              {% if request.user.pode_editar_usuario or request.user.is_admin %}
+              <a href="{% url 'editar_usuario' u.pk %}" class="btn btn-outline-primary btn-sm py-0 px-1" style="font-size:.72rem;">Editar</a>
+              {% endif %}
+              {% if request.user.pode_criar_usuario %}
+              <form method="post" action="{% url 'toggle_ativo' u.pk %}" style="display:inline;" onsubmit="return confirm('Confirmar?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm py-0 px-1 {% if u.ativo %}btn-outline-danger{% else %}btn-outline-success{% endif %}" style="font-size:.72rem;">
+                  {% if u.ativo %}Desativar{% else %}Ativar{% endif %}
+                </button>
+              </form>
+              {% if not u.conta_ativada %}
+              <a href="{% url 'reenviar_ativacao' u.pk %}" class="btn btn-outline-warning btn-sm py-0 px-1" style="font-size:.72rem;" onclick="return confirm('Reenviar e-mail de ativação?');">Reenviar</a>
+              {% endif %}
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted py-3">Nenhum usuário encontrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

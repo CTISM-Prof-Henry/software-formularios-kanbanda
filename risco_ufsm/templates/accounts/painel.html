@@ -1,0 +1,135 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Painel{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Painel — {{ usuario.get_perfil_display }}</h1>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item active">Início</li>
+    </ol>
+  </nav>
+</div>
+
+<!-- Banner de boas-vindas -->
+<div class="card mb-3" style="border-left:4px solid #1351B4;">
+  <div class="card-body py-2 px-3 d-flex align-items-center gap-3">
+    <div style="font-size:2rem;">
+      {% if usuario.is_admin %}⚙️{% elif usuario.is_gestor_unidade %}🏛️{% elif usuario.is_gestor_setor %}🗂️{% else %}👤{% endif %}
+    </div>
+    <div>
+      <div style="font-weight:700; font-size:.95rem;">Olá, {{ usuario.primeiro_nome }}!</div>
+      <div style="font-size:.8rem; color:#555;">
+        {% if usuario.is_admin %}
+          Você tem acesso total ao sistema.
+        {% elif usuario.is_gestor_unidade %}
+          Você supervisiona os riscos da sua unidade. 2ª Linha de Defesa.
+        {% elif usuario.is_gestor_setor %}
+          Você gerencia os riscos do seu setor. 1ª Linha de Defesa.
+        {% else %}
+          Você pode visualizar os riscos e registrar observações no seu setor.
+        {% endif %}
+      </div>
+    </div>
+    <div class="ms-auto">
+      <span class="badge badge-{% if usuario.is_admin %}admin{% elif usuario.is_gestor_unidade %}gu{% elif usuario.is_gestor_setor %}gs{% else %}serv{% endif %} rounded-pill px-3 py-2">
+        {{ usuario.get_perfil_display }}
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- KPIs (só para quem gerencia usuários) -->
+{% if usuario.pode_gerenciar_usuarios %}
+<div class="row g-3 mb-3">
+  <div class="col-sm-4">
+    <div class="stat-card">
+      <div class="stat-card-value text-primary">{{ total_usuarios|default:"0" }}</div>
+      <div class="stat-card-label">👥 Usuários no escopo</div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="stat-card">
+      <div class="stat-card-value text-warning">{{ total_nao_ativ|default:"0" }}</div>
+      <div class="stat-card-label">⏳ Aguardando ativação</div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="stat-card">
+      <div class="stat-card-value text-danger">{{ total_inativos|default:"0" }}</div>
+      <div class="stat-card-label">🔴 Contas inativas</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Acesso rápido -->
+<div class="row g-3 mb-3">
+  {% if usuario.pode_gerenciar_usuarios %}
+  <div class="col-sm-6 col-md-4">
+    <a href="{% url 'lista_usuarios' %}" class="card text-decoration-none h-100" style="border-left:4px solid #1351B4;">
+      <div class="card-body">
+        <div class="fw-bold">👥 Usuários</div>
+        <div class="text-muted" style="font-size:.8rem;">Gerenciar usuários do sistema</div>
+      </div>
+    </a>
+  </div>
+  {% endif %}
+  {% if usuario.pode_criar_usuario %}
+  <div class="col-sm-6 col-md-4">
+    <a href="{% url 'cadastro_usuario' %}" class="card text-decoration-none h-100" style="border-left:4px solid #168821;">
+      <div class="card-body">
+        <div class="fw-bold">➕ Novo Usuário</div>
+        <div class="text-muted" style="font-size:.8rem;">Cadastrar e enviar e-mail de ativação</div>
+      </div>
+    </a>
+  </div>
+  {% endif %}
+  <div class="col-sm-6 col-md-4">
+    <a href="{% url 'meu_perfil' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
+      <div class="card-body">
+        <div class="fw-bold">👤 Meu Perfil</div>
+        <div class="text-muted" style="font-size:.8rem;">Dados pessoais e alteração de senha</div>
+      </div>
+    </a>
+  </div>
+  {% if usuario.pode_ver_logs %}
+  <div class="col-sm-6 col-md-4">
+    <a href="{% url 'logs_acesso' %}" class="card text-decoration-none h-100" style="border-left:4px solid #7c3aed;">
+      <div class="card-body">
+        <div class="fw-bold">🛡️ Logs de Acesso</div>
+        <div class="text-muted" style="font-size:.8rem;">Auditoria de autenticações</div>
+      </div>
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Vínculos institucionais -->
+<div class="card">
+  <div class="card-header py-2"><strong style="font-size:.85rem;">📍 Meus Vínculos Institucionais</strong></div>
+  <div class="card-body p-0">
+    {% if setores %}
+    <table class="table table-sm mb-0 table-gov">
+      <thead><tr><th>Unidade</th><th>Setor</th><th>Desde</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for vs in setores %}
+        <tr>
+          <td>{{ vs.setor.unidade }}</td>
+          <td>{{ vs.setor.nome }}</td>
+          <td>{{ vs.data_inicio|date:"d/m/Y" }}</td>
+          <td><span class="badge bg-success">Ativo</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="p-3 text-muted text-center" style="font-size:.85rem;">
+      Nenhum vínculo institucional registrado.
+      {% if usuario.pode_gerenciar_usuarios %}
+        <a href="{% url 'meu_perfil' %}">Editar perfil</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

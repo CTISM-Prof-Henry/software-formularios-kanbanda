@@ -1,0 +1,66 @@
+{% extends 'base_sistema.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ titulo }}</h1>
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'lista_unidades' %}">Unidades</a></li>
+    <li class="breadcrumb-item active">{{ acao }}</li>
+  </ol>
+</div>
+
+<div class="card" style="max-width:560px;">
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Nome da Unidade <span class="text-danger">*</span></label>
+        <input type="text" name="nome" class="form-control {% if form.nome.errors %}is-invalid{% endif %}"
+               value="{{ form.nome.value|default:'' }}"
+               placeholder="Ex: Centro de Tecnologia" required autofocus>
+        {% for e in form.nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="row g-3">
+        <div class="col-sm-5">
+          <label class="form-label fw-semibold">Sigla</label>
+          <input type="text" name="sigla" class="form-control"
+                 value="{{ form.sigla.value|default:'' }}"
+                 placeholder="Ex: CT" maxlength="20">
+          <div class="form-text">Opcional, máx. 20 chars</div>
+        </div>
+        <div class="col-sm-7">
+          <label class="form-label fw-semibold">Tipo <span class="text-danger">*</span></label>
+          <select name="tipo" class="form-select {% if form.tipo.errors %}is-invalid{% endif %}" required>
+            <option value="">— Selecione —</option>
+            {% for val, lbl in form.fields.tipo.choices %}
+            {% if val %}
+            <option value="{{ val }}" {% if form.tipo.value == val %}selected{% endif %}>{{ lbl }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+          {% for e in form.tipo.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <div class="form-check mt-3">
+        <input class="form-check-input" type="checkbox" name="ativo" id="id_ativo"
+               {% if form.ativo.value != False %}checked{% endif %}>
+        <label class="form-check-label" for="id_ativo">Unidade ativa</label>
+      </div>
+
+      <hr class="mt-4">
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">{{ acao }} Unidade</button>
+        <a href="{% url 'lista_unidades' %}" class="btn btn-outline-secondary">Cancelar</a>
+        {% if objeto %}
+        <a href="{% url 'lista_setores' %}?unidade={{ objeto.pk }}" class="btn btn-outline-primary ms-auto">
+          Ver Setores →
+        </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

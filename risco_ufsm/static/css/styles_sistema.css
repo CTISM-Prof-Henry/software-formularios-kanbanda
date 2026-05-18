@@ -1,0 +1,236 @@
+:root {
+    --gov-blue: #1351B4;
+    --gov-dark: #0C326F;
+}
+
+body {
+    background: #f4f6f9;
+    font-size: .9rem;
+}
+
+/* Topbar */
+.topbar {
+    background: var(--gov-dark);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.topbar-brand {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.topbar-logo {
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, .15);
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: .85rem;
+    color: #fff;
+}
+
+.topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.topbar-user {
+    color: rgba(255, 255, 255, .8);
+    font-size: .8rem;
+}
+
+.topbar-user strong {
+    color: #fff;
+    display: block;
+}
+
+.topbar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gov-blue);
+    border: 2px solid rgba(255, 255, 255, .3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: .75rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.topbar-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.topbar-btn {
+    color: rgba(255, 255, 255, .7);
+    text-decoration: none;
+    font-size: .78rem;
+    padding: .3rem .6rem;
+    border-radius: 3px;
+    transition: background .15s;
+}
+
+.topbar-btn:hover {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background: #fff;
+    border-right: 1px solid #dee2e6;
+    min-height: calc(100vh - 56px);
+    padding: 1rem 0;
+    flex-shrink: 0;
+}
+
+.sidebar-section-title {
+    font-size: .65rem;
+    font-weight: 700;
+    color: #aaa;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: .6rem 1.1rem .3rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1.1rem;
+    color: #333;
+    text-decoration: none;
+    font-size: .83rem;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+}
+
+.sidebar-link:hover {
+    background: #f0f4fa;
+    color: var(--gov-blue);
+}
+
+.sidebar-link.active {
+    background: #ebf1fb;
+    color: var(--gov-blue);
+    font-weight: 600;
+    border-left-color: var(--gov-blue);
+}
+
+.sidebar-icon {
+    width: 18px;
+    text-align: center;
+    font-size: .9rem;
+}
+
+/* Layout */
+.app-body {
+    display: flex;
+    min-height: calc(100vh - 56px);
+}
+
+.main-area {
+    flex: 1;
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+/* Page header */
+.page-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: .75rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.page-header h1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a2b4a;
+    margin: 0;
+}
+
+.page-header .breadcrumb {
+    font-size: .78rem;
+    margin: .2rem 0 0;
+}
+
+/* Cards */
+.stat-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 1.1rem 1.25rem;
+}
+
+.stat-card-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-card-label {
+    font-size: .78rem;
+    color: #666;
+    margin-top: .25rem;
+}
+
+/* Badges */
+.badge-admin {
+    background: #e9d7fe;
+    color: #5b21b6;
+}
+
+.badge-gu {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-gs {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-serv {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* Table */
+.table-gov th {
+    background: #f8f9fa;
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    color: #555;
+}
+
+/* Messages */
+.msg-container {
+    position: sticky;
+    top: 56px;
+    z-index: 999;
+}

@@ -1,0 +1,5 @@
+Django>=4.2,<5.0
+psycopg2-binary>=2.9
+Pillow>=10.0
+django-simple-history>=3.4
+python-decouple>=3.8

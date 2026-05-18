@@ -1,0 +1,404 @@
+:root {
+  --gov-blue: #1351B4;
+  --gov-blue-dark: #0C326F;
+  --gov-blue-warm: #155BCB;
+  --gov-green: #168821;
+  --gov-yellow: #FFCD07;
+  --gov-red: #E52207;
+  --gov-gray-1: #F8F9FA;
+  --gov-gray-2: #EDEFF2;
+  --gov-gray-3: #DEE2E6;
+  --gov-gray-5: #888888;
+  --gov-gray-8: #333333;
+  --white: #FFFFFF;
+  --font-main: 'Rawline', 'Raleway', system-ui, -apple-system, sans-serif;
+  --radius: 4px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, .10);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--gov-gray-1);
+  color: var(--gov-gray-8);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Barra do governo ──────────────────── */
+.gov-bar {
+  background: var(--gov-blue-dark);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+.gov-bar-logo {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  text-decoration: none;
+}
+
+.gov-bar-emblem {
+  width: 24px;
+  height: 24px;
+  background: var(--gov-yellow);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .6rem;
+  font-weight: 800;
+  color: var(--gov-blue-dark);
+}
+
+.gov-bar-text {
+  color: rgba(255, 255, 255, .85);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+/* ── Header institucional ──────────────── */
+.inst-header {
+  background: var(--gov-blue);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.inst-header-logo {
+  width: 52px;
+  height: 52px;
+  background: rgba(255, 255, 255, .15);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+  border: 1.5px solid rgba(255, 255, 255, .25);
+  flex-shrink: 0;
+}
+
+.inst-header-text {
+  color: #fff;
+}
+
+.inst-header-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .2px;
+}
+
+.inst-header-sub {
+  font-size: .72rem;
+  color: rgba(255, 255, 255, .65);
+  margin-top: .1rem;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+/* ── Layout central ───────────────────── */
+.auth-layout {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 440px
+}
+
+/* ── Card ──────────────────────────────── */
+.card-gov {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.card-gov-header {
+  background: var(--gov-blue);
+  padding: 1.25rem 1.75rem;
+  color: #fff;
+}
+
+.card-gov-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: .2rem;
+}
+
+.card-gov-header p {
+  font-size: .82rem;
+  color: rgba(255, 255, 255, .72);
+}
+
+.card-gov-body {
+  padding: 1.75rem;
+}
+
+/* ── Formulário ───────────────────────── */
+.form-group {
+  margin-bottom: 1.1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: .35rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-label .req {
+  color: var(--gov-red);
+  margin-left: .1rem;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: .625rem .875rem;
+  font-size: .9rem;
+  font-family: var(--font-main);
+  color: var(--gov-gray-8);
+  background: #fff;
+  border: 1.5px solid var(--gov-gray-3);
+  border-radius: var(--radius);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+  line-height: 1.5;
+}
+
+.form-control:focus {
+  border-color: var(--gov-blue);
+  box-shadow: 0 0 0 3px rgba(19, 81, 180, .18);
+}
+
+.form-control.is-invalid {
+  border-color: var(--gov-red);
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(229, 34, 7, .18);
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: .3rem;
+  font-size: .78rem;
+  color: var(--gov-red);
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+}
+
+.form-hint {
+  font-size: .76rem;
+  color: var(--gov-gray-5);
+  margin-top: .25rem;
+}
+
+/* ── Input com ícone ──────────────────── */
+.input-group {
+  position: relative;
+}
+
+.input-group-icon {
+  position: absolute;
+  left: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gov-gray-5);
+  font-size: .95rem;
+  pointer-events: none;
+}
+
+.input-group .form-control {
+  padding-left: 2.4rem;
+}
+
+/* ── Botões ───────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .65rem 1.25rem;
+  font-family: var(--font-main);
+  font-size: .875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: .1px;
+  transition: background .15s, box-shadow .15s, transform .1s;
+  line-height: 1;
+}
+
+.btn:active {
+  transform: scale(.98);
+}
+
+.btn-primary {
+  background: var(--gov-blue);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--gov-blue-warm);
+  box-shadow: var(--shadow);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gov-blue);
+  border: 1.5px solid var(--gov-blue);
+}
+
+.btn-outline:hover {
+  background: #EBF1FB;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-lg {
+  padding: .8rem 1.5rem;
+  font-size: .95rem;
+}
+
+/* ── Alertas ──────────────────────────── */
+.alert {
+  padding: .85rem 1.1rem;
+  border-radius: var(--radius);
+  font-size: .85rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  border-left: 4px solid;
+}
+
+.alert-danger {
+  background: #FFF2F0;
+  border-color: var(--gov-red);
+  color: #7A1209;
+}
+
+.alert-success {
+  background: #EBF9EE;
+  border-color: var(--gov-green);
+  color: #0C451A;
+}
+
+.alert-warning {
+  background: #FFF8E0;
+  border-color: var(--gov-yellow);
+  color: #5C4500;
+}
+
+.alert-info {
+  background: #EBF1FB;
+  border-color: var(--gov-blue);
+  color: #0C3268;
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  margin-top: .05rem;
+}
+
+/* ── Separador ────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  color: var(--gov-gray-5);
+  font-size: .78rem;
+  margin: 1.25rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gov-gray-3);
+}
+
+/* ── Links ────────────────────────────── */
+a.link-gov {
+  color: var(--gov-blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a.link-gov:hover {
+  text-decoration: underline;
+}
+
+/* ── Footer ───────────────────────────── */
+.gov-footer {
+  background: var(--gov-blue-dark);
+  padding: .85rem 2rem;
+  text-align: center;
+  color: rgba(255, 255, 255, .5);
+  font-size: .72rem;
+}
+
+/* ── Utilitários ──────────────────────── */
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: var(--gov-gray-5);
+}
+
+.text-small {
+  font-size: .8rem;
+}
+
+.mt-1 {
+  margin-top: .5rem;
+}
+
+.mt-2 {
+  margin-top: 1rem;
+}
+
+.mt-3 {
+  margin-top: 1.5rem;
+}
+
+.fw-600 {
+  font-weight: 600;
+}

@@ -1,0 +1,52 @@
+{% extends 'base_auth.html' %}
+{% block title %}Redefinir Senha{% endblock %}
+{% block content %}
+<div class="card-gov">
+  <div class="card-gov-header">
+    <h2>Redefinir Senha</h2>
+    <p>Crie uma nova senha para sua conta</p>
+  </div>
+  <div class="card-gov-body">
+    <div class="alert alert-info"><span class="alert-icon">ℹ</span>
+      Conta: <strong>{{ token.usuario.get_nome_completo }}</strong> ({{ token.usuario.matricula }})
+    </div>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Nova Senha <span class="req">*</span></label>
+        <input type="password" name="nova_senha" id="id_nova_senha"
+               class="form-control {% if form.nova_senha.errors %}is-invalid{% endif %}"
+               placeholder="Mínimo 8 caracteres" required>
+        {% for e in form.nova_senha.errors %}<div class="invalid-feedback">⚠ {{ e }}</div>{% endfor %}
+        <div id="pw-bar" style="height:4px;border-radius:2px;background:#dee2e6;margin-top:.4rem;overflow:hidden;">
+          <div id="pw-fill" style="height:100%;width:0;background:#e52207;transition:width .3s,background .3s;"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar Nova Senha <span class="req">*</span></label>
+        <input type="password" name="confirmar_senha"
+               class="form-control {% if form.confirmar_senha.errors %}is-invalid{% endif %}"
+               placeholder="Repita a nova senha" required>
+        {% for e in form.confirmar_senha.errors %}<div class="invalid-feedback">⚠ {{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-hint" style="margin-bottom:.75rem;">
+        Requisitos: 8+ caracteres, letra maiúscula, minúscula, número e caractere especial.
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Redefinir Senha</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('id_nova_senha').addEventListener('input', function(){
+  var v=this.value, s=0;
+  if(v.length>=8)s+=25; if(v.length>=12)s+=15;
+  if(/[A-Z]/.test(v))s+=20; if(/[a-z]/.test(v))s+=20;
+  if(/\d/.test(v))s+=10; if(/[^A-Za-z0-9]/.test(v))s+=10;
+  var f=document.getElementById('pw-fill');
+  f.style.width=Math.min(s,100)+'%';
+  f.style.background=s<=30?'#e52207':s<=60?'#e67e22':s<=80?'#f1c40f':'#168821';
+});
+</script>
+{% endblock %}

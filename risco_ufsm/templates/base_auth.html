@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ShieldRisk{% endblock %} — Gestão de Riscos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rawline:wght@300;400;500;600;700&family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles_auth.css' %}">
+  <style>
+    {% block extra_style %}{% endblock %}
+  </style>
+</head>
+<body>
+
+  <!-- Barra do governo -->
+  <div class="gov-bar">
+    <div class="gov-bar-logo">
+      <div class="gov-bar-emblem">BR</div>
+      <span class="gov-bar-text">Governo Federal · UFSM</span>
+    </div>
+  </div>
+
+  <!-- Header institucional -->
+  <header class="inst-header">
+    <div class="inst-header-logo">RS</div>
+    <div class="inst-header-text">
+      <div class="inst-header-title">RiskShield</div>
+      <div class="inst-header-sub">Sistema de Gestão de Riscos Institucionais</div>
+    </div>
+  </header>
+
+  <!-- Conteúdo -->
+  <main class="auth-layout">
+    <div class="auth-container">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="gov-footer">
+    ShieldRisk — Sistema de Gestão de Riscos &nbsp;|&nbsp; Universidade Federal de Santa Maria &nbsp;|&nbsp; v1.0.0
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

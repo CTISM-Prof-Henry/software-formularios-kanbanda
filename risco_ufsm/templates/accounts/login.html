@@ -1,0 +1,68 @@
+{% extends 'base_auth.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="card-gov">
+  <div class="card-gov-header">
+    <h2>Acesso ao Sistema</h2>
+    <p>Use sua matrícula ou e-mail institucional</p>
+  </div>
+  <div class="card-gov-body">
+
+    {% if erro %}
+    <div class="alert alert-danger"><span class="alert-icon">⚠</span> {{ erro }}</div>
+    {% endif %}
+
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}"><span class="alert-icon">ℹ</span> {{ msg }}</div>
+    {% endfor %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label" for="id_identificador">
+          Matrícula ou E-mail <span class="req">*</span>
+        </label>
+        <div class="input-group">
+          <span class="input-group-icon">👤</span>
+          <input type="text" id="id_identificador" name="identificador"
+                 class="form-control {% if form.identificador.errors %}is-invalid{% endif %}"
+                 value="{{ form.identificador.value|default:'' }}"
+                 placeholder="Ex: 202312345 ou usuario@ufsm.br"
+                 autocomplete="username" autofocus required>
+        </div>
+        {% for e in form.identificador.errors %}<div class="invalid-feedback">⚠ {{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_senha">
+          Senha <span class="req">*</span>
+        </label>
+        <div class="input-group">
+          <span class="input-group-icon">🔒</span>
+          <input type="password" id="id_senha" name="senha"
+                 class="form-control {% if form.senha.errors %}is-invalid{% endif %}"
+                 placeholder="••••••••"
+                 autocomplete="current-password" required>
+        </div>
+        {% for e in form.senha.errors %}<div class="invalid-feedback">⚠ {{ e }}</div>{% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:.25rem;">
+        Entrar
+      </button>
+    </form>
+
+    <div style="text-align:center; margin-top:1.1rem; font-size:.83rem;">
+      <a href="{% url 'recuperar_senha' %}" class="link-gov">Esqueci minha senha</a>
+    </div>
+
+    <hr style="margin:1.25rem 0; border-color:#dee2e6;">
+    <p style="font-size:.75rem; color:#888; text-align:center; margin:0;">
+      O acesso é restrito a servidores autorizados.<br>
+      Seu cadastro é realizado pelo administrador do sistema.
+    </p>
+  </div>
+</div>
+{% endblock %}

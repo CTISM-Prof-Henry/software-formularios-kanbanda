@@ -1,0 +1,125 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Novo Usuário{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ titulo }}</h1>
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'lista_usuarios' %}">Usuários</a></li>
+    <li class="breadcrumb-item active">Novo</li>
+  </ol>
+</div>
+
+<div class="card" style="max-width:820px;">
+  <div class="card-body">
+    <div class="alert alert-info py-2" style="font-size:.83rem;">
+      ℹ️ O usuário receberá um <strong>e-mail de ativação</strong> e deverá criar sua própria senha.
+      Nenhuma senha é definida aqui.
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger py-2">
+        {% for e in form.non_field_errors %}⚠ {{ e }}<br>{% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Dados pessoais -->
+      <h6 class="fw-bold text-muted mb-2 mt-3" style="font-size:.75rem; text-transform:uppercase; letter-spacing:.5px;">Dados Pessoais</h6>
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label">Primeiro Nome <span class="text-danger">*</span></label>
+          <input type="text" name="primeiro_nome" class="form-control {% if form.primeiro_nome.errors %}is-invalid{% endif %}"
+                 value="{{ form.primeiro_nome.value|default:'' }}" placeholder="Primeiro nome" required>
+          {% for e in form.primeiro_nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Sobrenome <span class="text-danger">*</span></label>
+          <input type="text" name="sobrenome" class="form-control {% if form.sobrenome.errors %}is-invalid{% endif %}"
+                 value="{{ form.sobrenome.value|default:'' }}" placeholder="Sobrenome" required>
+          {% for e in form.sobrenome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Matrícula Institucional <span class="text-danger">*</span></label>
+          <input type="text" name="matricula" class="form-control {% if form.matricula.errors %}is-invalid{% endif %}"
+                 value="{{ form.matricula.value|default:'' }}" placeholder="Ex: 202312345" required>
+          {% for e in form.matricula.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">E-mail Institucional <span class="text-danger">*</span></label>
+          <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                 value="{{ form.email.value|default:'' }}" placeholder="usuario@ufsm.br" required>
+          {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Cargo / Função</label>
+          <input type="text" name="cargo" class="form-control"
+                 value="{{ form.cargo.value|default:'' }}" placeholder="Ex: Técnico Administrativo">
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Telefone Institucional</label>
+          <input type="text" name="telefone" class="form-control"
+                 value="{{ form.telefone.value|default:'' }}" placeholder="(55) 3220-0000">
+        </div>
+      </div>
+
+      <!-- Perfil e acesso -->
+      <h6 class="fw-bold text-muted mb-2 mt-4" style="font-size:.75rem; text-transform:uppercase; letter-spacing:.5px;">Perfil de Acesso</h6>
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label">Perfil <span class="text-danger">*</span></label>
+          <select name="perfil" class="form-select {% if form.perfil.errors %}is-invalid{% endif %}" required>
+            {% for val, lbl in form.fields.perfil.choices %}
+            <option value="{{ val }}" {% if form.perfil.value == val %}selected{% endif %}>{{ lbl }}</option>
+            {% endfor %}
+          </select>
+          {% for e in form.perfil.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-sm-3 d-flex align-items-end pb-1">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="ativo" id="id_ativo"
+                   {% if form.ativo.value != False %}checked{% endif %}>
+            <label class="form-check-label" for="id_ativo">Conta ativa</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setores -->
+      <h6 class="fw-bold text-muted mb-2 mt-4" style="font-size:.75rem; text-transform:uppercase; letter-spacing:.5px;">Setores / Subunidades <span class="text-danger">*</span></h6>
+      {% if form.fields.setores.queryset.count == 0 %}
+        <div class="alert alert-warning py-2" style="font-size:.83rem;">
+          ⚠️ Nenhum setor disponível. O administrador precisa cadastrar unidades e setores primeiro.
+        </div>
+      {% else %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-1">
+          {% for setor in form.fields.setores.queryset %}
+          <div class="col">
+            <div class="form-check border rounded p-2">
+              <input class="form-check-input" type="checkbox" name="setores" value="{{ setor.pk }}"
+                     id="setor_{{ setor.pk }}"
+                     {% if setor.pk|stringformat:'s' in form.setores.value|default:'' %}checked{% endif %}>
+              <label class="form-check-label" for="setor_{{ setor.pk }}" style="font-size:.82rem;">
+                <strong>{{ setor.unidade.sigla|default:setor.unidade.nome }}</strong> › {{ setor.nome }}
+              </label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% for e in form.setores.errors %}<div class="text-danger mt-1" style="font-size:.82rem;">⚠ {{ e }}</div>{% endfor %}
+      {% endif %}
+
+      <!-- Foto -->
+      <h6 class="fw-bold text-muted mb-2 mt-4" style="font-size:.75rem; text-transform:uppercase; letter-spacing:.5px;">Foto (Opcional)</h6>
+      <input type="file" name="foto" class="form-control" accept="image/*" style="max-width:360px;">
+
+      <!-- Ações -->
+      <hr class="mt-4">
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">✔ Cadastrar e Enviar E-mail de Ativação</button>
+        <a href="{% url 'lista_usuarios' %}" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

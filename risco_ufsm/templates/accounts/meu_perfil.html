@@ -1,0 +1,144 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Meu Perfil{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Meu Perfil</h1>
+  <ol class="breadcrumb mb-0"><li class="breadcrumb-item active">Meu Perfil</li></ol>
+</div>
+
+<div class="row g-3" style="max-width:900px;">
+
+  <!-- Card lateral -->
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body p-3">
+        <div style="width:70px;height:70px;border-radius:50%;background:#1351B4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4rem;font-weight:700;margin:0 auto .75rem;overflow:hidden;">
+          {% if usuario.foto %}<img src="{{ usuario.foto.url }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}{{ usuario.get_iniciais }}{% endif %}
+        </div>
+        <div style="font-weight:700;">{{ usuario.get_nome_completo }}</div>
+        <div style="font-size:.78rem;color:#888;">Mat. {{ usuario.matricula }}</div>
+        <div style="font-size:.78rem;color:#888;">{{ usuario.email }}</div>
+        <div class="mt-2">
+          <span class="badge badge-{% if usuario.is_admin %}admin{% elif usuario.is_gestor_unidade %}gu{% elif usuario.is_gestor_setor %}gs{% else %}serv{% endif %} rounded-pill px-2">
+            {{ usuario.get_perfil_display }}
+          </span>
+        </div>
+      </div>
+      <div class="card-footer p-2" style="font-size:.72rem;color:#888;">
+        Membro desde {{ usuario.criado_em|date:"d/m/Y" }}<br>
+        {% if usuario.ultimo_login_ip %}IP: {{ usuario.ultimo_login_ip }}{% endif %}
+      </div>
+    </div>
+
+    <!-- Vínculos -->
+    {% if setores %}
+    <div class="card mt-2">
+      <div class="card-header py-2" style="font-size:.78rem;font-weight:700;">📍 Vínculos</div>
+      <ul class="list-group list-group-flush">
+        {% for vs in setores %}
+        <li class="list-group-item py-1" style="font-size:.78rem;">
+          <div>{{ vs.setor.unidade.sigla|default:vs.setor.unidade.nome }}</div>
+          <div class="text-muted">{{ vs.setor.nome }}</div>
+          <div class="text-muted" style="font-size:.7rem;">desde {{ vs.data_inicio|date:"d/m/Y" }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Formulários -->
+  <div class="col-md-9">
+
+    <!-- Dados pessoais -->
+    <div class="card mb-3">
+      <div class="card-header py-2"><strong style="font-size:.85rem;">👤 Dados Pessoais</strong></div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="acao" value="perfil">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Primeiro Nome</label>
+              <input type="text" name="perfil-primeiro_nome" class="form-control {% if form_perfil.primeiro_nome.errors %}is-invalid{% endif %}"
+                     value="{{ form_perfil.primeiro_nome.value|default:usuario.primeiro_nome }}">
+              {% for e in form_perfil.primeiro_nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Sobrenome</label>
+              <input type="text" name="perfil-sobrenome" class="form-control {% if form_perfil.sobrenome.errors %}is-invalid{% endif %}"
+                     value="{{ form_perfil.sobrenome.value|default:usuario.sobrenome }}">
+              {% for e in form_perfil.sobrenome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Telefone</label>
+              <input type="text" name="perfil-telefone" class="form-control"
+                     value="{{ form_perfil.telefone.value|default:usuario.telefone }}" placeholder="(55) 3220-0000">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Foto de Perfil</label>
+              <input type="file" name="perfil-foto" class="form-control" accept="image/*">
+              {% if usuario.foto %}<div style="font-size:.72rem;color:#888;margin-top:.2rem;">Atual: {{ usuario.foto.name }}</div>{% endif %}
+            </div>
+          </div>
+          <div class="mt-3">
+            <button type="submit" class="btn btn-primary btn-sm">💾 Salvar Dados</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Alterar senha -->
+    <div class="card">
+      <div class="card-header py-2"><strong style="font-size:.85rem;">🔒 Alterar Senha</strong></div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="acao" value="senha">
+          <div class="row g-3">
+            <div class="col-sm-12">
+              <label class="form-label">Senha Atual <span class="text-danger">*</span></label>
+              <input type="password" name="senha-senha_atual" class="form-control {% if form_senha.senha_atual.errors %}is-invalid{% endif %}" required>
+              {% for e in form_senha.senha_atual.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Nova Senha <span class="text-danger">*</span></label>
+              <input type="password" name="senha-nova_senha" id="id_nova_senha_perfil"
+                     class="form-control {% if form_senha.nova_senha.errors %}is-invalid{% endif %}" required>
+              {% for e in form_senha.nova_senha.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+              <div style="height:4px;border-radius:2px;background:#dee2e6;margin-top:.4rem;overflow:hidden;">
+                <div id="pw-fill-perf" style="height:100%;width:0;background:#e52207;transition:width .3s,background .3s;"></div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Confirmar Nova Senha <span class="text-danger">*</span></label>
+              <input type="password" name="senha-confirmar_senha"
+                     class="form-control {% if form_senha.confirmar_senha.errors %}is-invalid{% endif %}" required>
+              {% for e in form_senha.confirmar_senha.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+          </div>
+          <div class="mt-1" style="font-size:.75rem;color:#888;">8+ caracteres, maiúscula, minúscula, número e caractere especial.</div>
+          <div class="mt-3">
+            <button type="submit" class="btn btn-warning btn-sm">🔒 Alterar Senha</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('id_nova_senha_perfil').addEventListener('input', function(){
+  var v=this.value, s=0;
+  if(v.length>=8)s+=25; if(v.length>=12)s+=15;
+  if(/[A-Z]/.test(v))s+=20; if(/[a-z]/.test(v))s+=20;
+  if(/\d/.test(v))s+=10; if(/[^A-Za-z0-9]/.test(v))s+=10;
+  var f=document.getElementById('pw-fill-perf');
+  f.style.width=Math.min(s,100)+'%';
+  f.style.background=s<=30?'#e52207':s<=60?'#e67e22':s<=80?'#f1c40f':'#168821';
+});
+</script>
+{% endblock %}

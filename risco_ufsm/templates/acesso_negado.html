@@ -1,0 +1,13 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Acesso Negado{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Acesso Negado</h1></div>
+<div class="card border-danger" style="max-width:500px;">
+  <div class="card-body text-center p-4">
+    <div style="font-size:3rem;">🚫</div>
+    <h5 class="mt-2 text-danger">Sem Permissão</h5>
+    <p class="text-muted mt-2">{{ mensagem }}</p>
+    <a href="{% url 'painel' %}" class="btn btn-primary btn-sm">Voltar ao Painel</a>
+  </div>
+</div>
+{% endblock %}

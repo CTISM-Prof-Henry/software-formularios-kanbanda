@@ -1,0 +1,111 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Setores{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>
+      Setores / Subunidades
+      {% if unidade_sel %}<span class="text-muted fw-normal">— {{ unidade_sel }}</span>{% endif %}
+      <span class="badge bg-secondary fw-normal">{{ total }}</span>
+    </h1>
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'lista_unidades' %}">Unidades</a></li>
+      <li class="breadcrumb-item active">Setores</li>
+    </ol>
+  </div>
+  <a href="{% url 'novo_setor' %}{% if unidade_sel %}?unidade={{ unidade_sel.pk }}{% endif %}" class="btn btn-primary btn-sm">
+    ➕ Novo Setor
+  </a>
+</div>
+
+<!-- Filtro por unidade -->
+{% if unidades %}
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="d-flex gap-2 align-items-center flex-wrap">
+      <span style="font-size:.83rem; color:#555;">Filtrar por unidade:</span>
+      <a href="{% url 'lista_setores' %}"
+         class="btn btn-sm {% if not unidade_sel %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        Todas
+      </a>
+      {% for u in unidades %}
+      <a href="{% url 'lista_setores' %}?unidade={{ u.pk }}"
+         class="btn btn-sm {% if unidade_sel.pk == u.pk %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        {{ u.sigla|default:u.nome|truncatechars:15 }}
+      </a>
+      {% endfor %}
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{% if not setores %}
+<div class="card">
+  <div class="card-body text-center py-5 text-muted">
+    <div style="font-size:3rem;">🗂️</div>
+    <p class="mt-2">Nenhum setor encontrado.</p>
+    <a href="{% url 'novo_setor' %}" class="btn btn-primary btn-sm">Cadastrar primeiro setor</a>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover table-sm mb-0 table-gov">
+      <thead>
+        <tr>
+          <th>Setor / Subunidade</th>
+          <th>Unidade</th>
+          <th>Sigla</th>
+          <th>Membros ativos</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in setores %}
+        <tr class="{% if not s.ativo %}table-secondary text-muted{% endif %}">
+          <td>
+            <div style="font-weight:600; font-size:.85rem;">{{ s.nome }}</div>
+          </td>
+          <td style="font-size:.82rem;">{{ s.unidade.sigla|default:s.unidade.nome }}</td>
+          <td>
+            {% if s.sigla %}
+            <code style="font-size:.78rem;">{{ s.sigla }}</code>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td>
+            <a href="{% url 'vinculos_setor' s.pk %}" style="font-size:.82rem; text-decoration:none;">
+              👥 {{ s.membros.filter.count }} membro(s)
+            </a>
+          </td>
+          <td>
+            {% if s.ativo %}
+            <span class="badge bg-success">Ativo</span>
+            {% else %}
+            <span class="badge bg-secondary">Inativo</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'vinculos_setor' s.pk %}" class="btn btn-outline-primary btn-sm py-0 px-1" style="font-size:.72rem;">
+                👥 Membros
+              </a>
+              <a href="{% url 'editar_setor' s.pk %}" class="btn btn-outline-secondary btn-sm py-0 px-1" style="font-size:.72rem;">
+                ✏️ Editar
+              </a>
+              <form method="post" action="{% url 'toggle_setor' s.pk %}" style="display:inline;" onsubmit="return confirm('Confirmar?');">
+                {% csrf_token %}
+                <button class="btn btn-sm py-0 px-1 {% if s.ativo %}btn-outline-danger{% else %}btn-outline-success{% endif %}" style="font-size:.72rem;">
+                  {% if s.ativo %}Desativar{% else %}Ativar{% endif %}
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base_auth.html' %}
+{% block title %}Recuperar Senha{% endblock %}
+
+{% block content %}
+<div class="card-gov">
+  <div class="card-gov-header">
+    <h2>Recuperar Senha</h2>
+    <p>Informe sua matrícula ou e-mail para receber um link</p>
+  </div>
+  <div class="card-gov-body">
+
+    {% if enviado %}
+      <div class="alert alert-success">
+        <span class="alert-icon">✅</span>
+        <div>
+          <strong>Solicitação recebida.</strong><br>
+          Se houver uma conta ativa com esse identificador, você receberá um e-mail com o link de redefinição em breve.
+          O link expira em 15 minutos.
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:1rem;">
+        <a href="{% url 'login' %}" class="btn btn-primary">Voltar ao Login</a>
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        Por segurança, a resposta é sempre genérica, independentemente de o usuário existir.
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label" for="id_identificador">
+            Matrícula ou E-mail Institucional <span class="req">*</span>
+          </label>
+          <input type="text" id="id_identificador" name="identificador"
+                 class="form-control {% if form.identificador.errors %}is-invalid{% endif %}"
+                 value="{{ form.identificador.value|default:'' }}"
+                 placeholder="Ex: 202312345 ou usuario@ufsm.br"
+                 autofocus required>
+          {% for e in form.identificador.errors %}<div class="invalid-feedback">⚠ {{ e }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Enviar Link de Recuperação</button>
+      </form>
+
+      <div style="text-align:center; margin-top:1rem; font-size:.83rem;">
+        <a href="{% url 'login' %}" class="link-gov">← Voltar ao login</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

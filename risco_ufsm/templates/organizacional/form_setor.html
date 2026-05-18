@@ -1,0 +1,76 @@
+{% extends 'base_sistema.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{{ titulo }}</h1>
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'lista_unidades' %}">Unidades</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'lista_setores' %}">Setores</a></li>
+    <li class="breadcrumb-item active">{{ acao }}</li>
+  </ol>
+</div>
+
+<div class="card" style="max-width:560px;">
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Unidade Pai <span class="text-danger">*</span></label>
+        <select name="unidade" class="form-select {% if form.unidade.errors %}is-invalid{% endif %}" required>
+          <option value="">— Selecione a unidade —</option>
+          {% for u in form.fields.unidade.queryset %}
+          <option value="{{ u.pk }}"
+            {% if form.unidade.value|stringformat:'s' == u.pk|stringformat:'s' %}selected
+            {% elif objeto and objeto.unidade_id == u.pk %}selected{% endif %}>
+            {% if u.sigla %}{{ u.sigla }} — {% endif %}{{ u.nome }}
+          </option>
+          {% endfor %}
+        </select>
+        {% for e in form.unidade.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+        {% if not form.fields.unidade.queryset.exists %}
+        <div class="alert alert-warning mt-2 py-1" style="font-size:.82rem;">
+          ⚠️ Nenhuma unidade ativa encontrada.
+          {% if request.user.is_admin %}
+          <a href="{% url 'nova_unidade' %}">Criar unidade primeiro →</a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Nome do Setor <span class="text-danger">*</span></label>
+        <input type="text" name="nome" class="form-control {% if form.nome.errors %}is-invalid{% endif %}"
+               value="{{ form.nome.value|default:'' }}"
+               placeholder="Ex: Departamento de Informática" required autofocus>
+        {% for e in form.nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Sigla</label>
+        <input type="text" name="sigla" class="form-control"
+               value="{{ form.sigla.value|default:'' }}"
+               placeholder="Ex: DAINF" maxlength="20">
+        <div class="form-text">Opcional, máx. 20 caracteres</div>
+      </div>
+
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="ativo" id="id_ativo"
+               {% if form.ativo.value != False %}checked{% endif %}>
+        <label class="form-check-label" for="id_ativo">Setor ativo</label>
+      </div>
+
+      <hr class="mt-4">
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">{{ acao }} Setor</button>
+        <a href="{% url 'lista_setores' %}" class="btn btn-outline-secondary">Cancelar</a>
+        {% if objeto %}
+        <a href="{% url 'vinculos_setor' objeto.pk %}" class="btn btn-outline-primary ms-auto">
+          Ver Membros →
+        </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

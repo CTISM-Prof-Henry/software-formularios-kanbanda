@@ -1,0 +1,117 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Membros — {{ setor.nome }}{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>Membros — {{ setor.nome }}</h1>
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'lista_unidades' %}">Unidades</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'lista_setores' %}?unidade={{ setor.unidade_id }}">Setores</a></li>
+      <li class="breadcrumb-item active">{{ setor.sigla|default:setor.nome }}</li>
+    </ol>
+  </div>
+  <a href="{% url 'adicionar_vinculo' setor.pk %}" class="btn btn-primary btn-sm">
+    ➕ Adicionar Membro
+  </a>
+</div>
+
+<!-- Info do setor -->
+<div class="card mb-3" style="border-left:4px solid #1351B4;">
+  <div class="card-body py-2 px-3">
+    <div class="d-flex gap-3 flex-wrap" style="font-size:.83rem;">
+      <span><strong>Unidade:</strong> {{ setor.unidade }}</span>
+      {% if setor.sigla %}<span><strong>Sigla:</strong> <code>{{ setor.sigla }}</code></span>{% endif %}
+      <span><strong>Status:</strong>
+        {% if setor.ativo %}<span class="badge bg-success">Ativo</span>
+        {% else %}<span class="badge bg-secondary">Inativo</span>{% endif %}
+      </span>
+      <span><strong>Membros ativos:</strong> {{ ativos.count }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Membros ativos -->
+<div class="card mb-3">
+  <div class="card-header py-2 d-flex justify-content-between align-items-center">
+    <strong style="font-size:.85rem;">👥 Membros Ativos ({{ ativos.count }})</strong>
+  </div>
+  <div class="card-body p-0">
+    {% if ativos %}
+    <table class="table table-hover table-sm mb-0 table-gov">
+      <thead>
+        <tr><th>Usuário</th><th>Matrícula</th><th>Perfil</th><th>Desde</th><th>Vinculado por</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for v in ativos %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:28px;height:28px;border-radius:50%;background:#1351B4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.65rem;font-weight:700;flex-shrink:0;">
+                {{ v.usuario.get_iniciais }}
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:.83rem;">{{ v.usuario.get_nome_completo }}</div>
+                {% if v.usuario.cargo %}
+                <div class="text-muted" style="font-size:.7rem;">{{ v.usuario.cargo }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+          <td><code style="font-size:.78rem;">{{ v.usuario.matricula }}</code></td>
+          <td>
+            <span class="badge badge-{% if v.usuario.is_admin %}admin{% elif v.usuario.is_gestor_unidade %}gu{% elif v.usuario.is_gestor_setor %}gs{% else %}serv{% endif %}" style="font-size:.68rem;">
+              {{ v.usuario.get_perfil_display }}
+            </span>
+          </td>
+          <td style="font-size:.78rem;">{{ v.data_inicio|date:"d/m/Y" }}</td>
+          <td style="font-size:.75rem; color:#888;">
+            {{ v.criado_por.get_nome_completo|default:"—" }}
+          </td>
+          <td>
+            <form method="post" action="{% url 'encerrar_vinculo' v.pk %}"
+                  onsubmit="return confirm('Encerrar vínculo de {{ v.usuario.primeiro_nome }}?\nO histórico será preservado.');">
+              {% csrf_token %}
+              <button class="btn btn-outline-danger btn-sm py-0 px-1" style="font-size:.7rem;">
+                Encerrar
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="text-center text-muted py-3" style="font-size:.85rem;">
+      Nenhum membro ativo.
+      <a href="{% url 'adicionar_vinculo' setor.pk %}">Adicionar →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Histórico de vínculos encerrados -->
+{% if hist %}
+<div class="card">
+  <div class="card-header py-2">
+    <strong style="font-size:.85rem;">🕐 Histórico de Vínculos Encerrados ({{ hist.count }})</strong>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-sm mb-0 table-gov text-muted">
+      <thead>
+        <tr><th>Usuário</th><th>Matrícula</th><th>Início</th><th>Fim</th></tr>
+      </thead>
+      <tbody>
+        {% for v in hist %}
+        <tr>
+          <td style="font-size:.82rem;">{{ v.usuario.get_nome_completo }}</td>
+          <td><code style="font-size:.75rem;">{{ v.usuario.matricula }}</code></td>
+          <td style="font-size:.78rem;">{{ v.data_inicio|date:"d/m/Y" }}</td>
+          <td style="font-size:.78rem;">{{ v.data_fim|date:"d/m/Y"|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Logs de Acesso{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Logs de Acesso <span class="badge bg-secondary fw-normal">{{ logs|length }}</span></h1>
+  <ol class="breadcrumb mb-0"><li class="breadcrumb-item active">Segurança › Logs</li></ol>
+</div>
+
+<!-- Filtro -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="d-flex gap-2 align-items-end">
+      <div>
+        <select name="tipo" class="form-select form-select-sm">
+          <option value="">Todos os tipos</option>
+          {% for val, lbl in tipos %}
+          <option value="{{ val }}" {% if filtro_tipo == val %}selected{% endif %}>{{ lbl }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+      <a href="{% url 'logs_acesso' %}" class="btn btn-outline-secondary btn-sm">Limpar</a>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover table-sm mb-0 table-gov">
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Tipo</th>
+          <th>Usuário</th>
+          <th>Identificador tentado</th>
+          <th>IP</th>
+          <th>User-Agent</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td style="font-size:.75rem;white-space:nowrap;">{{ log.criado_em|date:"d/m/Y H:i:s" }}</td>
+          <td>
+            <span class="badge rounded-pill
+              {% if log.tipo == 'LOGIN_OK' %}bg-success
+              {% elif log.tipo == 'LOGIN_FALHA' %}bg-danger
+              {% elif log.tipo == 'LOGOUT' %}bg-secondary
+              {% elif log.tipo == 'BLOQUEIO_IP' %}bg-dark
+              {% elif log.tipo == 'ATIVACAO' %}bg-primary
+              {% elif log.tipo == 'RECUPERACAO_SENHA' %}bg-warning text-dark
+              {% else %}bg-light text-dark{% endif %}" style="font-size:.68rem;">
+              {{ log.get_tipo_display }}
+            </span>
+          </td>
+          <td style="font-size:.78rem;">
+            {% if log.usuario %}{{ log.usuario.get_nome_completo }}<br>
+            <span class="text-muted" style="font-size:.7rem;">{{ log.usuario.matricula }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td style="font-size:.78rem;">{{ log.identificador_tentado|default:"—" }}</td>
+          <td><code style="font-size:.75rem;">{{ log.ip|default:"—" }}</code></td>
+          <td style="font-size:.7rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ log.user_agent }}">
+            {{ log.user_agent|truncatechars:50 }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-3">Nenhum log encontrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if logs|length == 500 %}
+  <div class="card-footer text-muted" style="font-size:.75rem;">
+    Exibindo os 500 registros mais recentes.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
