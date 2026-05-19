@@ -195,8 +195,17 @@ def test_crud_deletar_usuario(usuario_comum, usuario_adm, usuario_gestor, usuari
 #TESTES DE ENDPOINTS DE USUÁRIO
 
 @pytest.mark.django_db
-def test_endpoint_lista_usuarios(client, usuario_adm):
-    pass
+def test_endpoint_lista_usuarios(client, usuario_adm, usuario_teste):
+    client.force_login(usuario_adm) #entra como adm para acessar a pag de usuarios
+    
+    url = reverse("lista_usuarios") #gera a url para acessar a lista
+    response = client.get(url) #requisição get
+
+    assert response.status_code == 200 #verifica se a resposta foi bem sucedida(200)
+    assert "usuarios" in response.context #verifica se usuarios está na resposta
+    
+    usuarios_na_tela = response.context["usuarios"] #pega os usuarios que retornou
+    assert usuario_teste in usuarios_na_tela #verifica se o usuario teste esta na lista
 
 @pytest.mark.django_db
 def test_endpoint_cadastro_usuario(client, usuario_adm):
