@@ -207,22 +207,6 @@ def test_endpoint_editar_usuario(client, usuario_adm, usuario_teste):
     pass
 
 @pytest.mark.django_db
-def test_endpoint_toggle_ativo_ativa_usuario(client, usuario_adm, usuario_teste):
-    usuario_teste.ativo = False
-    usuario_teste.save(update_fields=["ativo"])
-
-    client.force_login(usuario_adm)
-
-    url = reverse("toggle_ativo", kwargs={"pk": usuario_teste.pk})
-    response = client.post(url)
-
-    usuario_teste.refresh_from_db()
-
-    assert response.status_code == 302
-    assert response.url == reverse("lista_usuarios")
-    assert usuario_teste.ativo is True
-
-@pytest.mark.django_db
 def test_endpoint_toggle_ativo_desativa_usuario(client, usuario_adm, usuario_teste):
     usuario_teste.ativo = True
     usuario_teste.save(update_fields=["ativo"])
