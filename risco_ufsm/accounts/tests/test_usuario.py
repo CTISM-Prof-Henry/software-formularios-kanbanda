@@ -207,7 +207,7 @@ def test_endpoint_editar_usuario(client, usuario_adm, usuario_teste):
     pass
 
 @pytest.mark.django_db
-def test_endpoint_toggle_ativo_desativa_usuario(client, usuario_adm, usuario_teste):
+def test_endpoint_desativa_usuario(client, usuario_adm, usuario_teste):
     usuario_teste.ativo = True
     usuario_teste.save(update_fields=["ativo"])
 
