@@ -1,6 +1,4 @@
 """
-python manage.py criar_admin_inicial
-
 Cria o primeiro usuário Administrador do sistema de forma interativa.
 Usado na configuração inicial do ambiente.
 """

@@ -59,11 +59,9 @@
         </div>
         <div class="col-sm-6">
           <label class="form-label">Telefone Institucional</label>
-          <input type="text" name="telefone" class="form-control"
-                 value="{{ form.telefone.value|default:'' }}" placeholder="(55) 3220-0000">
+          {{ form.telefone }}
         </div>
       </div>
-
       <!-- Perfil e acesso -->
       <h6 class="fw-bold text-muted mb-2 mt-4" style="font-size:.75rem; text-transform:uppercase; letter-spacing:.5px;">Perfil de Acesso</h6>
       <div class="row g-3">
@@ -122,4 +120,8 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ form.media }}
 {% endblock %}

@@ -69,30 +69,35 @@
             <div class="col-sm-6">
               <label class="form-label">Primeiro Nome <span class="text-danger">*</span></label>
               <input type="text" name="primeiro_nome" class="form-control {% if form.primeiro_nome.errors %}is-invalid{% endif %}"
-                     value="{{ form.primeiro_nome.value|default:alvo.primeiro_nome }}" required>
+                     value="{{ form.primeiro_nome.value|default:alvo.primeiro_nome }}" required
+                     {% if form.fields.primeiro_nome.disabled %}disabled{% endif %}>
               {% for e in form.primeiro_nome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
             </div>
             <div class="col-sm-6">
               <label class="form-label">Sobrenome <span class="text-danger">*</span></label>
               <input type="text" name="sobrenome" class="form-control {% if form.sobrenome.errors %}is-invalid{% endif %}"
-                     value="{{ form.sobrenome.value|default:alvo.sobrenome }}" required>
+                     value="{{ form.sobrenome.value|default:alvo.sobrenome }}" required
+                     {% if form.fields.sobrenome.disabled %}disabled{% endif %}>
               {% for e in form.sobrenome.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
             </div>
             <div class="col-sm-6">
               <label class="form-label">E-mail <span class="text-danger">*</span></label>
               <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}"
-                     value="{{ form.email.value|default:alvo.email }}" required>
+                     value="{{ form.email.value|default:alvo.email }}" required
+                     {% if form.fields.email.disabled %}disabled{% endif %}>
               {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
             </div>
             <div class="col-sm-6">
               <label class="form-label">Cargo / Função</label>
               <input type="text" name="cargo" class="form-control"
-                     value="{{ form.cargo.value|default:alvo.cargo }}">
+                     value="{{ form.cargo.value|default:alvo.cargo }}"
+                     {% if form.fields.cargo.disabled %}disabled{% endif %}>
             </div>
             <div class="col-sm-6">
               <label class="form-label">Telefone</label>
               <input type="text" name="telefone" class="form-control"
-                     value="{{ form.telefone.value|default:alvo.telefone }}">
+                     value="{{ form.telefone.value|default:alvo.telefone }}"
+                     {% if form.fields.telefone.disabled %}disabled{% endif %}>
             </div>
             <div class="col-sm-6">
               <label class="form-label">Perfil</label>
@@ -105,7 +110,8 @@
             </div>
             <div class="col-sm-6">
               <label class="form-label">Foto</label>
-              <input type="file" name="foto" class="form-control" accept="image/*">
+              <input type="file" name="foto" class="form-control" accept="image/*"
+                     {% if form.fields.foto.disabled %}disabled{% endif %}>
               {% if alvo.foto %}<div style="font-size:.75rem; color:#888; margin-top:.25rem;">Atual: {{ alvo.foto.name }}</div>{% endif %}
             </div>
             <div class="col-sm-6 d-flex align-items-end pb-1">
@@ -116,6 +122,28 @@
                 <label class="form-check-label" for="id_ativo_edit">Conta ativa</label>
               </div>
             </div>
+          </div>
+
+          <hr class="mt-3">
+          <div>
+            <label class="form-label fw-semibold">Remanejamento de setor</label>
+            {% if form.fields.setores.queryset.count == 0 %}
+            <div class="alert alert-warning py-2 mb-0" style="font-size:.85rem;">
+              Nenhum setor disponível para o seu perfil.
+            </div>
+            {% else %}
+            <div class="row g-2">
+              {% for checkbox in form.setores %}
+              <div class="col-sm-6">
+                <label class="border rounded p-2 w-100" style="font-size:.82rem;">
+                  {{ checkbox.tag }}
+                  <span class="ms-1">{{ checkbox.choice_label }}</span>
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            {% for e in form.setores.errors %}<div class="text-danger mt-1" style="font-size:.82rem;">{{ e }}</div>{% endfor %}
           </div>
 
           <hr class="mt-3">

@@ -102,8 +102,8 @@
             {% endif %}
           </td>
           <td>
-            <div class="d-flex gap-1 flex-wrap">
-              {% if request.user.pode_editar_usuario or request.user.is_admin %}
+            <div class="d-flex gap-1 flex-wrap" >
+              {% if u.pode_editar_pelo_usuario_logado %}
               <a href="{% url 'editar_usuario' u.pk %}" class="btn btn-outline-primary btn-sm py-0 px-1" style="font-size:.72rem;">Editar</a>
               {% endif %}
               {% if request.user.pode_criar_usuario %}

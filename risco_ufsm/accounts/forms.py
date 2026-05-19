@@ -1,14 +1,13 @@
 """
-accounts/forms.py
-
 Formulários do módulo de autenticação.
 Sem cadastro público — apenas Admin/Gestor criam usuários.
 """
-import re
+from input_mask.widgets import InputMask
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from organizacional.models import Setor
 
 from .models import Perfil, TokenAtivacao, TokenRecuperacaoSenha
 
@@ -115,7 +114,6 @@ class AtivacaoContaForm(RedefinirSenhaForm):
         }),
     )
 
-
 # Cadastro de usuário (somente Admin / Gestor) ──────────────────────────────
 
 class CadastroUsuarioForm(forms.ModelForm):
@@ -155,7 +153,7 @@ class CadastroUsuarioForm(forms.ModelForm):
                 'class': 'form-control', 'placeholder': 'Cargo ou função institucional',
             }),
             'telefone': forms.TextInput(attrs={
-                'class': 'form-control', 'placeholder': '(55) 3220-0000',
+                'class': 'form-control', 'placeholder': '(99) 99999-9999', 
             }),
             'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -220,6 +218,14 @@ class EditarUsuarioForm(forms.ModelForm):
     """
     Edição completa (Admin / Gestor Unidade) ou básica (Gestor Setor).
     """
+    setores = forms.ModelMultipleChoiceField(
+        queryset=Setor.objects.none(),
+        label='Setores / Subunidades',
+        required=True,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        help_text='Selecione os setores ativos do usuário.',
+    )
+
     class Meta:
         model = Usuario
         fields = [
@@ -236,21 +242,34 @@ class EditarUsuarioForm(forms.ModelForm):
             'ativo':         forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
-    def __init__(self, *args, usuario_logado=None, **kwargs):
+    def __init__(self, *args, usuario_logado=None, queryset_setores=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.usuario_logado = usuario_logado
+        if queryset_setores is not None:
+            self.fields['setores'].queryset = queryset_setores
+        if self.instance.pk:
+            self.fields['setores'].initial = self.instance.usuario_setores.filter(
+                ativo=True,
+                setor__in=self.fields['setores'].queryset,
+            ).values_list('setor_id', flat=True)
 
-        # Gestor de Setor tem edição limitada
+        # Gestor de Setor só pode remanejar usuários entre seus setores.
         if usuario_logado and usuario_logado.perfil == Perfil.GESTOR_SETOR:
-            readonly = ['perfil', 'ativo']
+            readonly = [
+                'primeiro_nome', 'sobrenome', 'email',
+                'perfil', 'cargo', 'telefone', 'foto', 'ativo',
+            ]
             for campo in readonly:
                 self.fields[campo].disabled = True
 
         # Gestor de Unidade não pode alterar perfil para Admin
         if usuario_logado and usuario_logado.perfil == Perfil.GESTOR_UNIDADE:
-            self.fields['perfil'].choices = [
-                (v, l) for v, l in Perfil.choices if v != Perfil.ADMIN
-            ]
+            if self.instance.pk and self.instance.perfil == Perfil.ADMIN:
+                self.fields['perfil'].disabled = True
+            else:
+                self.fields['perfil'].choices = [
+                    (v, l) for v, l in Perfil.choices if v != Perfil.ADMIN
+                ]
 
 
 # Edição de perfil próprio ──────────────────────────────────────────────────

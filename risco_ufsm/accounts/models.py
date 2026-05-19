@@ -1,7 +1,6 @@
 """
 accounts/models.py
 
-Modelos de autenticação do RS·UFSM.
 Implementa soft-delete, tokens de ativação/recuperação e log de acessos.
 Nenhum registro é apagado fisicamente.
 """
@@ -32,9 +31,6 @@ class Perfil(models.TextChoices):
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     """
-    Model de usuário institucional.
-
-    Segue boas práticas de sistemas governamentais federais:
     - Login por matrícula OU e-mail
     - Conta ativada via link com token (sem cadastro público)
     - Soft delete (deleted_at) — nada é apagado fisicamente
@@ -143,7 +139,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     @property
     def pode_alterar_perfil(self):
-        """Admin pode alterar qualquer perfil; Gestor Unidade só G. Setor e Servidor."""
+        """Admin e g. Unidade podem alterar qualquer perfil; Gestor setor só pode alterar servidores do mesmo setor"""
         return self.perfil in (Perfil.ADMIN, Perfil.GESTOR_UNIDADE)
 
     @property
@@ -155,11 +151,9 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         if self.perfil == Perfil.ADMIN:
             return True
         if self.perfil == Perfil.GESTOR_UNIDADE:
-            # Não pode alterar admins
             if alvo.perfil == Perfil.ADMIN:
                 return False
-            # Só usuários da mesma unidade
-            return self._mesma_unidade(alvo)
+            return True
         if self.perfil == Perfil.GESTOR_SETOR:
             # Apenas dados básicos do mesmo setor, sem criar/promover
             return self._mesmo_setor(alvo)
@@ -329,7 +323,7 @@ class LogAcesso(models.Model):
     )
     ip                = models.GenericIPAddressField('Endereço IP', null=True, blank=True)
     user_agent        = models.TextField('User-Agent', blank=True)
-    detalhes          = models.JSONField('Detalhes', default=dict, blank=True)
+    detalhes          = models.TextField('Detalhes', blank=True)
     criado_em         = models.DateTimeField('Data/Hora', auto_now_add=True, db_index=True)
 
     class Meta:

@@ -6,4 +6,4 @@ class AccountsConfig(AppConfig):
     verbose_name = 'Autenticação e Usuários'
 
     def ready(self):
-        import accounts.signals  # noqa: F401
+        import accounts.signals  #NOQA: F401 - Importa os signals para registrar os handlers de login/logout.

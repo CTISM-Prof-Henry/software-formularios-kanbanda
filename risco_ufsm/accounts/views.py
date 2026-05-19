@@ -190,10 +190,16 @@ def view_lista_usuarios(request):
     elif status == 'nao_ativado':
         qs = qs.filter(conta_ativada=False, ativo=True)
 
+    usuarios = list(
+        qs.select_related('criado_por')
+          .prefetch_related('usuario_setores__setor__unidade')
+    )
+    for alvo in usuarios:
+        alvo.pode_editar_pelo_usuario_logado = u.pode_editar_usuario(alvo)
+
     return render(request, 'accounts/lista_usuarios.html', {
-        'usuarios': qs.select_related('criado_por')
-                      .prefetch_related('usuario_setores__setor__unidade'),
-        'total': qs.count(),
+        'usuarios': usuarios,
+        'total': len(usuarios),
         'perfis': Perfil.choices,
         'busca': busca, 'filtro_perfil': perfil, 'filtro_status': status,
     })
@@ -234,20 +240,29 @@ def view_cadastro_usuario(request):
 def view_editar_usuario(request, pk):
     u    = request.user
     alvo = get_object_or_404(Usuario, pk=pk)
-    if not u.is_admin and not u.pode_editar_usuario(alvo):
+    if not u.pode_editar_usuario(alvo):
         messages.error(request, 'Sem permissão para editar este usuário.')
         return redirect('lista_usuarios')
+    setores_qs = _qs_setores(u)
     form = EditarUsuarioForm(
         request.POST or None, request.FILES or None,
-        instance=alvo, usuario_logado=u,
+        instance=alvo, usuario_logado=u, queryset_setores=setores_qs,
     )
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        with transaction.atomic():
+            form.save()
+            _atualizar_setores_usuario(
+                usuario=alvo,
+                setores_selecionados=form.cleaned_data['setores'],
+                usuario_logado=u,
+                setores_gerenciaveis=setores_qs,
+            )
         messages.success(request, f'Usuário {alvo.get_nome_completo()} atualizado.')
         return redirect('lista_usuarios')
     return render(request, 'accounts/editar_usuario.html', {
         'form': form, 'alvo': alvo,
         'setores': alvo.get_setores_ativos(),
+        'setores_disponiveis': setores_qs,
         'titulo': f'Editar: {alvo.get_nome_completo()}',
     })
 
@@ -325,9 +340,7 @@ def _qs_escopo(usuario):
     if usuario.is_admin:
         return qs
     if usuario.is_gestor_unidade:
-        unid_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor__unidade_id', flat=True)
-        set_ids  = Setor.objects.filter(unidade_id__in=unid_ids).values_list('id', flat=True)
-        return qs.filter(usuario_setores__setor_id__in=set_ids).distinct()
+        return qs
     if usuario.is_gestor_setor:
         set_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor_id', flat=True)
         return qs.filter(usuario_setores__setor_id__in=set_ids).distinct()
@@ -335,9 +348,35 @@ def _qs_escopo(usuario):
 
 
 def _qs_setores(usuario):
-    if usuario.is_admin:
+    if usuario.is_admin or usuario.is_gestor_unidade:
         return Setor.objects.filter(ativo=True).select_related('unidade')
-    if usuario.is_gestor_unidade:
-        unid_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor__unidade_id', flat=True)
-        return Setor.objects.filter(unidade_id__in=unid_ids, ativo=True).select_related('unidade')
+    if usuario.is_gestor_setor:
+        set_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor_id', flat=True)
+        return Setor.objects.filter(id__in=set_ids, ativo=True).select_related('unidade')
     return Setor.objects.none()
+
+
+def _atualizar_setores_usuario(usuario, setores_selecionados, usuario_logado, setores_gerenciaveis):
+    ids_gerenciaveis = set(setores_gerenciaveis.values_list('id', flat=True))
+    ids_selecionados = {setor.id for setor in setores_selecionados}
+    ids_invalidos = ids_selecionados - ids_gerenciaveis
+    if ids_invalidos:
+        raise PermissionError('Setor fora do escopo do usuário logado.')
+
+    vinculos_ativos = usuario.usuario_setores.filter(
+        ativo=True,
+        setor_id__in=ids_gerenciaveis,
+    )
+    ids_atuais = set(vinculos_ativos.values_list('setor_id', flat=True))
+
+    for vinculo in vinculos_ativos.exclude(setor_id__in=ids_selecionados):
+        vinculo.encerrar()
+
+    for setor in setores_selecionados:
+        if setor.id not in ids_atuais:
+            UsuarioSetor.objects.create(
+                usuario=usuario,
+                setor=setor,
+                ativo=True,
+                criado_por=usuario_logado,
+            )
