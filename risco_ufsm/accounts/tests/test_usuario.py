@@ -6,10 +6,8 @@ from django.contrib.auth import get_user_model
 
 Usuario = get_user_model()
 
-
-@pytest.mark.django_db
-def test_criar_usuario():
-    # usuário comum
+@pytest.fixture()
+def usuario_comum():
     usuario_comum = Usuario.objects.create_user(
         email="usuario@email.com",
         password="12345",
@@ -20,6 +18,10 @@ def test_criar_usuario():
         conta_ativada=True,
     )
 
+    return usuario_comum
+
+@pytest.fixture()
+def usuario_adm():
     # administrador
     admin = Usuario.objects.create_user(
         email="admin@email.com",
@@ -31,6 +33,10 @@ def test_criar_usuario():
         conta_ativada=True,
     )
 
+    return admin
+
+@pytest.fixture()
+def usuario_gestor():
     # gestor de unidade
     gestor_unidade = Usuario.objects.create_user(
         email="gestor@email.com",
@@ -42,9 +48,29 @@ def test_criar_usuario():
         conta_ativada=True,
     )
 
+    return gestor_unidade
+
+@pytest.fixture()
+def usuario_teste():
+    # usuario de teste
+    usuario_teste = Usuario.objects.create_user(
+            email="teste@email.com",
+            password="12345",
+            matricula="000000",
+            primeiro_nome="Teste",
+            sobrenome="Usuario",
+            perfil=Perfil.SERVIDOR,
+            conta_ativada=True,
+        )
+
+    return usuario_teste
+
+
+@pytest.mark.django_db
+def test_criar_usuario():
     # usuário comum não pode cadastrar
     pode_cadastrar_usuario_comum = (
-        usuario_comum.perfil in (
+        usuario_comum().perfil in (
             Perfil.ADMIN,
             Perfil.GESTOR_UNIDADE,
         )
@@ -54,7 +80,7 @@ def test_criar_usuario():
 
     # admin pode cadastrar
     pode_cadastrar_admin = (
-        admin.perfil in (
+        usuario_adm.perfil in (
             Perfil.ADMIN,
             Perfil.GESTOR_UNIDADE,
         )
@@ -64,7 +90,7 @@ def test_criar_usuario():
 
     # gestor unidade pode cadastrar
     pode_cadastrar_gestor = (
-        gestor_unidade.perfil in (
+        usuario_gestor().perfil in (
             Perfil.ADMIN,
             Perfil.GESTOR_UNIDADE,
         )
@@ -115,21 +141,11 @@ def test_ler_usuario():
         conta_ativada=True,
     )
 
-    # cria admin
-    admin = Usuario.objects.create(
-        matricula="adm",
-        email="adm@ufsm.br",
-        primeiro_nome="Administrador",
-        sobrenome="Sistema",
-        perfil=Perfil.ADMIN,
-        conta_ativada=True,
-    )
-
-    resultado_qs = _qs_escopo(admin)
+    resultado_qs = _qs_escopo(usuario_adm())
 
     # admin consegue ver todos
     assert resultado_qs.count() == 3
-    assert admin in resultado_qs
+    assert usuario_adm() in resultado_qs
 
     # cria usuário comum
     u1 = Usuario.objects.create(
@@ -159,28 +175,6 @@ def test_ler_usuario():
 
 @pytest.mark.django_db
 def test_permissao_para_editar_usuario():
-    # usuário comum
-    usuario_comum = Usuario.objects.create_user(
-        email="usuario@email.com",
-        password="123456",
-        matricula="2024002",
-        primeiro_nome="João",
-        sobrenome="Silva",
-        perfil=Perfil.SERVIDOR,
-        conta_ativada=True,
-    )
-
-    # administrador
-    admin = Usuario.objects.create_user(
-        email="admin@email.com",
-        password="123456",
-        matricula="999999",
-        primeiro_nome="Administrador",
-        sobrenome="Sistema",
-        perfil=Perfil.ADMIN,
-        conta_ativada=True,
-    )
-
     # usuário que será editado
     usuario_alvo = Usuario.objects.create_user(
         email="carlos.oliveira@email.com",
@@ -194,14 +188,14 @@ def test_permissao_para_editar_usuario():
 
     # usuário comum NÃO pode editar
     pode_editar_usuario_comum = (
-        usuario_comum.perfil == Perfil.ADMIN
+        usuario_comum().perfil == Perfil.ADMIN
     )
 
     assert pode_editar_usuario_comum is False
 
     # admin PODE editar
     pode_editar_admin = (
-        admin.perfil == Perfil.ADMIN
+        usuario_adm().perfil == Perfil.ADMIN
     )
 
     assert pode_editar_admin is True
@@ -232,36 +226,6 @@ def test_permissao_para_editar_usuario():
 
 @pytest.mark.django_db
 def test_deletar_usuario():
-    usuario_comum = Usuario.objects.create_user(
-        email="usuario@email.com",
-        password="Senha@123",
-        matricula="2024002",
-        primeiro_nome="Joao",
-        sobrenome="Silva",
-        perfil=Perfil.SERVIDOR,
-        conta_ativada=True,
-    )
-
-    admin = Usuario.objects.create_user(
-        email="admin@email.com",
-        password="Senha@123",
-        matricula="999999",
-        primeiro_nome="Administrador",
-        sobrenome="Sistema",
-        perfil=Perfil.ADMIN,
-        conta_ativada=True,
-    )
-
-    gestor_unidade = Usuario.objects.create_user(
-        email="gestor@email.com",
-        password="Senha@123",
-        matricula="888888",
-        primeiro_nome="Gestor",
-        sobrenome="Unidade",
-        perfil=Perfil.GESTOR_UNIDADE,
-        conta_ativada=True,
-    )
-
     usuario_alvo = Usuario.objects.create_user(
         email="pedro@email.com",
         password="Senha@123",
@@ -277,13 +241,13 @@ def test_deletar_usuario():
         Perfil.GESTOR_UNIDADE,
     )
 
-    pode_deletar_usuario_comum = usuario_comum.perfil in perfis_com_permissao
+    pode_deletar_usuario_comum = usuario_comum().perfil in perfis_com_permissao
     assert pode_deletar_usuario_comum is False
 
-    pode_deletar_admin = admin.perfil in perfis_com_permissao
+    pode_deletar_admin = usuario_adm().perfil in perfis_com_permissao
     assert pode_deletar_admin is True
 
-    pode_deletar_gestor_unidade = gestor_unidade.perfil in perfis_com_permissao
+    pode_deletar_gestor_unidade = usuario_gestor().perfil in perfis_com_permissao
     assert pode_deletar_gestor_unidade is True
 
     if pode_deletar_admin:
