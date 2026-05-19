@@ -60,6 +60,13 @@ def usuario_teste():
         conta_ativada=True,
     )
 
+@pytest.fixture()
+def setor_teste():
+    from organizacional.models import Unidade, Setor
+    unidade = Unidade.objects.create(nome="Unidade Teste", sigla="UT", tipo="ORGAO")
+    return Setor.objects.create(unidade=unidade, nome="Setor Teste", sigla="ST")
+
+
 #TESTES DE CRUD USUÁRIO
 
 @pytest.mark.django_db
@@ -212,8 +219,28 @@ def test_endpoint_cadastro_usuario(client, usuario_adm):
     pass
 
 @pytest.mark.django_db
-def test_endpoint_editar_usuario(client, usuario_adm, usuario_teste):
-    pass
+def test_endpoint_editar_usuario(client, usuario_adm, usuario_teste, setor_teste):
+    client.force_login(usuario_adm)
+
+    url = reverse("editar_usuario", kwargs={"pk": usuario_teste.pk})
+
+    dados_form = {
+        "primeiro_nome": "Carlos Eduardo",
+        "sobrenome": "Oliveira Souza",
+        "email": "carlos.eduardo@email.com",
+        "perfil": Perfil.SERVIDOR,
+        "setores": [setor_teste.pk],
+    }
+
+    response = client.post(url, data=dados_form)
+
+    usuario_teste.refresh_from_db()
+
+    assert response.status_code == 302
+    assert response.url == reverse("lista_usuarios")
+    assert usuario_teste.primeiro_nome == "Carlos Eduardo"
+    assert usuario_teste.sobrenome == "Oliveira Souza"
+    assert usuario_teste.email == "carlos.eduardo@email.com"
 
 @pytest.mark.django_db
 def test_endpoint_desativa_usuario(client, usuario_adm, usuario_teste):
