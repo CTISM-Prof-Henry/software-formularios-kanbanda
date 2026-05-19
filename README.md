@@ -16,7 +16,7 @@ Set-ExecutionPolicy Unrestricted -Scope Process
 . venv/Scripts/Activate.ps1
 
 # Instalar dependências
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # Migrations
 python manage.py migrate
