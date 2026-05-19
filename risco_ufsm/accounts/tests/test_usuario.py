@@ -1,14 +1,17 @@
 import pytest
 
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+
 from ..models import Perfil
 from ..views import _qs_escopo
-from django.contrib.auth import get_user_model
 
 Usuario = get_user_model()
 
+
 @pytest.fixture()
 def usuario_comum():
-    usuario_comum = Usuario.objects.create_user(
+    return Usuario.objects.create_user(
         email="usuario@email.com",
         password="12345",
         matricula="111111",
@@ -18,12 +21,10 @@ def usuario_comum():
         conta_ativada=True,
     )
 
-    return usuario_comum
 
 @pytest.fixture()
 def usuario_adm():
-    # administrador
-    admin = Usuario.objects.create_user(
+    return Usuario.objects.create_user(
         email="admin@email.com",
         password="12345",
         matricula="999999",
@@ -33,12 +34,10 @@ def usuario_adm():
         conta_ativada=True,
     )
 
-    return admin
 
 @pytest.fixture()
 def usuario_gestor():
-    # gestor de unidade
-    gestor_unidade = Usuario.objects.create_user(
+    return Usuario.objects.create_user(
         email="gestor@email.com",
         password="12345",
         matricula="888888",
@@ -48,171 +47,116 @@ def usuario_gestor():
         conta_ativada=True,
     )
 
-    return gestor_unidade
 
 @pytest.fixture()
 def usuario_teste():
-    # usuario de teste
-    usuario_teste = Usuario.objects.create_user(
-            email="teste@email.com",
-            password="12345",
-            matricula="000000",
-            primeiro_nome="Teste",
-            sobrenome="Usuario",
-            perfil=Perfil.SERVIDOR,
-            conta_ativada=True,
-        )
+    return Usuario.objects.create_user(
+        email="teste@email.com",
+        password="12345",
+        matricula="000000",
+        primeiro_nome="Teste",
+        sobrenome="Usuario",
+        perfil=Perfil.SERVIDOR,
+        conta_ativada=True,
+    )
 
-    return usuario_teste
-
+#TESTES DE CRUD USUÁRIO
 
 @pytest.mark.django_db
-def test_criar_usuario():
-    # usuário comum não pode cadastrar
-    pode_cadastrar_usuario_comum = (
-        usuario_comum().perfil in (
-            Perfil.ADMIN,
-            Perfil.GESTOR_UNIDADE,
-        )
+def test_crud_criar_usuario(usuario_comum, usuario_adm, usuario_gestor):
+    pode_cadastrar_usuario_comum = usuario_comum.perfil in (
+        Perfil.ADMIN,
+        Perfil.GESTOR_UNIDADE,
     )
 
     assert pode_cadastrar_usuario_comum is False
 
-    # admin pode cadastrar
-    pode_cadastrar_admin = (
-        usuario_adm.perfil in (
-            Perfil.ADMIN,
-            Perfil.GESTOR_UNIDADE,
-        )
+    pode_cadastrar_admin = usuario_adm.perfil in (
+        Perfil.ADMIN,
+        Perfil.GESTOR_UNIDADE,
     )
 
     assert pode_cadastrar_admin is True
 
-    # gestor unidade pode cadastrar
-    pode_cadastrar_gestor = (
-        usuario_gestor().perfil in (
-            Perfil.ADMIN,
-            Perfil.GESTOR_UNIDADE,
-        )
+    pode_cadastrar_gestor = usuario_gestor.perfil in (
+        Perfil.ADMIN,
+        Perfil.GESTOR_UNIDADE,
     )
 
     assert pode_cadastrar_gestor is True
 
-    # cadastro realizado pelo admin
     if pode_cadastrar_admin:
-        usuario_teste = Usuario.objects.create_user(
-            email="teste@email.com",
+        Usuario.objects.create_user(
+            email="novo@email.com",
             password="12345",
-            matricula="000000",
-            primeiro_nome="Teste",
+            matricula="222222",
+            primeiro_nome="Novo",
             sobrenome="Usuario",
             perfil=Perfil.SERVIDOR,
             conta_ativada=True,
         )
 
-    verifica = Usuario.objects.get(
-        matricula="000000"
-    )
+    verifica = Usuario.objects.get(matricula="222222")
 
-    assert verifica.email == "teste@email.com"
-    assert verifica.primeiro_nome == "Teste"
+    assert verifica.email == "novo@email.com"
+    assert verifica.primeiro_nome == "Novo"
     assert verifica.sobrenome == "Usuario"
     assert verifica.perfil == Perfil.SERVIDOR
 
 
 @pytest.mark.django_db
-def test_ler_usuario():
-    # cria usuários
-    Usuario.objects.create(
+def test_crud_ler_usuario(usuario_adm, usuario_teste):
+    Usuario.objects.create_user(
         matricula="1",
         email="u1@ufsm.br",
+        password="12345",
         primeiro_nome="Usuario",
         sobrenome="Um",
         perfil=Perfil.SERVIDOR,
         conta_ativada=True,
     )
 
-    Usuario.objects.create(
+    Usuario.objects.create_user(
         matricula="2",
         email="u2@ufsm.br",
+        password="12345",
         primeiro_nome="Usuario",
         sobrenome="Dois",
         perfil=Perfil.SERVIDOR,
         conta_ativada=True,
     )
 
-    resultado_qs = _qs_escopo(usuario_adm())
+    resultado_qs = _qs_escopo(usuario_adm)
 
-    # admin consegue ver todos
-    assert resultado_qs.count() == 3
-    assert usuario_adm() in resultado_qs
+    assert resultado_qs.count() == 4
+    assert usuario_adm in resultado_qs
+    assert usuario_teste in resultado_qs
 
-    # cria usuário comum
-    u1 = Usuario.objects.create(
-        matricula="10",
-        email="u10@ufsm.br",
-        primeiro_nome="Usuario",
-        sobrenome="Dez",
-        perfil=Perfil.SERVIDOR,
-        conta_ativada=True,
-    )
+    resultado_qs = _qs_escopo(usuario_teste)
 
-    Usuario.objects.create(
-        matricula="20",
-        email="u20@ufsm.br",
-        primeiro_nome="Usuario",
-        sobrenome="Vinte",
-        perfil=Perfil.SERVIDOR,
-        conta_ativada=True,
-    )
-
-    resultado_qs = _qs_escopo(u1)
-
-    # usuário comum vê apenas ele
     assert resultado_qs.count() == 1
-    assert resultado_qs.first() == u1
+    assert resultado_qs.first() == usuario_teste
 
 
 @pytest.mark.django_db
-def test_permissao_para_editar_usuario():
-    # usuário que será editado
-    usuario_alvo = Usuario.objects.create_user(
-        email="carlos.oliveira@email.com",
-        password="123456",
-        matricula="2024001",
-        primeiro_nome="Carlos",
-        sobrenome="Oliveira",
-        perfil=Perfil.SERVIDOR,
-        conta_ativada=True,
-    )
-
-    # usuário comum NÃO pode editar
-    pode_editar_usuario_comum = (
-        usuario_comum().perfil == Perfil.ADMIN
-    )
-
+def test_crud_editar_usuario(usuario_comum, usuario_adm, usuario_teste):
+    pode_editar_usuario_comum = usuario_comum.perfil == Perfil.ADMIN
     assert pode_editar_usuario_comum is False
 
-    # admin PODE editar
-    pode_editar_admin = (
-        usuario_adm().perfil == Perfil.ADMIN
-    )
-
+    pode_editar_admin = usuario_adm.perfil == Perfil.ADMIN
     assert pode_editar_admin is True
 
-    # edição realizada pelo admin
     if pode_editar_admin:
-        usuario_alvo.primeiro_nome = "Carlos Eduardo"
-        usuario_alvo.sobrenome = "Oliveira Souza"
-        usuario_alvo.email = "carlos.eduardo@email.com"
-        usuario_alvo.telefone = "(11) 98888-7777"
-        usuario_alvo.cargo = "Coordenador Administrativo"
-        usuario_alvo.perfil = Perfil.ADMIN
-        usuario_alvo.ativo = False
+        usuario_teste.primeiro_nome = "Carlos Eduardo"
+        usuario_teste.sobrenome = "Oliveira Souza"
+        usuario_teste.email = "carlos.eduardo@email.com"
+        usuario_teste.telefone = "(11) 98888-7777"
+        usuario_teste.cargo = "Coordenador Administrativo"
+        usuario_teste.perfil = Perfil.ADMIN
+        usuario_teste.ativo = False
+        usuario_teste.save()
 
-        usuario_alvo.save()
-
-    atualizado = Usuario.objects.get(id=usuario_alvo.id)
+    atualizado = Usuario.objects.get(id=usuario_teste.id)
 
     assert atualizado.primeiro_nome == "Carlos Eduardo"
     assert atualizado.sobrenome == "Oliveira Souza"
@@ -221,39 +165,75 @@ def test_permissao_para_editar_usuario():
     assert atualizado.cargo == "Coordenador Administrativo"
     assert atualizado.perfil == Perfil.ADMIN
     assert atualizado.ativo is False
-    assert atualizado.matricula == "2024001"
+    assert atualizado.matricula == "000000"
 
 
 @pytest.mark.django_db
-def test_deletar_usuario():
-    usuario_alvo = Usuario.objects.create_user(
-        email="pedro@email.com",
-        password="Senha@123",
-        matricula="2024001",
-        primeiro_nome="Pedro",
-        sobrenome="Cassol",
-        perfil=Perfil.SERVIDOR,
-        conta_ativada=True,
-    )
-
+def test_crud_deletar_usuario(usuario_comum, usuario_adm, usuario_gestor, usuario_teste):
     perfis_com_permissao = (
         Perfil.ADMIN,
         Perfil.GESTOR_UNIDADE,
     )
 
-    pode_deletar_usuario_comum = usuario_comum().perfil in perfis_com_permissao
+    pode_deletar_usuario_comum = usuario_comum.perfil in perfis_com_permissao
     assert pode_deletar_usuario_comum is False
 
-    pode_deletar_admin = usuario_adm().perfil in perfis_com_permissao
+    pode_deletar_admin = usuario_adm.perfil in perfis_com_permissao
     assert pode_deletar_admin is True
 
-    pode_deletar_gestor_unidade = usuario_gestor().perfil in perfis_com_permissao
+    pode_deletar_gestor_unidade = usuario_gestor.perfil in perfis_com_permissao
     assert pode_deletar_gestor_unidade is True
 
     if pode_deletar_admin:
-        usuario_alvo.soft_delete()
+        usuario_teste.soft_delete(usuario_adm)
 
-    usuario_alvo.refresh_from_db()
+    usuario_teste.refresh_from_db()
 
-    assert usuario_alvo.ativo is False
-    assert usuario_alvo.deleted_at is not None
+    assert usuario_teste.ativo is False
+    assert usuario_teste.deleted_at is not None
+
+#TESTES DE ENDPOINTS DE USUÁRIO
+
+@pytest.mark.django_db
+def test_endpoint_lista_usuarios(client, usuario_adm):
+    pass
+
+@pytest.mark.django_db
+def test_endpoint_cadastro_usuario(client, usuario_adm):
+    pass
+
+@pytest.mark.django_db
+def test_endpoint_editar_usuario(client, usuario_adm, usuario_teste):
+    pass
+
+@pytest.mark.django_db
+def test_endpoint_toggle_ativo_ativa_usuario(client, usuario_adm, usuario_teste):
+    usuario_teste.ativo = False
+    usuario_teste.save(update_fields=["ativo"])
+
+    client.force_login(usuario_adm)
+
+    url = reverse("toggle_ativo", kwargs={"pk": usuario_teste.pk})
+    response = client.post(url)
+
+    usuario_teste.refresh_from_db()
+
+    assert response.status_code == 302
+    assert response.url == reverse("lista_usuarios")
+    assert usuario_teste.ativo is True
+
+@pytest.mark.django_db
+def test_endpoint_toggle_ativo_desativa_usuario(client, usuario_adm, usuario_teste):
+    usuario_teste.ativo = True
+    usuario_teste.save(update_fields=["ativo"])
+
+    client.force_login(usuario_adm)
+
+    url = reverse("toggle_ativo", kwargs={"pk": usuario_teste.pk})
+    response = client.post(url)
+
+    usuario_teste.refresh_from_db()
+
+    assert response.status_code == 302
+    assert response.url == reverse("lista_usuarios")
+    assert usuario_teste.ativo is False
