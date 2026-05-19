@@ -3,3 +3,6 @@ psycopg2-binary>=2.9
 Pillow>=10.0
 django-simple-history>=3.4
 python-decouple>=3.8
+pytest>=7.0
+pytest-django>=4.0
+django-input-mask==2.0.2
