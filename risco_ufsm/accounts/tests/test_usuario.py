@@ -215,10 +215,6 @@ def test_endpoint_lista_usuarios(client, usuario_adm, usuario_teste):
     assert usuario_teste in usuarios_na_tela #verifica se o usuario teste esta na lista
 
 @pytest.mark.django_db
-def test_endpoint_cadastro_usuario(client, usuario_adm):
-    pass
-
-@pytest.mark.django_db
 def test_endpoint_editar_usuario(client, usuario_adm, usuario_teste, setor_teste):
     client.force_login(usuario_adm)
 
