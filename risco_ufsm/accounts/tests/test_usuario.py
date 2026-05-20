@@ -243,17 +243,17 @@ def test_endpoint_editar_usuario(client, usuario_adm, usuario_teste, setor_teste
     assert usuario_teste.email == "carlos.eduardo@email.com"
 
 @pytest.mark.django_db
-def test_endpoint_desativa_usuario(client, usuario_adm, usuario_teste):
-    usuario_teste.ativo = True
-    usuario_teste.save(update_fields=["ativo"])
+def test_endpoint_desativa_usuario(client, usuario_adm, usuario_teste):  #cliente para simular requisições
+    usuario_teste.ativo = True  #garante que o usuário começa ativo
+    usuario_teste.save(update_fields=["ativo"])  #salva no banco apenas o campo ativo
 
-    client.force_login(usuario_adm)
+    client.force_login(usuario_adm)  #simula o login do administrador
 
-    url = reverse("toggle_ativo", kwargs={"pk": usuario_teste.pk})
-    response = client.post(url)
+    url = reverse("toggle_ativo", kwargs={"pk": usuario_teste.pk})  #gera a URL do endpoint usando o id do usuário
+    response = client.post(url)  #faz uma requisição POST para desativar o usuário
 
-    usuario_teste.refresh_from_db()
+    usuario_teste.refresh_from_db()  #atualiza o objeto com os dados salvos no banco
 
-    assert response.status_code == 302
-    assert response.url == reverse("lista_usuarios")
-    assert usuario_teste.ativo is False
+    assert response.status_code == 302  #verifica se a view redirecionou após a ação
+    assert response.url == reverse("lista_usuarios")  #verifica se o redirecionamento foi para a lista de usuários
+    assert usuario_teste.ativo is False  #confirma que o usuário foi desativado
