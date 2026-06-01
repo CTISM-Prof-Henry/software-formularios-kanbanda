@@ -53,7 +53,7 @@
 
     <div class="sidebar-section-title" style="margin-top:.5rem;">Conta</div>
     <a href="{% url 'meu_perfil' %}" class="sidebar-link {% if request.resolver_match.url_name == 'meu_perfil' %}active{% endif %}">
-      <span class="sidebar-icon">👤</span> Meu Perfil
+      <span class="sidebar-icon" >👤</span> Meu Perfil
     </a>
 
     {% if request.user.pode_criar_usuario %}

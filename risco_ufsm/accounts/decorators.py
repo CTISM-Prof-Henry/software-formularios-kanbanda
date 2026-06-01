@@ -1,6 +1,6 @@
 """
-Decoradores de controle de acesso baseado em perfil (RBAC).
-Segregação por perfil e escopo organizacional.
+Decoradores são funções especiais que envolvem outras funções (normalmente views) para adicionar funcionalidades extras, como controle de acesso, verificação de perfil, etc.
+Eles são usados para garantir que apenas usuários com os perfis adequados possam acessar determinadas views, e para verificar se a conta do usuário está ativada antes de permitir o acesso
 """
 import functools
 from django.contrib.auth.decorators import login_required
@@ -8,7 +8,7 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render
 
 from .models import Perfil
-
+ 
 
 def _acesso_negado(request, mensagem='Você não tem permissão para acessar esta página.'):
     return render(request, 'acesso_negado.html', {'mensagem': mensagem}, status=403)

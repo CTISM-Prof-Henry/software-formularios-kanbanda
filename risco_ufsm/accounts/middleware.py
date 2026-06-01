@@ -1,9 +1,6 @@
 """
-accounts/middleware.py
-
-Dois middlewares de segurança:
-1. SessaoExpiradaMiddleware — encerra sessão após inatividade
-2. BruteForceMiddleware     — bloqueia IPs após N tentativas falhas
+Os middlewares funcionam como uma espécie de pedágio para as requisições
+todas as requisições passam por eles antes de chegar às views
 """
 import logging
 from django.conf import settings
@@ -17,7 +14,7 @@ logger = logging.getLogger('accounts')
 # Rotas que não precisam de proteção de sessão
 _ROTAS_PUBLICAS = frozenset([
     '/login/', '/recuperar-senha/', '/redefinir-senha/',
-    '/ativar-conta/', '/static/', '/media/', '/favicon.ico',
+    '/ativar-conta/', '/static/', '/media/',
 ])
 
 

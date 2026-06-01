@@ -1,5 +1,6 @@
 """
-Camada de serviço: encapsula lógica de negócio isolada das views.
+os services encapsulam a lógica de negócio isolada das views 
+evita que as views virem uma salada de frutas gorda e difícil de manter
 """
 import logging
 from django.conf import settings
@@ -12,7 +13,7 @@ from .models import TokenAtivacao, TokenRecuperacaoSenha, LogAcesso, TentativaLo
 logger = logging.getLogger('accounts')
 
 
-# Tokens ────────────────────────────────────────────────────────────────────
+# Tokens 
 
 def criar_token_ativacao(usuario):
     """Cria e retorna um novo token de ativação para o usuário."""
@@ -32,7 +33,7 @@ def criar_token_recuperacao(usuario, ip=None):
     return TokenRecuperacaoSenha.objects.create(usuario=usuario, ip_solicitante=ip)
 
 
-# E-mails ───────────────────────────────────────────────────────────────────
+# E-mails
 
 def enviar_email_ativacao(usuario, token, request=None):
     """Envia e-mail de ativação de conta com link e token."""
@@ -98,7 +99,7 @@ def enviar_email_recuperacao(usuario, token):
         return False
 
 
-# ── Auditoria de acesso ───────────────────────────────────────────────────────
+# Logs de acesso e segurança
 
 def registrar_login_ok(usuario, ip, user_agent=''):
     LogAcesso.objects.create(
@@ -158,7 +159,7 @@ def registrar_recuperacao(usuario, ip):
     )
 
 
-# ── Utilitário: obter IP ──────────────────────────────────────────────────────
+# Utilitário para pegar o IP real do cliente
 
 def get_ip(request):
     x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')

@@ -6,7 +6,6 @@ from django.utils.translation import gettext as _
 class SenhaForteValidator:
     """
     Exige ao menos: 1 maiúscula, 1 minúscula, 1 dígito, 1 caractere especial.
-    Compatível com AUTH_PASSWORD_VALIDATORS do Django.
     """
 
     def validate(self, password, user=None):

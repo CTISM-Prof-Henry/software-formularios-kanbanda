@@ -1,8 +1,6 @@
 """
-accounts/signals.py
+O signals automaticamente registra logs de alterações em usuários e vínculos com setores
 
-Registra automaticamente no log de alterações todas as mudanças
-em usuários e vínculos. Nada é apagado — apenas registrado.
 """
 import logging
 from django.db.models.signals import post_save, pre_save

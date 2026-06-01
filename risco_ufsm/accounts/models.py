@@ -1,8 +1,5 @@
 """
-accounts/models.py
-
-Implementa soft-delete, tokens de ativação/recuperação e log de acessos.
-Nenhum registro é apagado fisicamente.
+O models define os modelos de dados relacionados a usuários, autenticação e segurança.
 """
 import uuid
 import logging
@@ -17,8 +14,8 @@ from .managers import UsuarioManager
 
 logger = logging.getLogger('accounts')
 
-
-# ── Perfis do sistema ─────────────────────────────────────────────────────────
+ 
+#  Perfis do sistema 
 
 class Perfil(models.TextChoices):
     ADMIN          = 'ADMIN',          'Administrador do Sistema'
@@ -27,17 +24,17 @@ class Perfil(models.TextChoices):
     SERVIDOR       = 'SERVIDOR',       'Servidor / Colaborador'
 
 
-# ── Usuário ───────────────────────────────────────────────────────────────────
+#  Usuário
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     """
-    - Login por matrícula OU e-mail
-    - Conta ativada via link com token (sem cadastro público)
-    - Soft delete (deleted_at) — nada é apagado fisicamente
-    - Histórico completo via django-simple-history
+    - Login por matrícula ou e-mail
+    - Conta ativada via link com token (sem cadastro público, já que é um sistema institucional)
+    - Nada é apagado fisicamente | Soft delete (deleted_at)
+    - Histórico completo com django-simple-history
     """
 
-    # ── Identificação ────────────────────────────────────────
+    # Identificação 
     primeiro_nome = models.CharField('Primeiro Nome', max_length=80)
     sobrenome     = models.CharField('Sobrenome',     max_length=100)
     matricula     = models.CharField('Matrícula',     max_length=20, unique=True, db_index=True)
@@ -46,7 +43,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     telefone      = models.CharField('Telefone Institucional', max_length=20, blank=True)
     cargo         = models.CharField('Cargo / Função',         max_length=120, blank=True)
 
-    # ── Perfil e permissões ───────────────────────────────────
+    # Perfil e permissões 
     perfil = models.CharField(
         'Perfil',
         max_length=20,
@@ -55,12 +52,12 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         db_index=True,
     )
 
-    # ── Estado da conta ───────────────────────────────────────
+    # Estado da conta 
     ativo           = models.BooleanField('Ativo', default=True, db_index=True)
     conta_ativada   = models.BooleanField('Conta Ativada', default=False)
     is_staff        = models.BooleanField('Acesso Admin Django', default=False)
 
-    # ── Rastreabilidade ───────────────────────────────────────
+    # Rastreabilidade 
     criado_em       = models.DateTimeField('Criado em',    auto_now_add=True)
     atualizado_em   = models.DateTimeField('Atualizado em', auto_now=True)
     deleted_at      = models.DateTimeField('Excluído em',  null=True, blank=True, db_index=True)
@@ -91,7 +88,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f'{self.get_nome_completo()} ({self.matricula})'
 
-    # ── Helpers básicos ───────────────────────────────────────
+    #  Helpers básicos
 
     def get_nome_completo(self):
         return f'{self.primeiro_nome} {self.sobrenome}'.strip()
@@ -109,7 +106,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         self.save(update_fields=['ativo', 'deleted_at', 'atualizado_em'])
         logger.info('Usuário %s desativado por %s', self.matricula, usuario_acao)
 
-    # ── Verificadores de perfil ───────────────────────────────
+    #  Verificadores de perfil 
 
     @property
     def is_admin(self):
@@ -127,7 +124,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     def is_servidor(self):
         return self.perfil == Perfil.SERVIDOR
 
-    # ── Permissões funcionais ─────────────────────────────────
+    #  Permissões funcionais 
 
     @property
     def pode_criar_usuario(self):
@@ -139,7 +136,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     @property
     def pode_alterar_perfil(self):
-        """Admin e g. Unidade podem alterar qualquer perfil; Gestor setor só pode alterar servidores do mesmo setor"""
+        """Admin e gestor unidade podem alterar qualquer perfil, e gestor de setor só pode alterar servidores do mesmo setor"""
         return self.perfil in (Perfil.ADMIN, Perfil.GESTOR_UNIDADE)
 
     @property
@@ -180,7 +177,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         )
         return bool(meus_setores & outros_setores)
 
-    # ── Badge / visual helpers ────────────────────────────────
+    # visual helpers/firulas
 
     def get_perfil_badge(self):
         return {
@@ -205,8 +202,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 class TokenAtivacao(models.Model):
     """
-    Token enviado por e-mail para o usuário ativar a conta e criar a senha.
-    Expiração configurável (padrão 48h). Não é reutilizável.
+    Token enviado por e-mail para o usuário ativar a conta e criar a senha
     """
     usuario  = models.ForeignKey(
         Usuario, on_delete=models.CASCADE,
@@ -248,8 +244,8 @@ class TokenAtivacao(models.Model):
 
 class TokenRecuperacaoSenha(models.Model):
     """
-    Token de redefinição de senha. Expira em 15 minutos.
-    Nunca informa se o usuário existe (resposta genérica).
+    Token de redefinição de senha que expira em 15 minutos.
+    Obiviamente não retorna se o usuário existe ou não, para não vazar informação
     """
     usuario       = models.ForeignKey(
         Usuario, on_delete=models.CASCADE,
@@ -288,12 +284,13 @@ class TokenRecuperacaoSenha(models.Model):
         self.save(update_fields=['usado', 'usado_em', 'ip_uso'])
 
 
-# ── Log de acessos ────────────────────────────────────────────────────────────
+# Log de acessos, 
 
 class LogAcesso(models.Model):
     """
     Registro imutável de todas as tentativas de autenticação.
-    Nunca apagado.
+    Ele nunca pode ser apagado ou editado por motivos óbvios de segurança e auditoria
+    - se ele pudesse ser apagado, então ele poderia simplesmente não existir né -
     """
     TIPO_LOGIN_OK    = 'LOGIN_OK'
     TIPO_LOGIN_FALHA = 'LOGIN_FALHA'
@@ -334,12 +331,13 @@ class LogAcesso(models.Model):
     def __str__(self):
         return f'[{self.criado_em:%d/%m/%Y %H:%M}] {self.tipo} — {self.ip}'
 
-    # Proibir deleção física
+    # Proibe a exclusão do log para manter a segurança dos registros legal
     def delete(self, *args, **kwargs):
         raise PermissionError('Logs de acesso não podem ser apagados.')
 
 
-# ── Tentativas de login (brute force) ────────────────────────────────────────
+# Tentativas de login (brute force)
+#rastreia tentativas falhas vindas de um mesmo IP e bloqueia por 15 minutos depois de 5 tentativas falhas
 
 class TentativaLogin(models.Model):
     """Rastreia tentativas falhas por IP para proteção contra brute force."""

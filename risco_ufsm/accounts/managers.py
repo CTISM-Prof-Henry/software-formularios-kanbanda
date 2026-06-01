@@ -1,5 +1,9 @@
-from django.contrib.auth.models import BaseUserManager
+'''
+O managers do app accounts é responsável por gerenciar as consultas ao banco de dados relacionadas aos usuários, como criar novos usuários, buscar usuários ativos, etc.
+Ele é utilizado pelo model Usuario para fornecer métodos personalizados de consulta e criação de usuários
+'''
 
+from django.contrib.auth.models import BaseUserManager
 
 class UsuarioManager(BaseUserManager):
 

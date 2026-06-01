@@ -1,3 +1,9 @@
+'''
+O views do app accounts são responsáveis por lidar com as requisições relacionadas à autenticação, gerenciamento de usuários e perfis.
+ele renderiza os templates e processa os formulários
+'''
+
+
 import logging
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
@@ -25,7 +31,7 @@ logger   = logging.getLogger('accounts')
 Usuario  = get_user_model()
 
 
-# Login ─────────────────────────────────────────────────────────────────────
+# Login 
 @require_http_methods(['GET', 'POST'])
 def view_login(request):
     if request.user.is_authenticated:
@@ -65,8 +71,8 @@ def view_login(request):
     return render(request, 'accounts/login.html', {'form': form, 'erro': erro})
 
 
-# Logout ────────────────────────────────────────────────────────────────────
-@login_required
+# Logout 
+@login_required 
 def view_logout(request):
     registrar_logout(request.user, get_ip(request), request.META.get('HTTP_USER_AGENT', ''))
     auth.logout(request)
@@ -74,7 +80,7 @@ def view_logout(request):
     return redirect('login')
 
 
-# Recuperar senha ───────────────────────────────────────────────────────────
+# Recuperar senha 
 @require_http_methods(['GET', 'POST'])
 def view_recuperar_senha(request):
     if request.user.is_authenticated:
@@ -97,7 +103,7 @@ def view_recuperar_senha(request):
     return render(request, 'accounts/recuperar_senha.html', {'form': form, 'enviado': enviado})
 
 
-# Redefinir senha ───────────────────────────────────────────────────────────
+# Redefinir senha 
 @require_http_methods(['GET', 'POST'])
 def view_redefinir_senha(request, token_uuid):
     try:
@@ -122,7 +128,7 @@ def view_redefinir_senha(request, token_uuid):
     return render(request, 'accounts/redefinir_senha.html', {'form': form, 'token': token})
 
 
-# Ativar conta ──────────────────────────────────────────────────────────────
+# Ativar conta 
 @require_http_methods(['GET', 'POST'])
 def view_ativar_conta(request, token_uuid):
     try:
@@ -150,7 +156,7 @@ def view_ativar_conta(request, token_uuid):
                   {'form': form, 'token': token, 'usuario': token.usuario})
 
 
-# Painel ────────────────────────────────────────────────────────────────────
+# Painel 
 @login_required
 def view_painel(request):
     u   = request.user
@@ -165,7 +171,7 @@ def view_painel(request):
     return render(request, 'accounts/painel.html', ctx)
 
 
-# Lista de usuários ─────────────────────────────────────────────────────────
+# Lista de usuários 
 @requer_pode_gerenciar_usuarios
 def view_lista_usuarios(request):
     u  = request.user
@@ -205,7 +211,7 @@ def view_lista_usuarios(request):
     })
 
 
-# Cadastrar usuário ─────────────────────────────────────────────────────────
+# Cadastrar usuário 
 @requer_pode_criar_usuario
 def view_cadastro_usuario(request):
     u          = request.user
@@ -235,7 +241,7 @@ def view_cadastro_usuario(request):
                   {'form': form, 'titulo': 'Cadastrar Novo Usuário'})
 
 
-# Editar usuário ────────────────────────────────────────────────────────────
+# Editar usuário 
 @requer_pode_gerenciar_usuarios
 def view_editar_usuario(request, pk):
     u    = request.user
@@ -267,7 +273,7 @@ def view_editar_usuario(request, pk):
     })
 
 
-# Reenviar ativação ─────────────────────────────────────────────────────────
+# Reenviar ativação
 @requer_pode_criar_usuario
 def view_reenviar_ativacao(request, pk):
     alvo    = get_object_or_404(Usuario, pk=pk, conta_ativada=False)
@@ -280,7 +286,7 @@ def view_reenviar_ativacao(request, pk):
     return redirect('lista_usuarios')
 
 
-# Ativar/Desativar ──────────────────────────────────────────────────────────
+# Ativar/Desativar
 @requer_pode_criar_usuario
 @require_http_methods(['POST'])
 def view_toggle_ativo(request, pk):
@@ -298,7 +304,7 @@ def view_toggle_ativo(request, pk):
     return redirect('lista_usuarios')
 
 
-# Meu perfil ────────────────────────────────────────────────────────────────
+# Meu perfil 
 @login_required
 def view_meu_perfil(request):
     u           = request.user
@@ -322,7 +328,7 @@ def view_meu_perfil(request):
     })
 
 
-# Logs de acesso ────────────────────────────────────────────────────────────
+# Logs de acesso
 @requer_admin
 def view_logs_acesso(request):
     qs   = LogAcesso.objects.select_related('usuario').order_by('-criado_em')
@@ -334,13 +340,17 @@ def view_logs_acesso(request):
     })
 
 
-# Helpers ───────────────────────────────────────────────────────────────────
+# Helpers
 def _qs_escopo(usuario):
+    #faz uma consulta de todos os objetos Usuários, e depois filtra de acordo com o perfil do usuário logado:
     qs = Usuario.objects.all()
     if usuario.is_admin:
         return qs
     if usuario.is_gestor_unidade:
         return qs
+    # se o usuário for gestor de setor, ele só pode ver os usuários vinculados aos setores que ele gerencia. 
+    # Para isso, a função obtém os IDs dos setores ativos vinculados ao usuário e filtra os usuários que têm vínculo ativo com esses setores. 
+    # O método distinct() é usado para evitar duplicatas caso um usuário esteja vinculado a múltiplos setores gerenciados pelo gestor.
     if usuario.is_gestor_setor:
         set_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor_id', flat=True)
         return qs.filter(usuario_setores__setor_id__in=set_ids).distinct()
@@ -348,11 +358,14 @@ def _qs_escopo(usuario):
 
 
 def _qs_setores(usuario):
+    # Dependendo do perfil do usuário, retorna os setores que ele pode gerenciar:
+    # - Administradores e gestores de unidade podem ver todos os setores ativos
+    # - Gestores de setor podem ver apenas os setores aos quais estão vinculados ativamente
     if usuario.is_admin or usuario.is_gestor_unidade:
-        return Setor.objects.filter(ativo=True).select_related('unidade')
+        return Setor.objects.filter(ativo=True).select_related('unidade') #select_related é usado para otimizar consultas, trazendo os dados da unidade relacionada em uma única consulta ao banco de dados.
     if usuario.is_gestor_setor:
         set_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor_id', flat=True)
-        return Setor.objects.filter(id__in=set_ids, ativo=True).select_related('unidade')
+        return Setor.objects.filter(id__in=set_ids, ativo=True).select_related('unidade') #select_related trás os dados da unidade relacionada em uma única consulta ao banco de dados.
     return Setor.objects.none()
 
 

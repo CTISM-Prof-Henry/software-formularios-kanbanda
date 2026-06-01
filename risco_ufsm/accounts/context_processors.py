@@ -5,6 +5,7 @@ def menu_lateral(request):
     """
     Injeta o menu lateral dinâmico baseado no perfil do usuário.
     Usado em todos os templates do sistema.
+    só mostra o que o usuário tem permissão para acessar, baseado nas propriedades do perfil.
     """
     if not request.user.is_authenticated:
         return {}
