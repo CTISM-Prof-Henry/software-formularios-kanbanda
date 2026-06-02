@@ -1,3 +1,7 @@
+'''Módulo de backends de autenticação para o aplicativo de contas.
+Contém o backend `MatriculaEmailBackend` que permite autenticação 
+usando matrícula ou e-mail institucional, e verifica se a conta está ativa e ativada.'''
+
 import logging
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
@@ -17,6 +21,7 @@ class MatriculaEmailBackend(ModelBackend):
             return None
 
         # Tenta por e-mail primeiro, depois por matrícula
+        usuario = None
         try:
             if '@' in str(username):
                 usuario = Usuario.objects.get(email__iexact=username.strip())
@@ -26,9 +31,13 @@ class MatriculaEmailBackend(ModelBackend):
             # Executa hash dummy para prevenir timing attacks
             Usuario().set_password(password)
             logger.debug('Autenticação falhou — identificador não encontrado: %s', username)
-            return None
+            usuario = None
         except Usuario.MultipleObjectsReturned:
             logger.error('Múltiplos usuários para o identificador: %s', username)
+            usuario = None
+
+        # Se não encontrou um usuário, encerra aqui (único retorno adicional)
+        if usuario is None:
             return None
 
         # Verifica senha

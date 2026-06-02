@@ -1,11 +1,13 @@
-from .models import Perfil
-
+'''Módulo para adicionar o menu lateral dinâmico baseado no perfil do usuário.
+O menu é injetado em todos os templates do sistema,
+mostrando apenas as opções acessíveis ao usuário.'''
 
 def menu_lateral(request):
     """
     Injeta o menu lateral dinâmico baseado no perfil do usuário.
     Usado em todos os templates do sistema.
-    só mostra o que o usuário tem permissão para acessar, baseado nas propriedades do perfil.
+    só mostra o que o usuário tem permissão para acessar,
+    baseado nas propriedades do perfil.
     """
     if not request.user.is_authenticated:
         return {}

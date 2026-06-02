@@ -2,21 +2,26 @@
 Formulários do módulo de autenticação.
 Sem cadastro público — apenas Admin/Gestor criam usuários.
 """
-from input_mask.widgets import InputMask
+
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from organizacional.models import Setor
 
-from .models import Perfil, TokenAtivacao, TokenRecuperacaoSenha
+from .models import Perfil
+
+# pylint: disable=too-few-public-methods,no-member
+
+# Desabilitei `too-few-public-methods` porque formulários normalmente
+# não têm muitos métodos públicos além de `__init__` e `clean`.
+# Desabilitei `no-member` para evitar falsos positivos ao acessar
+# campos e métodos de modelos Django resolvidos dinamicamente.
 
 Usuario = get_user_model()
 
-
-# Login ─────────────────────────────────────────────────────────────────────
-
 class LoginForm(forms.Form):
+    '''Formulário de login que aceita matrícula ou e-mail institucional.'''
     identificador = forms.CharField(
         label='Matrícula ou E-mail',
         max_length=200,
@@ -40,14 +45,11 @@ class LoginForm(forms.Form):
         self.request = request
         super().__init__(*args, **kwargs)
 
-
-# Recuperação de senha ───────────────────────────────────────────────────────
-
 class RecuperarSenhaForm(forms.Form):
-    """
+    '''
     Formulário de recuperação de senha.
     Nunca informa se o usuário existe — resposta sempre genérica.
-    """
+    '''
     identificador = forms.CharField(
         label='Matrícula ou E-mail Institucional',
         max_length=200,
@@ -58,10 +60,8 @@ class RecuperarSenhaForm(forms.Form):
         }),
     )
 
-
-# Redefinição de senha ──────────────────────────────────────────────────────
-
 class RedefinirSenhaForm(forms.Form):
+    '''Formulário para redefinir senha via token (recuperação ou ativação).'''
     nova_senha = forms.CharField(
         label='Nova Senha',
         min_length=8,
@@ -80,11 +80,13 @@ class RedefinirSenhaForm(forms.Form):
     )
 
     def clean_nova_senha(self):
+        '''Valida a nova senha usando as regras do Django.'''
         senha = self.cleaned_data.get('nova_senha', '')
         password_validation.validate_password(senha)
         return senha
 
     def clean(self):
+        '''Verifica se nova_senha e confirmar_senha coincidem.'''
         cleaned = super().clean()
         s1 = cleaned.get('nova_senha')
         s2 = cleaned.get('confirmar_senha')
@@ -92,11 +94,8 @@ class RedefinirSenhaForm(forms.Form):
             self.add_error('confirmar_senha', 'As senhas não coincidem.')
         return cleaned
 
-
-# Ativação de conta ─────────────────────────────────────────────────────────
-
 class AtivacaoContaForm(RedefinirSenhaForm):
-    """Mesma estrutura de redefinição — usado na ativação inicial da conta."""
+    '''Mesma estrutura de redefinição — usado na ativação inicial da conta'''
     nova_senha = forms.CharField(
         label='Criar Senha',
         min_length=8,
@@ -114,13 +113,11 @@ class AtivacaoContaForm(RedefinirSenhaForm):
         }),
     )
 
-# Cadastro de usuário (somente Admin / Gestor) ──────────────────────────────
-
 class CadastroUsuarioForm(forms.ModelForm):
-    """
+    '''
     Formulário restrito para criação de novos usuários.
     Acesso: apenas Administrador e Gestor da Unidade.
-    """
+    '''
     setores = forms.ModelMultipleChoiceField(
         queryset=None,  # definido dinamicamente na view por escopo
         label='Setores / Subunidades',
@@ -130,6 +127,10 @@ class CadastroUsuarioForm(forms.ModelForm):
     )
 
     class Meta:
+        '''
+        Campos para criação de usuário, com validação de unicidade
+        para matrícula e e-mail, e restrição de perfil para Gestor de Unidade.
+        '''
         model = Usuario
         fields = [
             'primeiro_nome', 'sobrenome', 'matricula', 'email',
@@ -185,6 +186,9 @@ class CadastroUsuarioForm(forms.ModelForm):
             self.fields['setores'].queryset = queryset_setores
 
     def clean_matricula(self):
+        '''
+        Valida unicidade da matrícula, ignorando o próprio usuário em edição.
+        '''
         mat = self.cleaned_data.get('matricula', '').strip()
         qs = Usuario.objects.filter(matricula=mat)
         if self.instance.pk:
@@ -194,6 +198,9 @@ class CadastroUsuarioForm(forms.ModelForm):
         return mat
 
     def clean_email(self):
+        '''
+        Valida unicidade do e-mail, ignorando o próprio usuário em edição.
+        '''
         email = self.cleaned_data.get('email', '').lower().strip()
         qs = Usuario.objects.filter(email=email)
         if self.instance.pk:
@@ -203,6 +210,10 @@ class CadastroUsuarioForm(forms.ModelForm):
         return email
 
     def clean(self):
+        '''
+        Validação adicional para garantir que Gestor de
+        Unidade não crie usuários com perfil Admin.
+        '''
         cleaned = super().clean()
         # Gestor da Unidade não pode definir perfil Admin
         if (self.usuario_logado and
@@ -211,13 +222,13 @@ class CadastroUsuarioForm(forms.ModelForm):
             self.add_error('perfil', 'Você não tem permissão para criar Administradores.')
         return cleaned
 
-
-# Edição de usuário ─────────────────────────────────────────────────────────
-
 class EditarUsuarioForm(forms.ModelForm):
-    """
-    Edição completa (Admin / Gestor Unidade) ou básica (Gestor Setor).
-    """
+    '''
+    Formulário para edição de usuários existentes.
+    Acesso: Admin pode editar todos os campos,
+    Gestor de Unidade pode editar todos exceto perfil para Admin,
+    Gestor de Setor tem edição básica e restrita aos seus setores.
+    '''
     setores = forms.ModelMultipleChoiceField(
         queryset=Setor.objects.none(),
         label='Setores / Subunidades',
@@ -227,6 +238,10 @@ class EditarUsuarioForm(forms.ModelForm):
     )
 
     class Meta:
+        '''
+        Campos para edição de usuário, com validação de unicidade para matrícula e e-mail,
+        e restrição de perfil para Gestor de Unidade.
+        '''
         model = Usuario
         fields = [
             'primeiro_nome', 'sobrenome', 'email',
@@ -271,13 +286,12 @@ class EditarUsuarioForm(forms.ModelForm):
                     (v, l) for v, l in Perfil.choices if v != Perfil.ADMIN
                 ]
 
-
-# Edição de perfil próprio ──────────────────────────────────────────────────
-
 class MeuPerfilForm(forms.ModelForm):
-    """Todo usuário pode editar seus próprios dados básicos."""
+    '''Todo usuário pode editar seus próprios dados básicos.'''
 
     class Meta:
+        '''Campos para edição do próprio perfil, sem acesso a matrícula, perfil ou setores.
+        '''
         model = Usuario
         fields = ['primeiro_nome', 'sobrenome', 'telefone', 'foto']
         widgets = {
@@ -286,10 +300,9 @@ class MeuPerfilForm(forms.ModelForm):
             'telefone':      forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-
-# Alteração de senha própria ────────────────────────────────────────────────
-
 class AlterarSenhaForm(forms.Form):
+    '''Formulário para alteração de senha pelo usuário logado.'''
+
     senha_atual = forms.CharField(
         label='Senha Atual',
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
@@ -308,21 +321,25 @@ class AlterarSenhaForm(forms.Form):
     )
 
     def __init__(self, *args, usuario=None, **kwargs):
+        '''Recebe o usuário logado para validação da senha atual.'''
         super().__init__(*args, **kwargs)
         self.usuario = usuario
 
     def clean_senha_atual(self):
+        '''Verifica se a senha atual está correta.'''
         senha = self.cleaned_data.get('senha_atual')
         if not self.usuario.check_password(senha):
             raise ValidationError('Senha atual incorreta.')
         return senha
 
     def clean_nova_senha(self):
+        '''Valida a nova senha usando as regras do Django.'''
         senha = self.cleaned_data.get('nova_senha', '')
         password_validation.validate_password(senha, self.usuario)
         return senha
 
     def clean(self):
+        '''Verifica se nova_senha e confirmar_senha coincidem.'''
         cleaned = super().clean()
         s1 = cleaned.get('nova_senha')
         s2 = cleaned.get('confirmar_senha')
