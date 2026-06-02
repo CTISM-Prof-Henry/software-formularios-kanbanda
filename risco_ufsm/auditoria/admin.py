@@ -9,6 +9,9 @@ class LogAlteracaoAdmin(admin.ModelAdmin):
     search_fields = ['model_name', 'descricao', 'usuario__matricula']
     readonly_fields = [f.name for f in LogAlteracao._meta.fields]
 
-    def has_add_permission(self, request):    return False
-    def has_change_permission(self, request, obj=None): return False
-    def has_delete_permission(self, request, obj=None): return False
+    def has_add_permission(self, request):
+        return False
+    def has_change_permission(self, request, obj=None):
+        return False
+    def has_delete_permission(self, request, obj=None):
+        return False
