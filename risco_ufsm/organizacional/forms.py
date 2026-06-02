@@ -7,8 +7,10 @@ class UnidadeForm(forms.ModelForm):
         model  = Unidade
         fields = ['nome', 'sigla', 'tipo', 'ativo']
         widgets = {
-            'nome':  forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome completo da unidade'}),
-            'sigla': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: CT, PROGRAD'}),
+            'nome':  forms.TextInput(attrs={'class': 'form-control',
+            'placeholder': 'Nome completo da unidade'}),
+            'sigla': forms.TextInput(attrs={'class': 'form-control',
+            'placeholder': 'Ex: CT, PROGRAD'}),
             'tipo':  forms.Select(attrs={'class': 'form-select'}),
             'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -26,8 +28,10 @@ class SetorForm(forms.ModelForm):
         fields = ['unidade', 'nome', 'sigla', 'ativo']
         widgets = {
             'unidade': forms.Select(attrs={'class': 'form-select'}),
-            'nome':    forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome do setor ou subunidade'}),
-            'sigla':   forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: DAINF, GAB'}),
+            'nome':    forms.TextInput(attrs={'class': 'form-control',
+            'placeholder': 'Nome do setor ou subunidade'}),
+            'sigla':   forms.TextInput(attrs={'class': 'form-control',
+            'placeholder': 'Ex: DAINF, GAB'}),
             'ativo':   forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
