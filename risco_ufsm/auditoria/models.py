@@ -30,7 +30,8 @@ class LogAlteracao(models.Model):
         ordering             = ['-criado_em']
 
     def __str__(self):
-        return f'[{self.criado_em:%d/%m/%Y %H:%M}] {self.model_name}#{self.objeto_id} — {self.campo}'
+        return (f'[{self.criado_em:%d/%m/%Y %H:%M}] '
+                f'{self.model_name}#{self.objeto_id} — {self.campo}')
 
     def delete(self, *args, **kwargs):
         raise PermissionError('Logs de alteração não podem ser apagados.')
