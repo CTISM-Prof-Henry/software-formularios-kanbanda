@@ -60,7 +60,8 @@ class Setor(models.Model):
         ordering             = ['unidade__nome', 'nome']
 
     def __str__(self):
-        return f'{self.unidade.sigla} › {self.nome}' if self.unidade.sigla else f'{self.unidade.nome} › {self.nome}'
+        return f'{self.unidade.sigla} › {self.nome}' if self.unidade.sigla \
+            else f'{self.unidade.nome} › {self.nome}'
 
     def soft_delete(self):
         self.ativo = False

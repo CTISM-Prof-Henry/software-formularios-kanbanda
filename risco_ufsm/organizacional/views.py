@@ -160,8 +160,10 @@ def toggle_setor(request, pk):
 def vinculos_setor(request, pk):
     """Lista e gerencia os vínculos de um setor específico."""
     setor   = get_object_or_404(Setor, pk=pk)
-    ativos  = UsuarioSetor.objects.filter(setor=setor, ativo=True).select_related('usuario', 'criado_por')
-    hist    = UsuarioSetor.objects.filter(setor=setor, ativo=False).select_related('usuario').order_by('-data_fim')
+    ativos  = (UsuarioSetor.objects.filter(setor=setor, ativo=True)
+            .select_related('usuario', 'criado_por'))
+    hist    = (UsuarioSetor.objects.filter(setor=setor, ativo=False)
+            .select_related('usuario').order_by('-data_fim'))
 
     return render(request, 'organizacional/vinculos_setor.html', {
         'setor':  setor,
@@ -186,8 +188,10 @@ def adicionar_vinculo(request, setor_pk):
     setor = get_object_or_404(Setor, pk=setor_pk)
 
     # Usuários disponíveis (sem vínculo ativo no setor)
-    ja_vinculados = UsuarioSetor.objects.filter(setor=setor, ativo=True).values_list('usuario_id', flat=True)
-    usuarios_disp = Usuario.objects.exclude(id__in=ja_vinculados).filter(ativo=True).order_by('primeiro_nome')
+    ja_vinculados = (UsuarioSetor.objects.filter(setor=setor, ativo=True)
+                     .values_list('usuario_id', flat=True))
+    usuarios_disp = (Usuario.objects.exclude(id__in=ja_vinculados)
+                     .filter(ativo=True).order_by('primeiro_nome'))
 
     if request.method == 'POST':
         usuario_id  = request.POST.get('usuario')
