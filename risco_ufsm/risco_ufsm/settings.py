@@ -1,4 +1,4 @@
-
+"""Configurações do projeto Django risco_ufsm."""
 import os
 from pathlib import Path
 
