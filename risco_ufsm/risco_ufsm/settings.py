@@ -11,7 +11,8 @@ SECRET_KEY = os.environ.get(
 )
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 _allowed = os.environ.get('ALLOWED_HOSTS', '')
-ALLOWED_HOSTS = _allowed.split(',') if _allowed else (['*'] if DEBUG else ['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = _allowed.split(',') if _allowed \
+    else (['*'] if DEBUG else ['localhost', '127.0.0.1'])
 
 # ── Aplicações ────────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
