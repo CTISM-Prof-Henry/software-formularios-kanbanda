@@ -8,8 +8,16 @@ from django.contrib import auth
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.urls import reverse
+from django.http import HttpResponseForbidden
+
+from accounts.models import TentativaLogin, LogAcesso
 
 logger = logging.getLogger('accounts')
+# pylint: disable=too-few-public-methods,no-member
+# Desabilitei `too-few-public-methods` porque middlewares normalmente
+# não têm muitos métodos públicos além de `__init__` e `__call__`.
+# Desabilitei `no-member` para evitar falsos positivos ao acessar
+# campos e métodos de modelos Django resolvidos dinamicamente.
 
 # Rotas que não precisam de proteção de sessão
 _ROTAS_PUBLICAS = frozenset([
@@ -32,10 +40,12 @@ class SessaoExpiradaMiddleware:
     """
 
     def __init__(self, get_response):
+        '''O método __init__ é chamado apenas uma vez, quando o servidor inicia.'''
         self.get_response = get_response
         self.tempo_limite = getattr(settings, 'SESSION_COOKIE_AGE', 1800)
 
     def __call__(self, request):
+        '''O método __call__ é chamado a cada requisição.'''
         if request.user.is_authenticated and not _e_rota_publica(request.path):
             ultima_atividade = request.session.get('_ultima_atividade')
             agora = timezone.now().timestamp()
@@ -71,11 +81,9 @@ class BruteForceMiddleware:
     def __call__(self, request):
         if request.path == reverse('login') and request.method == 'POST':
             ip = _get_ip(request)
-            from accounts.models import TentativaLogin
             try:
                 tentativa = TentativaLogin.objects.get(ip=ip)
                 if tentativa.esta_bloqueado():
-                    from django.http import HttpResponseForbidden
                     logger.warning('IP bloqueado tentando login: %s', ip)
                     return HttpResponseForbidden(
                         '<h2>IP temporariamente bloqueado por segurança. '
@@ -98,12 +106,12 @@ def _get_ip(request):
 
 def _registrar_log_expiracao(request):
     try:
-        from accounts.models import LogAcesso
         LogAcesso.objects.create(
             tipo=LogAcesso.TIPO_SESSAO_EXP,
             usuario=request.user if request.user.is_authenticated else None,
             ip=_get_ip(request),
             user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
         )
-    except Exception as exc:
-        logger.error('Erro ao registrar log de expiração: %s', exc)
+    except Exception as e:
+        logger.error('Erro ao registrar log de expiração: %s', e)
+        raise
