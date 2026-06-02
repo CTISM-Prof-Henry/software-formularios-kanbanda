@@ -1,5 +1,14 @@
+'''
+URL patterns para o app de contas.
+Centraliza as rotas relacionadas à autenticação, perfil, logs e gestão de usuários,
+mantendo a organização do projeto.
+'''
+
 from django.urls import path
 from . import views
+
+# pylint: disable=line-too-long
+# desabilita aviso de linha longa para manter URLs legíveis e organizadas
 
 urlpatterns = [
     # Autenticação

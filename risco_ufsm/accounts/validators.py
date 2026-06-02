@@ -1,14 +1,16 @@
+'''Validadores para campos de senha.'''
+
 import re
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
-
 
 class SenhaForteValidator:
     """
     Exige ao menos: 1 maiúscula, 1 minúscula, 1 dígito, 1 caractere especial.
     """
 
-    def validate(self, password, user=None):
+    def validate(self, password, _user=None):
+        '''Valida a senha e levanta ValidationError se não atender aos critérios.'''
         erros = []
         if not re.search(r'[A-Z]', password):
             erros.append('pelo menos uma letra maiúscula')
@@ -25,6 +27,7 @@ class SenhaForteValidator:
             )
 
     def get_help_text(self):
+        '''Retorna uma mensagem de ajuda para o usuário sobre os critérios de senha.'''
         return _(
             'A senha deve ter no mínimo 8 caracteres com letras maiúsculas, '
             'minúsculas, números e caracteres especiais.'

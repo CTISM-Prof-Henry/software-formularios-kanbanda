@@ -3,27 +3,29 @@ os services encapsulam a lógica de negócio isolada das views
 evita que as views virem uma salada de frutas gorda e difícil de manter
 """
 import logging
+import smtplib
 from django.conf import settings
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
+from django.core.mail import send_mail, BadHeaderError
 from django.utils import timezone
 
 from .models import TokenAtivacao, TokenRecuperacaoSenha, LogAcesso, TentativaLogin
 
+# pylint: disable= no-member
+# desabilitei o ´sem mebro´ porque o pylint não reconhece os campos do model,
+# mas eles existem e funcionam normalmente
+
 logger = logging.getLogger('accounts')
 
-
-# Tokens 
-
+# pylint: disable=no-member
 def criar_token_ativacao(usuario):
     """Cria e retorna um novo token de ativação para o usuário."""
     # Invalida tokens anteriores não usados
     TokenAtivacao.objects.filter(usuario=usuario, usado=False).update(
         usado=True, usado_em=timezone.now()
-    )
+ )
     return TokenAtivacao.objects.create(usuario=usuario)
 
-
+# pylint: disable=no-member
 def criar_token_recuperacao(usuario, ip=None):
     """Cria e retorna um novo token de recuperação de senha."""
     # Invalida tokens anteriores
@@ -35,7 +37,7 @@ def criar_token_recuperacao(usuario, ip=None):
 
 # E-mails
 
-def enviar_email_ativacao(usuario, token, request=None):
+def enviar_email_ativacao(usuario, token, _request=None):
     """Envia e-mail de ativação de conta com link e token."""
     site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
     link = f'{site_url}/ativar-conta/{token.token}/'
@@ -61,7 +63,7 @@ def enviar_email_ativacao(usuario, token, request=None):
         )
         logger.info('E-mail de ativação enviado para %s', usuario.email)
         return True
-    except Exception as exc:
+    except (BadHeaderError, smtplib.SMTPException, OSError) as exc:
         logger.error('Falha ao enviar e-mail de ativação para %s: %s', usuario.email, exc)
         return False
 
@@ -94,14 +96,15 @@ def enviar_email_recuperacao(usuario, token):
         )
         logger.info('E-mail de recuperação enviado para %s', usuario.email)
         return True
-    except Exception as exc:
+    except (BadHeaderError, smtplib.SMTPException, OSError) as exc:
         logger.error('Falha ao enviar e-mail de recuperação para %s: %s', usuario.email, exc)
         return False
 
 
-# Logs de acesso e segurança
 
+# pylint: disable=no-member
 def registrar_login_ok(usuario, ip, user_agent=''):
+    '''Registra um login bem-sucedido e reseta tentativas falhas do IP.'''
     LogAcesso.objects.create(
         tipo=LogAcesso.TIPO_LOGIN_OK,
         usuario=usuario,
@@ -112,7 +115,9 @@ def registrar_login_ok(usuario, ip, user_agent=''):
     TentativaLogin.objects.filter(ip=ip).update(tentativas=0, bloqueado_ate=None)
 
 
+# pylint: disable=no-member
 def registrar_login_falha(identificador, ip, user_agent=''):
+    '''Registra uma tentativa de login falha e verifica bloqueio por brute force.'''
     LogAcesso.objects.create(
         tipo=LogAcesso.TIPO_LOGIN_FALHA,
         identificador_tentado=identificador[:200],
@@ -133,8 +138,9 @@ def registrar_login_falha(identificador, ip, user_agent=''):
         logger.warning('IP %s bloqueado após %d tentativas falhas', ip, tentativa.tentativas)
     return bloqueado
 
-
+# pylint: disable=no-member
 def registrar_logout(usuario, ip, user_agent=''):
+    '''Registra um logout do usuário.'''
     LogAcesso.objects.create(
         tipo=LogAcesso.TIPO_LOGOUT,
         usuario=usuario,
@@ -143,25 +149,26 @@ def registrar_logout(usuario, ip, user_agent=''):
     )
 
 
+# pylint: disable=no-member
 def registrar_ativacao(usuario, ip):
+    '''Registra a ativação de conta do usuário.'''
     LogAcesso.objects.create(
         tipo=LogAcesso.TIPO_ATIVACAO,
         usuario=usuario,
         ip=ip,
     )
 
-
+# pylint: disable=no-member
 def registrar_recuperacao(usuario, ip):
+    '''Registra a recuperação de senha do usuário.'''
     LogAcesso.objects.create(
         tipo=LogAcesso.TIPO_RECUPERACAO,
         usuario=usuario,
         ip=ip,
     )
 
-
-# Utilitário para pegar o IP real do cliente
-
 def get_ip(request):
+    '''Obtém o endereço IP do cliente a partir do request, considerando proxies.'''
     x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded:
         return x_forwarded.split(',')[0].strip()
