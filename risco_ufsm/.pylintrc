@@ -1,0 +1,7 @@
+[MASTER]
+load-plugins=pylint_django
+ignore=migrations
+django-settings-module=risco_ufsm.settings
+
+[MESSAGES CONTROL]
+disable=too-few-public-methods

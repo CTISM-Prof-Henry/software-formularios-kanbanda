@@ -8,6 +8,8 @@ from django.db import models
 
 
 class LogAlteracao(models.Model):
+    """Log de alteração genérico e imutável de qualquer objeto do sistema."""
+
     model_name      = models.CharField('Model', max_length=100)
     objeto_id       = models.PositiveIntegerField('ID do objeto')
     campo           = models.CharField('Campo alterado', max_length=100, blank=True)
@@ -25,6 +27,8 @@ class LogAlteracao(models.Model):
     criado_em       = models.DateTimeField('Data/Hora', auto_now_add=True, db_index=True)
 
     class Meta:
+        """Metadados do model: nome legível e ordenação decrescente por data."""
+
         verbose_name         = 'Log de Alteração'
         verbose_name_plural  = 'Logs de Alteração'
         ordering             = ['-criado_em']
