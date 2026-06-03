@@ -1,5 +1,4 @@
 """
-
 Log de alterações genérico — registra qualquer mudança no sistema.
 Imutável: nenhum registro pode ser apagado.
 """
