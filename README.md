@@ -94,4 +94,7 @@ Conta ativada → pode fazer login
 | `/logs/acesso/` | Admin | Auditoria de acessos |
 | `/admin/` | Admin | Painel administrativo |
 
+## Documentação
+
+<https://ctism-prof-henry.github.io/software-formularios-kanbanda/>
 
