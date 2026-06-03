@@ -12,6 +12,8 @@ from simple_history.models import HistoricalRecords
 
 
 class Unidade(models.Model):
+    """Representa uma unidade organizacional da instituição."""
+
     TIPO_CHOICES = [
         ('REITORIA',     'Reitoria'),
         ('PRO_REITORIA', 'Pró-Reitoria'),
@@ -28,7 +30,9 @@ class Unidade(models.Model):
     criado_em  = models.DateTimeField('Criado em', auto_now_add=True)
     history    = HistoricalRecords()
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Metadados do modelo Unidade."""
+
         verbose_name         = 'Unidade'
         verbose_name_plural  = 'Unidades'
         ordering             = ['nome']
@@ -37,15 +41,21 @@ class Unidade(models.Model):
         return f'{self.sigla} — {self.nome}' if self.sigla else self.nome
 
     def soft_delete(self):
+        """Marca a unidade como excluída sem apagar o registro."""
+
         self.ativo = False
         self.deleted_at = timezone.now()
         self.save(update_fields=['ativo', 'deleted_at'])
 
     def get_setores_ativos(self):
-        return self.setores.filter(ativo=True)
+        """Retorna os setores ativos vinculados à unidade."""
+
+        return self.setores.filter(ativo=True)  # pylint: disable=no-member
 
 
 class Setor(models.Model):
+    """Representa um setor vinculado a uma unidade organizacional."""
+
     unidade    = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name='setores')
     nome       = models.CharField('Nome', max_length=200)
     sigla      = models.CharField('Sigla', max_length=20, blank=True)
@@ -54,16 +64,21 @@ class Setor(models.Model):
     criado_em  = models.DateTimeField('Criado em', auto_now_add=True)
     history    = HistoricalRecords()
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Metadados do modelo Setor."""
+
         verbose_name         = 'Setor / Subunidade'
         verbose_name_plural  = 'Setores / Subunidades'
         ordering             = ['unidade__nome', 'nome']
 
     def __str__(self):
-        return f'{self.unidade.sigla} › {self.nome}' if self.unidade.sigla \
-            else f'{self.unidade.nome} › {self.nome}'
+        if self.unidade.sigla:  # pylint: disable=no-member
+            return f'{self.unidade.sigla} › {self.nome}'  # pylint: disable=no-member
+        return f'{self.unidade.nome} › {self.nome}'  # pylint: disable=no-member
 
     def soft_delete(self):
+        """Marca o setor como excluído sem apagar o registro."""
+
         self.ativo = False
         self.deleted_at = timezone.now()
         self.save(update_fields=['ativo', 'deleted_at'])
@@ -104,14 +119,16 @@ class UsuarioSetor(models.Model):
     criado_em   = models.DateTimeField('Criado em', auto_now_add=True)
     history     = HistoricalRecords()
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Metadados do modelo UsuarioSetor."""
+
         verbose_name         = 'Vínculo Usuário–Setor'
         verbose_name_plural  = 'Vínculos Usuário–Setor'
         ordering             = ['-ativo', '-data_inicio']
 
     def __str__(self):
         status = 'ativo' if self.ativo else 'encerrado'
-        return f'{self.usuario.get_nome_completo()} → {self.setor} [{status}]'
+        return f'{self.usuario.get_nome_completo()} → {self.setor} [{status}]'  # pylint: disable=no-member
 
     def encerrar(self, data_fim=None):
         """Encerra o vínculo (nunca apaga)."""

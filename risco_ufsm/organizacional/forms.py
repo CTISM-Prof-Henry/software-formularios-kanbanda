@@ -1,8 +1,10 @@
+"""Formulários do app organizacional: unidades, setores e vínculos usuário-setor."""
 from django import forms
 from .models import Unidade, Setor, UsuarioSetor
 
 
 class UnidadeForm(forms.ModelForm):
+    """Formulário de criação e edição de unidades organizacionais."""
     class Meta:
         model  = Unidade
         fields = ['nome', 'sigla', 'tipo', 'ativo']
@@ -23,6 +25,7 @@ class UnidadeForm(forms.ModelForm):
 
 
 class SetorForm(forms.ModelForm):
+    """Formulário de criação e edição de setores, filtrado por permissão do usuário."""
     class Meta:
         model  = Setor
         fields = ['unidade', 'nome', 'sigla', 'ativo']
@@ -56,6 +59,7 @@ class SetorForm(forms.ModelForm):
 
 
 class VincularUsuarioSetorForm(forms.ModelForm):
+    """Formulário para vincular um usuário a um setor com período de vigência."""
     class Meta:
         model  = UsuarioSetor
         fields = ['usuario', 'setor', 'data_inicio', 'data_fim']
