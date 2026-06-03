@@ -1,3 +1,5 @@
+"""Rotas do app organizacional."""
+
 from django.urls import path
 from . import views
 
