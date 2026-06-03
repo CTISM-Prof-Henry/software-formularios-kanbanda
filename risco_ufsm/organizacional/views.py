@@ -1,5 +1,5 @@
+"""Views do app organizacional: CRUD de unidades, setores e vínculos usuário-setor."""
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 
 from accounts.decorators import requer_pode_criar_usuario, requer_admin
 from .models import Unidade, Setor, UsuarioSetor
-from .forms import UnidadeForm, SetorForm, VincularUsuarioSetorForm
+from .forms import UnidadeForm, SetorForm
 
 Usuario = get_user_model()
 
@@ -43,6 +43,7 @@ def _qs_setores(usuario, unidade=None):
 # UNIDADES
 @requer_pode_criar_usuario
 def lista_unidades(request):
+    """Lista as unidades visíveis ao usuário, com seus setores."""
     unidades = _qs_unidades(request.user).prefetch_related('setores')
     return render(request, 'organizacional/lista_unidades.html', {
         'unidades': unidades,
@@ -52,6 +53,7 @@ def lista_unidades(request):
 
 @requer_admin
 def nova_unidade(request):
+    """Exibe e processa o formulário de criação de uma unidade."""
     form = UnidadeForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         u = form.save()
@@ -64,6 +66,7 @@ def nova_unidade(request):
 
 @requer_admin
 def editar_unidade(request, pk):
+    """Exibe e processa o formulário de edição de uma unidade existente."""
     unidade = get_object_or_404(Unidade, pk=pk)
     form = UnidadeForm(request.POST or None, instance=unidade)
     if request.method == 'POST' and form.is_valid():
@@ -79,6 +82,7 @@ def editar_unidade(request, pk):
 @requer_admin
 @require_http_methods(['POST'])
 def toggle_unidade(request, pk):
+    """Ativa ou desativa uma unidade (soft delete semântico)."""
     unidade = get_object_or_404(Unidade, pk=pk)
     # Não apaga — apenas desativa (soft delete semântico)
     unidade.ativo = not unidade.ativo
@@ -92,6 +96,7 @@ def toggle_unidade(request, pk):
 
 @requer_pode_criar_usuario
 def lista_setores(request):
+    """Lista os setores visíveis ao usuário, opcionalmente filtrados por unidade."""
     unidade_id = request.GET.get('unidade')
     unidade_sel = None
     if unidade_id:
@@ -110,6 +115,7 @@ def lista_setores(request):
 
 @requer_pode_criar_usuario
 def novo_setor(request):
+    """Exibe e processa o formulário de criação de um setor/subunidade."""
     form = SetorForm(request.POST or None, usuario_logado=request.user)
     if request.method == 'POST' and form.is_valid():
         s = form.save()
@@ -122,6 +128,7 @@ def novo_setor(request):
 
 @requer_pode_criar_usuario
 def editar_setor(request, pk):
+    """Exibe e processa o formulário de edição de um setor existente."""
     setor = get_object_or_404(Setor, pk=pk)
     # Gestor da Unidade só edita setores da sua unidade
     if not request.user.is_admin:
@@ -146,6 +153,7 @@ def editar_setor(request, pk):
 @requer_pode_criar_usuario
 @require_http_methods(['POST'])
 def toggle_setor(request, pk):
+    """Ativa ou desativa um setor."""
     setor = get_object_or_404(Setor, pk=pk)
     setor.ativo = not setor.ativo
     setor.save(update_fields=['ativo'])
