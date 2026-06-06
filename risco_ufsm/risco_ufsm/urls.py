@@ -9,6 +9,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('', include('organizacional.urls')),
+    path('configuracao/', include('configuracao.urls')),
+    path('riscos/', include('riscos.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Customiza o admin

@@ -10,9 +10,3 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
-
-# nav:
-#   - 🏠 Início: index.md
-#   - 🚀 Instalação e Execução: instalacao.md
-#   - 🛡️ Perfis e Segurança: seguranca.md
-#   - 🌐 Rotas e URLs: urls.md
