@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import PlanoDeRisco, IdentificacaoRisco, AvaliacaoRisco, TratamentoRisco
 
-# Register your models here.
+admin.site.register(PlanoDeRisco)
+admin.site.register(IdentificacaoRisco)
+admin.site.register(AvaliacaoRisco)
+admin.site.register(TratamentoRisco)
+
