@@ -559,7 +559,7 @@ Para o Gestor da Unidade, adicionar um select de unidade no topo do dashboard qu
 
 ### Parte 4 — Relatório PDF e notificações
 
-Responsável: a ser definido pela equipe.
+Responsável: Pedro
 
 **Configuração do WeasyPrint**
 
