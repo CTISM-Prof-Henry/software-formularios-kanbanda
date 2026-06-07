@@ -799,6 +799,6 @@ Parte 2 (Ana): CRUD completo de riscos com a função de escopo por perfil, form
 
 Parte 3: dashboard com contadores, matriz probabilidade x impacto em HTML colorido, gráfico de rosca por tipologia e gráfico de barras por setor usando Chart.js, scoping por perfil.
 
-Parte 4: geração de PDF com WeasyPrint, model Notificacao, management command de verificação de atrasos, badge de notificações no header.
+Parte 4 (Pedro): geração de PDF com WeasyPrint, model Notificacao, management command de verificação de atrasos, badge de notificações no header.
 
 Parte 5: signals conectando LogAlteracao aos modelos de risco, histórico visual na tela do plano, testes das regras de cálculo e de scoping, polimento do menu lateral por perfil.
