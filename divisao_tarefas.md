@@ -52,7 +52,7 @@ A Parte 5 começa por último, depois que tudo mais está funcionando.
 
 ### Parte 1 — App configuracao e Models do app riscos
 
-Responsável: a ser definido pela equipe.
+Responsável: Eduarda.
 
 Esta parte cria toda a estrutura de dados do sistema. Nenhuma outra parte começa antes desta terminar as migrations.
 
@@ -793,7 +793,7 @@ Testar o fluxo completo: criar um usuário Gestor de Setor, vincular a um setor,
 
 ## 5. Resumo das responsabilidades
 
-Parte 1: app configuracao (DesafioPDI, ObjetivoPDI, Macroprocesso) + app riscos (PlanoDeRisco, IdentificacaoRisco, AvaliacaoRisco, TratamentoRisco) com migrations, admin e lógica de cálculo no save().
+Parte 1 (Eduarda): app configuracao (DesafioPDI, ObjetivoPDI, Macroprocesso) + app riscos (PlanoDeRisco, IdentificacaoRisco, AvaliacaoRisco, TratamentoRisco) com migrations, admin e lógica de cálculo no save().
 
 Parte 2 (Ana): CRUD completo de riscos com a função de escopo por perfil, formulário em três seções com cálculo visual em JavaScript, templates de listagem, criação, edição e visualização, controle de permissão de edição e exclusão.
 
