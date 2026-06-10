@@ -321,7 +321,7 @@ def pode_editar(self, usuario):
 **O formulário**
 
 Criar `riscos/forms.py` com três forms separados, um por seção. Usar `ModelForm`.
-
+ d
 O `IdentificacaoForm` herda de `ModelForm` para `IdentificacaoRisco` com os campos: `tipologia`, `macroprocesso`, `objetivo_pdi`, `descricao_evento`, `causas`, `consequencias`.
 
 O `AvaliacaoForm` herda de `ModelForm` para `AvaliacaoRisco` com os campos: `probabilidade`, `impacto`, `eficacia_controles`, `descricao_controles`. Os campos `risco_inerente`, `nivel_inerente`, `risco_residual` e `nivel_residual` são calculados automaticamente no `save()` do model e não aparecem no form, mas são exibidos como leitura no template via JavaScript para feedback imediato ao usuário.
@@ -361,6 +361,8 @@ urlpatterns = [
     path('<int:pk>/remanejar/',       views.remanejar_plano,  name='remanejar_plano'),
 ]
 ```
+
+# parte 2.5
 
 **Os templates**
 

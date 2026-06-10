@@ -8,43 +8,15 @@ from django.views.decorators.http import require_http_methods
 from accounts.decorators import requer_pode_criar_usuario, requer_admin
 from .models import Unidade, Setor, UsuarioSetor
 from .forms import UnidadeForm, SetorForm
+from .services import qs_setores, qs_unidades
 
 Usuario = get_user_model()
-
-
-# Helpers de querySet de unidade e setor ─────────────────────────────────────────────────────────
-
-def _qs_unidades(usuario):
-    if usuario.is_admin:
-        return Unidade.objects.all().order_by('nome')
-    # Gestor da Unidade vê só as suas
-    unid_ids = usuario.usuario_setores.filter(ativo=True).values_list(
-        'setor__unidade_id', flat=True
-    )
-    return Unidade.objects.filter(id__in=unid_ids).order_by('nome')
-
-
-def _qs_setores(usuario, unidade=None):
-    if usuario.is_admin:
-        qs = Setor.objects.select_related('unidade').order_by('unidade__nome', 'nome')
-    else:
-        unid_ids = usuario.usuario_setores.filter(ativo=True).values_list(
-            'setor__unidade_id', flat=True
-        )
-        qs = Setor.objects.filter(
-            unidade_id__in=unid_ids
-        ).select_related('unidade').order_by('unidade__nome', 'nome')
-    if unidade:
-        qs = qs.filter(unidade=unidade)
-    return qs
-
-
 
 # UNIDADES
 @requer_pode_criar_usuario
 def lista_unidades(request):
     """Lista as unidades visíveis ao usuário, com seus setores."""
-    unidades = _qs_unidades(request.user).prefetch_related('setores')
+    unidades = qs_unidades(request.user).prefetch_related('setores')
     return render(request, 'organizacional/lista_unidades.html', {
         'unidades': unidades,
         'total': unidades.count(),
@@ -102,8 +74,8 @@ def lista_setores(request):
     if unidade_id:
         unidade_sel = get_object_or_404(Unidade, pk=unidade_id)
 
-    setores  = _qs_setores(request.user, unidade=unidade_sel)
-    unidades = _qs_unidades(request.user)
+    setores  = qs_setores(request.user, unidade=unidade_sel)
+    unidades = qs_unidades(request.user)
 
     return render(request, 'organizacional/lista_setores.html', {
         'setores':     setores,
