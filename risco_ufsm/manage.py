@@ -9,7 +9,7 @@ def main():
     '''Ponto de entrada para o gerenciamento do Django.'''
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'risco_ufsm.settings')
     try:
-        from django.core.management import execute_from_command_line
+        from django.core.management import execute_from_command_line # pylint: disable=import-outside-toplevel
     except ImportError as exc:
         raise ImportError('Django não instalado ou virtualenv não ativado.') from exc
     execute_from_command_line(sys.argv)
