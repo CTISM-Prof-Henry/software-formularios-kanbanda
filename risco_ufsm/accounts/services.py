@@ -6,7 +6,10 @@ import logging
 import smtplib
 from django.conf import settings
 from django.core.mail import send_mail, BadHeaderError
+from django.contrib.auth import get_user_model
 from django.utils import timezone
+ 
+from organizacional.models import Setor, UsuarioSetor
 
 from .models import TokenAtivacao, TokenRecuperacaoSenha, LogAcesso, TentativaLogin
 
@@ -15,6 +18,7 @@ from .models import TokenAtivacao, TokenRecuperacaoSenha, LogAcesso, TentativaLo
 # mas eles existem e funcionam normalmente
 
 logger = logging.getLogger('accounts')
+Usuario  = get_user_model()
 
 # pylint: disable=no-member
 def criar_token_ativacao(usuario):
@@ -173,3 +177,80 @@ def get_ip(request):
     if x_forwarded:
         return x_forwarded.split(',')[0].strip()
     return request.META.get('REMOTE_ADDR', '0.0.0.0')
+
+# helper usados nas views
+
+def qs_escopo(usuario):
+    '''
+    faz uma consulta de todos os objetos Usuários,
+    e depois filtra de acordo com o perfil do usuário logado
+    - Administradores e gestores de unidade veem todos os usuários
+    - Gestores de setor veem apenas usuários vinculados aos setores que gerenciam
+    - Demais usuários veem apenas a si mesmos
+    '''
+    qs = Usuario.objects.all()
+    if usuario.is_admin:
+        return qs
+    if usuario.is_gestor_unidade:
+        return qs
+
+    # se o usuário for gestor de setor, ele só pode ver os
+    # usuários vinculados aos setores que ele gerencia.
+    # Para isso, a função obtém os IDs dos setores ativos vinculados
+    # ao usuário e filtra os usuários que têm vínculo ativo com esses setores.
+    # O método distinct() é usado para evitar duplicatas caso um usuário esteja
+    # vinculado a múltiplos setores gerenciados pelo gestor.
+
+    if usuario.is_gestor_setor:
+        set_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor_id', flat=True)
+        return qs.filter(usuario_setores__setor_id__in=set_ids).distinct()
+    return qs.filter(pk=usuario.pk)
+
+# pylint: disable=no-member
+def qs_setores(usuario):
+    '''
+    Dependendo do perfil do usuário, retorna os setores que ele pode gerenciar:
+    - Administradores e gestores de unidade podem ver todos os setores ativos
+    - Gestores de setor podem ver apenas os setores aos quais estão vinculados ativamente
+    '''
+    if usuario.is_admin or usuario.is_gestor_unidade:
+        #select_related é usado para otimizar consultas, trazendo os dados
+        # da unidade relacionada em uma única consulta ao banco de dados.
+        return Setor.objects.filter(ativo=True).select_related('unidade')
+    if usuario.is_gestor_setor:
+        set_ids = usuario.usuario_setores.filter(ativo=True).values_list('setor_id', flat=True)
+        return Setor.objects.filter(id__in=set_ids, ativo=True).select_related('unidade')
+    return Setor.objects.none()
+
+# pylint: disable=no-member
+def atualizar_setores_usuario(usuario, setores_selecionados, usuario_logado, setores_gerenciaveis):
+    '''
+    Atualiza os vínculos entre um usuário e os setores selecionados no formulário de edição.
+    Garante que o usuário só possa ser vinculado a setores dentro do escopo do usuário logado.
+     - setores_selecionados: lista de objetos Setor selecionados no formulário
+     - usuario_logado: objeto Usuario que está realizando a edição
+     - setores_gerenciaveis: queryset de Setor que o usuário_logado tem permissão para gerenciar
+    '''
+    ids_gerenciaveis = set(setores_gerenciaveis.values_list('id', flat=True))
+    ids_selecionados = {setor.id for setor in setores_selecionados}
+    ids_invalidos = ids_selecionados - ids_gerenciaveis
+    if ids_invalidos:
+        raise PermissionError('Setor fora do escopo do usuário logado.')
+
+    vinculos_ativos = usuario.usuario_setores.filter(
+        ativo=True,
+        setor_id__in=ids_gerenciaveis,
+    )
+    ids_atuais = set(vinculos_ativos.values_list('setor_id', flat=True))
+
+    for vinculo in vinculos_ativos.exclude(setor_id__in=ids_selecionados):
+        vinculo.encerrar()
+
+    for setor in setores_selecionados:
+        if setor.id not in ids_atuais:
+            UsuarioSetor.objects.create(
+                usuario=usuario,
+                setor=setor,
+                ativo=True,
+                criado_por=usuario_logado,
+            )

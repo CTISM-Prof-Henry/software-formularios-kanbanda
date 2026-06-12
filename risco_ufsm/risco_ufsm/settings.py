@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'organizacional.apps.OrganizacionalConfig',
     'auditoria.apps.AuditoriaConfig',
+    'configuracao.apps.ConfiguracaoConfig',
+    'riscos.apps.RiscosConfig',
 ]
 
 MIDDLEWARE = [

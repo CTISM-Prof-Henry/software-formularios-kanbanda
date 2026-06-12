@@ -1,0 +1,71 @@
+{% extends 'base_sistema.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+
+<!-- Breadcrumb e cabeçalho -->
+<div class="page-header">
+  <h1>{{ titulo }}</h1>
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url volta_url %}">{{ volta_label }}</a></li>
+    <li class="breadcrumb-item active">{{ action_label }}</li>
+  </ol>
+</div>
+
+<!-- Card com formulário -->
+<div class="card" style="max-width:640px;">
+  <div class="card-body">
+    
+    <!-- Erros gerais do formulário -->
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger py-2">
+      {% for e in form.non_field_errors %}⚠ {{ e }}<br>{% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Formulário -->
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <!-- Loop dinâmico dos campos -->
+      {% for field in form %}
+        {% if field.name != 'csrfmiddlewaretoken' %}
+          <div class="mb-3">
+            
+            <!-- Label com asterisco se required -->
+            <label class="form-label">
+              {{ field.label }}
+              {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+
+            <!-- Renderiza o widget do campo (CharField, BooleanField, etc.) -->
+            {{ field }}
+
+            <!-- Aplicar classe Bootstrap e mostrar erros -->
+            {% if field.errors %}
+              <div class="invalid-feedback d-block">
+                {% for e in field.errors %}{{ e }}<br>{% endfor %}
+              </div>
+            {% endif %}
+
+            <!-- Help text (se houver) -->
+            {% if field.help_text %}
+              <small class="form-text text-muted d-block mt-1">{{ field.help_text|safe }}</small>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <!-- Botões de ação -->
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">
+          {% if object %}Salvar Alterações{% else %}Criar{% endif %}
+        </button>
+        <a href="{% url volta_url %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

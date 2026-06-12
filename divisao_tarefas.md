@@ -52,7 +52,7 @@ A Parte 5 começa por último, depois que tudo mais está funcionando.
 
 ### Parte 1 — App configuracao e Models do app riscos
 
-Responsável: a ser definido pela equipe.
+Responsável: Eduarda.
 
 Esta parte cria toda a estrutura de dados do sistema. Nenhuma outra parte começa antes desta terminar as migrations.
 
@@ -321,7 +321,7 @@ def pode_editar(self, usuario):
 **O formulário**
 
 Criar `riscos/forms.py` com três forms separados, um por seção. Usar `ModelForm`.
-
+ d
 O `IdentificacaoForm` herda de `ModelForm` para `IdentificacaoRisco` com os campos: `tipologia`, `macroprocesso`, `objetivo_pdi`, `descricao_evento`, `causas`, `consequencias`.
 
 O `AvaliacaoForm` herda de `ModelForm` para `AvaliacaoRisco` com os campos: `probabilidade`, `impacto`, `eficacia_controles`, `descricao_controles`. Os campos `risco_inerente`, `nivel_inerente`, `risco_residual` e `nivel_residual` são calculados automaticamente no `save()` do model e não aparecem no form, mas são exibidos como leitura no template via JavaScript para feedback imediato ao usuário.
@@ -361,6 +361,8 @@ urlpatterns = [
     path('<int:pk>/remanejar/',       views.remanejar_plano,  name='remanejar_plano'),
 ]
 ```
+
+# parte 2.5
 
 **Os templates**
 
@@ -559,7 +561,7 @@ Para o Gestor da Unidade, adicionar um select de unidade no topo do dashboard qu
 
 ### Parte 4 — Relatório PDF e notificações
 
-Responsável: a ser definido pela equipe.
+Responsável: Pedro
 
 **Configuração do WeasyPrint**
 
@@ -793,12 +795,12 @@ Testar o fluxo completo: criar um usuário Gestor de Setor, vincular a um setor,
 
 ## 5. Resumo das responsabilidades
 
-Parte 1: app configuracao (DesafioPDI, ObjetivoPDI, Macroprocesso) + app riscos (PlanoDeRisco, IdentificacaoRisco, AvaliacaoRisco, TratamentoRisco) com migrations, admin e lógica de cálculo no save().
+Parte 1 (Eduarda): app configuracao (DesafioPDI, ObjetivoPDI, Macroprocesso) + app riscos (PlanoDeRisco, IdentificacaoRisco, AvaliacaoRisco, TratamentoRisco) com migrations, admin e lógica de cálculo no save().
 
 Parte 2 (Ana): CRUD completo de riscos com a função de escopo por perfil, formulário em três seções com cálculo visual em JavaScript, templates de listagem, criação, edição e visualização, controle de permissão de edição e exclusão.
 
 Parte 3: dashboard com contadores, matriz probabilidade x impacto em HTML colorido, gráfico de rosca por tipologia e gráfico de barras por setor usando Chart.js, scoping por perfil.
 
-Parte 4: geração de PDF com WeasyPrint, model Notificacao, management command de verificação de atrasos, badge de notificações no header.
+Parte 4 (Pedro): geração de PDF com WeasyPrint, model Notificacao, management command de verificação de atrasos, badge de notificações no header.
 
 Parte 5: signals conectando LogAlteracao aos modelos de risco, histórico visual na tela do plano, testes das regras de cálculo e de scoping, polimento do menu lateral por perfil.

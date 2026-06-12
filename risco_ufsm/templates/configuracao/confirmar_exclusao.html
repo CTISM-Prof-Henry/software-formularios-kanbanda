@@ -1,0 +1,33 @@
+{% extends 'base_sistema.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">⚠️ Confirmar Ocultação de Registro</h5>
+                </div>
+                <div class="card-body py-4">
+                    <p class="fs-5">Você tem certeza que deseja desativar o registro de <strong>{{ tipo }}</strong>?</p>
+                    
+                    <div class="alert alert-warning border-start border-warning border-3 bg-light">
+                        <strong>Identificação do Item:</strong> "{{ objeto }}"
+                    </div>
+                    
+                    <p class="text-muted small">
+                        *Nota de integridade: Conforme as regras da UFSM, nenhum dado é apagado fisicamente. O item sofrerá uma remoção lógica (Soft Delete) e será arquivado com segurança.*
+                    </p>
+                    
+                    <form method="post" class="d-flex justify-content-end gap-2 mt-4">
+                        {% csrf_token %}
+                        <a href="{% url 'configuracao:painel' %}" class="btn btn-secondary">Voltar ao Painel</a>
+                        <button type="submit" class="btn btn-danger">Sim, Confirmar Exclusão</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

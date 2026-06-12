@@ -10,7 +10,7 @@ from auditoria.models import LogAlteracao
 logger = logging.getLogger('accounts')
 
 @receiver(post_save, sender='accounts.Usuario')
-def log_alteracao_usuario(_sender, instance, created, **_kwargs):
+def log_alteracao_usuario(instance, created, **_kwargs):
     '''classe para registrar logs de criação e atualização de usuários.'''
     try:
         descricao = 'Usuário criado' if created else 'Usuário atualizado'
@@ -30,7 +30,7 @@ def log_alteracao_usuario(_sender, instance, created, **_kwargs):
 
 
 @receiver(post_save, sender='organizacional.UsuarioSetor')
-def log_vinculo_usuario_setor(_sender, instance, created, **_kwargs):
+def log_vinculo_usuario_setor(instance, created, **_kwargs):
     '''Classe para registrar logs de criação e atualização de
     vínculos entre usuários e setores.'''
     try:
