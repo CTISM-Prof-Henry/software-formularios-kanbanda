@@ -1,7 +1,10 @@
 """CRUD completo de planos de risco."""
 
+import json
+
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,10 +13,10 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 
 from accounts.decorators import requer_admin
-from organizacional.models import Setor, UsuarioSetor
+from organizacional.models import Setor, Unidade, UsuarioSetor
 
 from .services import qs_planos, pode_editar
-from .models import PlanoDeRisco, Notificacao
+from .models import PlanoDeRisco, AvaliacaoRisco, Notificacao
 from .forms import IdentificacaoForm, AvaliacaoForm, TratamentoForm, RemanejarForm
 
 # Valores do campo perfil no modelo de usuário — mantenha em sincronia com accounts/models.py
@@ -100,6 +103,107 @@ def lista_planos(request):
         'busca': busca,
     }
     return render(request, 'riscos/lista_planos.html', context)
+
+
+def _nivel_por_produto(produto):
+    """Régua de cor da matriz, espelhando AvaliacaoRisco.calcular_nivel:
+    <4 BAIXO, <12 MODERADO, <20 ALTO, senão EXTREMO."""
+    if produto < 4:
+        return 'BAIXO'
+    if produto < 12:
+        return 'MODERADO'
+    if produto < 20:
+        return 'ALTO'
+    return 'EXTREMO'
+
+
+@login_required
+def dashboard(request):
+    """
+    Painel analítico dos planos de risco no escopo do usuário.
+    Mostra contadores, distribuição por nível residual, gráficos por
+    tipologia e por setor, e a matriz probabilidade × impacto.
+    """
+    planos = qs_planos(request.user)
+
+    # --- Filtro opcional de unidade (Gestor da Unidade / Admin) ---
+    unidade_id = request.GET.get('unidade')
+    if unidade_id:
+        planos = planos.filter(setor__unidade_id=unidade_id)
+
+    # Lista de unidades para o seletor — só para quem enxerga mais de uma.
+    unidades = None
+    if request.user.is_admin:
+        unidades = Unidade.objects.filter(ativo=True, deleted_at__isnull=True).order_by('nome')
+    elif request.user.is_gestor_unidade:
+        unidades = request.user.get_unidades_ativas().order_by('nome')
+
+    # --- Contadores gerais ---
+    total = planos.count()
+    sem_tratamento = planos.filter(status='sem_tratamento').count()
+    com_tratamento = planos.filter(status='com_tratamento').count()
+
+    # --- Distribuição por nível residual ---
+    avaliacoes = AvaliacaoRisco.objects.filter(plano__in=planos)
+    por_nivel = {
+        'BAIXO':    avaliacoes.filter(nivel_residual='BAIXO').count(),
+        'MODERADO': avaliacoes.filter(nivel_residual='MODERADO').count(),
+        'ALTO':     avaliacoes.filter(nivel_residual='ALTO').count(),
+        'EXTREMO':  avaliacoes.filter(nivel_residual='EXTREMO').count(),
+    }
+
+    # --- Gráfico de rosca por tipologia ---
+    por_tipologia = (
+        planos.values('identificacao__tipologia')
+              .annotate(total=Count('id'))
+              .order_by('-total')
+    )
+    labels_tipologia = [item['identificacao__tipologia'] or 'Sem tipologia'
+                        for item in por_tipologia]
+    dados_tipologia = [item['total'] for item in por_tipologia]
+
+    # --- Gráfico de barras por setor (top 10) ---
+    por_setor = (
+        planos.values('setor__nome')
+              .annotate(total=Count('id'))
+              .order_by('-total')[:10]
+    )
+    labels_setor = [item['setor__nome'] for item in por_setor]
+    dados_setor = [item['total'] for item in por_setor]
+
+    # --- Matriz probabilidade × impacto ---
+    # Decisão técnica: a matriz é pré-montada aqui em Python (uma lista de
+    # linhas pronta para iterar), evitando filtros de template com dois
+    # argumentos / chaves de tupla, que o Django não suporta.
+    contagens = avaliacoes.values('probabilidade', 'impacto').annotate(total=Count('id'))
+    mapa = {(c['probabilidade'], c['impacto']): c['total'] for c in contagens}
+
+    matriz = []  # linhas de cima (prob=5) para baixo (prob=1)
+    for prob in range(5, 0, -1):
+        celulas = []
+        for imp in range(1, 6):
+            celulas.append({
+                'prob': prob,
+                'imp': imp,
+                'count': mapa.get((prob, imp), 0),
+                'nivel': _nivel_por_produto(prob * imp),
+            })
+        matriz.append({'prob': prob, 'celulas': celulas})
+
+    context = {
+        'unidades': unidades,
+        'unidade_id': unidade_id,
+        'total': total,
+        'sem_tratamento': sem_tratamento,
+        'com_tratamento': com_tratamento,
+        'por_nivel': por_nivel,
+        'matriz': matriz,
+        'labels_tipologia': json.dumps(labels_tipologia, cls=DjangoJSONEncoder),
+        'dados_tipologia': json.dumps(dados_tipologia, cls=DjangoJSONEncoder),
+        'labels_setor': json.dumps(labels_setor, cls=DjangoJSONEncoder),
+        'dados_setor': json.dumps(dados_setor, cls=DjangoJSONEncoder),
+    }
+    return render(request, 'riscos/dashboard.html', context)
 
 
 @login_required

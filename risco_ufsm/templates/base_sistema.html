@@ -45,6 +45,12 @@
       <span class="sidebar-icon">🏠</span> Painel
     </a>
 
+    {% if not request.user.is_servidor %}
+    <a href="{% url 'riscos:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <span class="sidebar-icon">📊</span> Dashboard
+    </a>
+    {% endif %}
+
     {% if request.user.pode_gerenciar_usuarios %}
     <div class="sidebar-section-title" style="margin-top:.5rem;">Usuários</div>
     <a href="{% url 'lista_usuarios' %}" class="sidebar-link {% if request.resolver_match.url_name == 'lista_usuarios' %}active{% endif %}">

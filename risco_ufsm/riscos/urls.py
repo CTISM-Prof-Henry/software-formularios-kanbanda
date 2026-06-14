@@ -3,8 +3,11 @@
 from django.urls import path
 from . import views
 
+app_name = 'riscos'
+
 urlpatterns = [
     path('',                          views.lista_planos,     name='lista_planos'),
+    path('dashboard/',                views.dashboard,        name='dashboard'),
     path('novo/',                     views.novo_plano,       name='novo_plano'),
     path('<int:pk>/',                 views.visualizar_plano, name='visualizar_plano'),
     path('<int:pk>/pdf/',             views.gerar_pdf,        name='gerar_pdf'),
