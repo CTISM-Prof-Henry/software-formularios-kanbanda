@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Plano de Análise de Risco</title>
+  <style>
+    @page { size: A4; margin: 2cm; }
+    body { font-family: Arial, sans-serif; font-size: 11pt; color: #222; }
+    h1 { font-size: 18pt; margin: 0 0 4px; }
+    h2 { font-size: 13pt; margin: 22px 0 8px; color: #1f4e79; }
+    .cabecalho { border-bottom: 2px solid #1f4e79; padding-bottom: 12px; margin-bottom: 18px; }
+    .orgao { font-size: 10pt; font-weight: bold; color: #555; text-transform: uppercase; }
+    .meta { font-size: 10pt; color: #444; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    th, td { border: 1px solid #999; padding: 7px; vertical-align: top; }
+    th { width: 28%; background: #f0f3f6; text-align: left; }
+    .badge { display: inline-block; padding: 4px 8px; color: #fff; font-weight: bold; border-radius: 4px; }
+    .BAIXO { background: #2ecc71; }
+    .MODERADO { background: #f39c12; }
+    .ALTO { background: #e67e22; }
+    .EXTREMO { background: #e74c3c; }
+    .vazio { color: #777; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="cabecalho">
+    <div class="orgao">Universidade Federal de Santa Maria - UFSM</div>
+    <h1>Plano de Análise de Risco</h1>
+    <div class="meta">
+      Plano #{{ plano.pk }} |
+      Setor: {{ plano.setor }} |
+      Data de geração: {% now "d/m/Y H:i" %}
+    </div>
+  </div>
+
+  <h2>1. Identificação e Análise</h2>
+  <table>
+    <tr><th>Tipologia</th><td>{{ plano.identificacao.get_tipologia_display|default:"-" }}</td></tr>
+    <tr><th>Macroprocesso</th><td>{{ plano.identificacao.macroprocesso|default:"-" }}</td></tr>
+    <tr><th>Objetivo PDI</th><td>{{ plano.identificacao.objetivo_pdi|default:"-" }}</td></tr>
+    <tr><th>Evento de risco</th><td>{{ plano.identificacao.descricao_evento|linebreaksbr }}</td></tr>
+    <tr><th>Causas</th><td>{{ plano.identificacao.causas|linebreaksbr }}</td></tr>
+    <tr><th>Consequências</th><td>{{ plano.identificacao.consequencias|linebreaksbr }}</td></tr>
+  </table>
+
+  <h2>2. Avaliação</h2>
+  <table>
+    <tr><th>Probabilidade</th><td>{{ plano.avaliacao.get_probabilidade_display|default:"-" }}</td></tr>
+    <tr><th>Impacto</th><td>{{ plano.avaliacao.get_impacto_display|default:"-" }}</td></tr>
+    <tr>
+      <th>Risco inerente</th>
+      <td>
+        {{ plano.avaliacao.risco_inerente|default:"-" }}
+        <span class="badge {{ plano.avaliacao.nivel_inerente }}">{{ plano.avaliacao.get_nivel_inerente_display|default:"-" }}</span>
+      </td>
+    </tr>
+    <tr><th>Controles internos</th><td>{{ plano.avaliacao.descricao_controles|default:"-"|linebreaksbr }}</td></tr>
+    <tr><th>Eficácia dos controles</th><td>{{ plano.avaliacao.get_eficacia_controles_display|default:"-" }}</td></tr>
+    <tr>
+      <th>Risco residual</th>
+      <td>
+        {{ plano.avaliacao.risco_residual|default:"-" }}
+        <span class="badge {{ plano.avaliacao.nivel_residual }}">{{ plano.avaliacao.get_nivel_residual_display|default:"-" }}</span>
+      </td>
+    </tr>
+  </table>
+
+  <h2>3. Tratamento</h2>
+  {% if plano.tratamento %}
+  <table>
+    <tr><th>Resposta ao risco</th><td>{{ plano.tratamento.get_resposta_display|default:"-" }}</td></tr>
+    <tr><th>Tipo de ação</th><td>{{ plano.tratamento.get_tipo_acao_display|default:"-" }}</td></tr>
+    <tr><th>Descrição da ação</th><td>{{ plano.tratamento.descricao_acao|linebreaksbr }}</td></tr>
+    <tr><th>Responsável</th><td>{{ plano.tratamento.responsavel|default:"-" }}</td></tr>
+    <tr><th>Parceiros</th><td>{{ plano.tratamento.parceiros|default:"-"|linebreaksbr }}</td></tr>
+    <tr><th>Data de início</th><td>{{ plano.tratamento.data_inicio|date:"d/m/Y"|default:"-" }}</td></tr>
+    <tr><th>Conclusão prevista</th><td>{{ plano.tratamento.data_conclusao_prevista|date:"d/m/Y"|default:"-" }}</td></tr>
+    <tr><th>Situação</th><td>{{ plano.tratamento.get_situacao_display|default:"-" }}</td></tr>
+    <tr><th>Observações</th><td>{{ plano.tratamento.observacoes|default:"-"|linebreaksbr }}</td></tr>
+    <tr><th>Resultados observados</th><td>{{ plano.tratamento.resultados_observados|default:"-"|linebreaksbr }}</td></tr>
+    <tr><th>Análise crítica</th><td>{{ plano.tratamento.analise_critica|default:"-"|linebreaksbr }}</td></tr>
+  </table>
+  {% else %}
+  <p class="vazio">Este plano ainda não possui tratamento cadastrado.</p>
+  {% endif %}
+</body>
+</html>

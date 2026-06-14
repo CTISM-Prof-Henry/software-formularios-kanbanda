@@ -6,12 +6,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseForbidden
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 from accounts.decorators import requer_admin
 from organizacional.models import Setor, UsuarioSetor
 
 from .services import qs_planos, pode_editar
-from .models import PlanoDeRisco
+from .models import PlanoDeRisco, Notificacao
 from .forms import IdentificacaoForm, AvaliacaoForm, TratamentoForm, RemanejarForm
 
 # Valores do campo perfil no modelo de usuário — mantenha em sincronia com accounts/models.py
@@ -183,6 +185,45 @@ def visualizar_plano(request, pk):
         'pode_editar': pode_editar(plano, request.user),
     }
     return render(request, 'riscos/visualizar_plano.html', context)
+
+
+@login_required
+def gerar_pdf(request, pk):
+    """Gera o PDF do plano de risco, respeitando o escopo do usuário."""
+    try:
+        from weasyprint import HTML
+    except (ImportError, OSError) as exc:
+        return HttpResponse(
+            'WeasyPrint não está configurado corretamente neste ambiente. '
+            f'Detalhe: {exc}',
+            status=500,
+            content_type='text/plain; charset=utf-8',
+        )
+
+    plano = get_object_or_404(PlanoDeRisco, pk=pk, deleted_at__isnull=True)
+    # Verificar se o usuário tem acesso a este plano
+    if not qs_planos(request.user).filter(pk=plano.pk).exists():
+        return HttpResponse(status=403)
+    html_string = render_to_string('riscos/pdf_plano.html', {'plano': plano})
+    pdf = HTML(string=html_string).write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="plano_risco_{pk}.pdf"'
+    return response
+
+
+@login_required
+def lista_notificacoes(request):
+    """Exibe as notificações do usuário e marca pendentes como lidas."""
+    notificacoes = (
+        Notificacao.objects
+        .filter(usuario=request.user)
+        .select_related('plano', 'plano__setor')
+        .order_by('-criado_em')
+    )
+    notificacoes.filter(lida=False).update(lida=True)
+    return render(request, 'riscos/lista_notificacoes.html', {
+        'notificacoes': notificacoes,
+    })
 
 
 @login_required

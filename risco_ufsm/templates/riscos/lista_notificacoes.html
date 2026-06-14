@@ -1,0 +1,28 @@
+{% extends 'base_sistema.html' %}
+
+{% block title %}Notificações{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Notificações</h1>
+  </div>
+
+  {% if notificacoes %}
+  <div class="list-group">
+    {% for notificacao in notificacoes %}
+    <a href="{% url 'riscos:visualizar_plano' notificacao.plano.pk %}" class="list-group-item list-group-item-action">
+      <div class="d-flex w-100 justify-content-between">
+        <strong>{{ notificacao.get_tipo_display }}</strong>
+        <small>{{ notificacao.criado_em|date:"d/m/Y H:i" }}</small>
+      </div>
+      <p class="mb-1">{{ notificacao.mensagem }}</p>
+      <small>Plano #{{ notificacao.plano.pk }}</small>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info mb-0">Nenhuma notificação encontrada.</div>
+  {% endif %}
+</div>
+{% endblock %}

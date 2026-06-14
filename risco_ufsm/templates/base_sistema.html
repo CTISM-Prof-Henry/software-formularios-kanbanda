@@ -27,6 +27,12 @@
       {% if request.user.foto %}<img src="{{ request.user.foto.url }}" alt="">
       {% else %}{{ request.user.get_iniciais }}{% endif %}
     </div>
+    <a href="{% url 'riscos:lista_notificacoes' %}" class="topbar-btn">
+      Notificações
+      {% if notificacoes_count > 0 %}
+      <span class="badge bg-danger ms-1">{{ notificacoes_count }}</span>
+      {% endif %}
+    </a>
     <a href="{% url 'meu_perfil' %}" class="topbar-btn">Meu Perfil</a>
     <a href="{% url 'logout' %}" class="topbar-btn">Sair</a>
   </div>

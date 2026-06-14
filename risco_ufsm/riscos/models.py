@@ -189,3 +189,22 @@ class TratamentoRisco(models.Model):
 
     class Meta:
         verbose_name = 'Tratamento do Risco'
+
+
+class Notificacao(models.Model):
+    '''Notifica usuários sobre planos de tratamento atrasados.'''
+    TIPO_ATRASO   = 'ATRASO'
+    TIPO_CHOICES  = [(TIPO_ATRASO, 'Plano de Tratamento Atrasado')]
+
+    usuario       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                      related_name='notificacoes')
+    plano         = models.ForeignKey(PlanoDeRisco, on_delete=models.CASCADE,
+                                      related_name='notificacoes')
+    tipo          = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    mensagem      = models.TextField()
+    lida          = models.BooleanField(default=False)
+    criado_em     = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Notificação'
+        ordering = ['-criado_em']
