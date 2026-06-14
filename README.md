@@ -92,6 +92,8 @@ Conta ativada → pode fazer login
 | `/usuarios/<id>/reenviar-ativacao/` | Admin/G.Unidade | Reenviar e-mail |
 | `/meu-perfil/` | Autenticado | Dados pessoais e senha |
 | `/logs/acesso/` | Admin | Auditoria de acessos |
+| `/riscos/<id>/pdf/` | Autenticado, com acesso ao plano | Gerar e baixar o relatório PDF de um plano de risco |
+| `/riscos/notificacoes/` | Autenticado | Visualizar as notificações do usuário |
 | `/admin/` | Admin | Painel administrativo |
 
 ## Documentação
