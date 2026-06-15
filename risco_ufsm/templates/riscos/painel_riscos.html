@@ -1,0 +1,54 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Painel de Riscos (Admin){% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Painel de Riscos <span class="badge bg-secondary fw-normal">{{ planos|length }}</span></h1>
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'painel' %}">Painel</a></li>
+    <li class="breadcrumb-item active">Visão Geral de Riscos (Admin)</li>
+  </ol>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover table-sm mb-0 table-gov">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Setor</th>
+          <th>Unidade</th>
+          <th>Criado por</th>
+          <th>Status</th>
+          <th>Criado em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for plano in planos %}
+        <tr>
+          <td><code style="font-size:.78rem;">#{{ plano.pk }}</code></td>
+          <td style="font-size:.83rem;">{{ plano.setor }}</td>
+          <td style="font-size:.83rem;">{{ plano.setor.unidade }}</td>
+          <td style="font-size:.83rem;">{{ plano.criado_por.get_nome_completo|default:plano.criado_por }}</td>
+          <td>
+            <span class="badge {% if plano.status == 'com_tratamento' %}badge-com-tratamento{% else %}badge-sem-tratamento{% endif %}">
+              {{ plano.get_status_display }}
+            </span>
+          </td>
+          <td style="font-size:.78rem;">{{ plano.criado_em|date:"d/m/Y H:i" }}</td>
+          <td>
+            <div class="d-flex gap-1 flex-wrap">
+              <a href="{% url 'riscos:detalhe_plano' plano.pk %}" class="btn btn-outline-primary btn-sm py-0 px-1" style="font-size:.72rem;">Detalhes</a>
+              <a href="{% url 'riscos:visualizar_plano' plano.pk %}" class="btn btn-outline-secondary btn-sm py-0 px-1" style="font-size:.72rem;">Visualizar</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">Nenhum plano de risco cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

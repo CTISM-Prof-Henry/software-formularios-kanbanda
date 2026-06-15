@@ -1,0 +1,48 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Excluir Plano #{{ objeto.pk }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Excluir Plano de Risco</h1>
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'painel' %}">Painel</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'riscos:lista_planos' %}">Riscos</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'riscos:visualizar_plano' objeto.pk %}">Plano #{{ objeto.pk }}</a></li>
+    <li class="breadcrumb-item active">Excluir</li>
+  </ol>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white py-2">
+        <strong>⚠️ Confirmar exclusão do Plano de Risco #{{ objeto.pk }}</strong>
+      </div>
+      <div class="card-body">
+        <p class="mb-2">Você tem certeza que deseja excluir este plano de risco?</p>
+
+        <div class="alert alert-light border" style="font-size:.85rem;">
+          <div><strong>Setor:</strong> {{ objeto.setor }}</div>
+          {% if objeto.identificacao %}
+          <div><strong>Tipologia:</strong> {{ objeto.identificacao.get_tipologia_display }}</div>
+          <div><strong>Evento de risco:</strong> {{ objeto.identificacao.descricao_evento|truncatechars:140 }}</div>
+          {% endif %}
+          <div><strong>Status:</strong> {{ objeto.get_status_display }}</div>
+        </div>
+
+        <p class="text-muted" style="font-size:.8rem;">
+          Conforme as regras de governança da UFSM, nenhum dado é apagado fisicamente.
+          O plano sofrerá uma remoção lógica (soft delete), deixará de aparecer nas listagens
+          e seu histórico permanecerá preservado para auditoria.
+        </p>
+
+        <form method="post" class="d-flex justify-content-end gap-2 mt-3">
+          {% csrf_token %}
+          <a href="{% url 'riscos:visualizar_plano' objeto.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-danger">Sim, excluir plano</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

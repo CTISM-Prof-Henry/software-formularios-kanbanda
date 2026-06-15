@@ -370,7 +370,7 @@ Criar os seguintes templates em `templates/riscos/`:
 
 `lista_planos.html`: tabela com colunas setor, tipologia, nível de risco residual (badge colorido), status (badge), data de criação, criado por, ações (ver, editar, excluir). Acima da tabela: campos de filtro em linha (selects e campo de texto) e contadores. Botão "Novo Plano" visível apenas para quem não é Servidor.
 
-`form_plano.html`: usado tanto para criação quanto para edição. Três seções com cabeçalhos visuais distintos: Identificação e Análise, Avaliação, Tratamento. Na seção de avaliação, exibir abaixo dos selects de probabilidade e impacto uma linha calculada via JavaScript mostrando o risco inerente e o nível em tempo real. Ao alterar eficácia dos controles, mostrar também o risco residual calculado. Isso é JavaScript puro, sem chamada ao servidor:
+`novo_plano.html e editra_plano.html`: Três seções com cabeçalhos visuais distintos: Identificação e Análise, Avaliação, Tratamento. Na seção de avaliação, exibir abaixo dos selects de probabilidade e impacto uma linha calculada via JavaScript mostrando o risco inerente e o nível em tempo real. Ao alterar eficácia dos controles, mostrar também o risco residual calculado. Isso é JavaScript puro, sem chamada ao servidor:
 
 ```javascript
 function calcularRisco() {
@@ -400,7 +400,7 @@ As cores dos níveis de risco seguem o padrão: Baixo = verde (`#2ecc71`), Moder
 
 No arquivo `templates/base_sistema.html`, adicionar uma seção "Riscos" no menu lateral com links para lista de planos e novo plano. O link de novo plano deve ficar oculto para Servidores usando `{% if not request.user.is_servidor %}`.
 
----
+--- 
 
 ### Parte 3 — Dashboard
 

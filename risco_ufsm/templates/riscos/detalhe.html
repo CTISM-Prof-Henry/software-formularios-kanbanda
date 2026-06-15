@@ -1,0 +1,169 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Detalhe Plano #{{ plano.pk }}{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+  <div>
+    <h1>Detalhe Técnico — Plano #{{ plano.pk }}</h1>
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'painel' %}">Painel</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'riscos:painel_riscos' %}">Visão Geral de Riscos (Admin)</a></li>
+      <li class="breadcrumb-item active">Plano #{{ plano.pk }}</li>
+    </ol>
+  </div>
+  <span class="badge {% if plano.status == 'com_tratamento' %}badge-com-tratamento{% else %}badge-sem-tratamento{% endif %} rounded-pill px-3 py-2">
+    {{ plano.get_status_display }}
+  </span>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header py-2"><strong style="font-size:.85rem;">⚙️ Metadados</strong></div>
+  <div class="card-body">
+    <div class="row g-3" style="font-size:.83rem;">
+      <div class="col-md-3">
+        <div class="text-muted" style="font-size:.78rem;">ID interno</div>
+        <div class="fw-semibold">#{{ plano.pk }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="text-muted" style="font-size:.78rem;">Setor / Unidade</div>
+        <div class="fw-semibold">{{ plano.setor }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="text-muted" style="font-size:.78rem;">Criado por</div>
+        <div class="fw-semibold">{{ plano.criado_por.get_nome_completo|default:plano.criado_por }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="text-muted" style="font-size:.78rem;">Status atual</div>
+        <div class="fw-semibold">{{ plano.get_status_display }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="text-muted" style="font-size:.78rem;">Criado em</div>
+        <div class="fw-semibold">{{ plano.criado_em|date:"d/m/Y H:i" }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="text-muted" style="font-size:.78rem;">Atualizado em</div>
+        <div class="fw-semibold">{{ plano.atualizado_em|date:"d/m/Y H:i" }}</div>
+      </div>
+      <div class="col-md-3">
+        <div class="text-muted" style="font-size:.78rem;">Excluído (soft delete)</div>
+        <div class="fw-semibold">
+          {% if plano.deleted_at %}
+          <span class="badge bg-danger">{{ plano.deleted_at|date:"d/m/Y H:i" }}</span>
+          {% else %}
+          <span class="badge bg-success">Ativo</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="card mb-3">
+  <div class="card-header py-2 d-flex align-items-center">
+    <span class="form-section-num">1</span>
+    <span class="form-section-title">Identificação e Análise</span>
+  </div>
+  {% if identificacao %}
+  <div class="card-body" style="font-size:.85rem;">
+    <div class="row g-3">
+      <div class="col-md-4"><strong>Tipologia:</strong> {{ identificacao.get_tipologia_display }}</div>
+      <div class="col-md-4"><strong>Macroprocesso:</strong> {{ identificacao.macroprocesso|default:"—" }}</div>
+      <div class="col-md-4"><strong>Objetivo PDI:</strong> {{ identificacao.objetivo_pdi|default:"—" }}</div>
+    </div>
+    <hr>
+    <p><strong>Evento de risco:</strong><br>{{ identificacao.descricao_evento|linebreaksbr }}</p>
+    <p><strong>Causas:</strong><br>{{ identificacao.causas|linebreaksbr }}</p>
+    <p class="mb-0"><strong>Consequências:</strong><br>{{ identificacao.consequencias|linebreaksbr }}</p>
+  </div>
+  {% else %}
+  <div class="card-body text-muted text-center py-3">Não preenchida.</div>
+  {% endif %}
+</div>
+
+<div class="card mb-3">
+  <div class="card-header py-2 d-flex align-items-center">
+    <span class="form-section-num">2</span>
+    <span class="form-section-title">Avaliação</span>
+  </div>
+  {% if avaliacao %}
+  <div class="card-body" style="font-size:.85rem;">
+    <div class="row g-3">
+      <div class="col-md-3"><strong>Probabilidade:</strong> {{ avaliacao.get_probabilidade_display }}</div>
+      <div class="col-md-3"><strong>Impacto:</strong> {{ avaliacao.get_impacto_display }}</div>
+      <div class="col-md-3">
+        <strong>Risco Inerente:</strong> {{ avaliacao.risco_inerente }}
+        <span class="badge badge-risco-{{ avaliacao.nivel_inerente|lower }}">{{ avaliacao.get_nivel_inerente_display }}</span>
+      </div>
+      <div class="col-md-3">
+        <strong>Risco Residual:</strong> {{ avaliacao.risco_residual }}
+        <span class="badge badge-risco-{{ avaliacao.nivel_residual|lower }}">{{ avaliacao.get_nivel_residual_display }}</span>
+      </div>
+    </div>
+    <hr>
+    <div><strong>Eficácia dos controles:</strong> {{ avaliacao.get_eficacia_controles_display }}</div>
+    <p class="mb-0 mt-1"><strong>Controles internos descritos:</strong><br>{{ avaliacao.descricao_controles|default:"—"|linebreaksbr }}</p>
+  </div>
+  {% else %}
+  <div class="card-body text-muted text-center py-3">Não preenchida.</div>
+  {% endif %}
+</div>
+
+<div class="card mb-3">
+  <div class="card-header py-2 d-flex align-items-center">
+    <span class="form-section-num">3</span>
+    <span class="form-section-title">Tratamento</span>
+  </div>
+  {% if tratamento %}
+  <div class="card-body" style="font-size:.85rem;">
+    <div class="row g-3">
+      <div class="col-md-4"><strong>Resposta:</strong> {{ tratamento.get_resposta_display }}</div>
+      <div class="col-md-4"><strong>Tipo de ação:</strong> {{ tratamento.get_tipo_acao_display }}</div>
+      <div class="col-md-4"><strong>Situação:</strong> {{ tratamento.get_situacao_display }}</div>
+    </div>
+    <hr>
+    <p><strong>Descrição da ação:</strong><br>{{ tratamento.descricao_acao|linebreaksbr }}</p>
+    <div class="row g-3">
+      <div class="col-md-3"><strong>Início:</strong> {{ tratamento.data_inicio|date:"d/m/Y"|default:"—" }}</div>
+      <div class="col-md-3"><strong>Conclusão prevista:</strong> {{ tratamento.data_conclusao_prevista|date:"d/m/Y"|default:"—" }}</div>
+      <div class="col-md-6"><strong>Responsável:</strong> {{ tratamento.responsavel|default:"—" }}</div>
+    </div>
+  </div>
+  {% else %}
+  <div class="card-body text-muted text-center py-3">Plano sem tratamento cadastrado.</div>
+  {% endif %}
+</div>
+
+<div class="card mb-4">
+  <div class="card-header py-2"><strong style="font-size:.85rem;">🕒 Histórico de Alterações</strong></div>
+  <div class="card-body p-0">
+    {% with historico=plano.history.all %}
+    {% if historico %}
+    <table class="table table-sm mb-0 table-gov">
+      <thead>
+        <tr><th>Data/Hora</th><th>Tipo</th><th>Usuário</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for h in historico %}
+        <tr>
+          <td style="font-size:.78rem;">{{ h.history_date|date:"d/m/Y H:i" }}</td>
+          <td style="font-size:.78rem;">{{ h.get_history_type_display }}</td>
+          <td style="font-size:.78rem;">{{ h.history_user|default:"—" }}</td>
+          <td style="font-size:.78rem;">{{ h.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="p-3 text-muted text-center" style="font-size:.85rem;">Nenhum histórico registrado.</div>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+<div class="d-flex gap-2 mb-4">
+  <a href="{% url 'riscos:visualizar_plano' plano.pk %}" class="btn btn-outline-primary btn-sm">👁 Visualização Completa</a>
+  <a href="{% url 'riscos:plano_deletar' plano.pk %}" class="btn btn-outline-danger btn-sm">🗑️ Excluir (Admin)</a>
+  <a href="{% url 'riscos:painel_riscos' %}" class="btn btn-outline-secondary btn-sm ms-auto">← Voltar</a>
+</div>
+{% endblock %}

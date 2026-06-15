@@ -17,6 +17,7 @@ class IdentificacaoForm(forms.ModelForm):
         queryset=Setor.objects.none(),
         label='Setor / Departamento responsável',
         empty_label='Selecione o setor...',
+        widget=forms.Select(attrs={'class': 'form-select'}),
     )
 
     class Meta:
@@ -78,7 +79,7 @@ class AvaliacaoForm(forms.ModelForm):
                                                 'id': 'id_probabilidade'}),
             'impacto': forms.Select(attrs={'class': 'form-select', 
                                             'id': 'id_impacto'}),
-            'eficacio_controles': forms.Select(attrs={'class': 'form-select', 
+            'eficacia_controles': forms.Select(attrs={'class': 'form-select',
                                                         'id': 'id_eficacia_controles'}),
             'descricao_controles': forms.Textarea(attrs={'class': 'form-control', 
                                                         'rows': 3, 'placeholder': 
@@ -117,12 +118,15 @@ class TratamentoForm(forms.ModelForm):
                                                     'Descreva a ação'}),
             'situacao': forms.Select(attrs={'class': 'form-select'}),
             'data_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, 
-                                                    format='%d/%m/%y'),
+                                                    format='%Y-%m-%d'),
             'data_conclusao_prevista': forms.DateInput(attrs={'type': 'date', 
                                                                 'class': 'form-control'}, 
-                                                                format='%d/%m/%y'),
+                                                                format='%Y-%m-%d'),
             'responsavel': forms.TextInput(attrs={'class': 'form-control', 
                                                     'placeholder': 'Responsável pelo tratamento'}),
+            'parceiros': forms.Textarea(attrs={'class': 'form-control',
+                                                'rows': 2, 'placeholder':
+                                                'Outros setores ou pessoas envolvidas'}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 
                                                     'rows': 3, 'placeholder': 'Observações'}),
             'resultados_observados': forms.Textarea(attrs={'class': 'form-control', 
@@ -172,6 +176,7 @@ class RemanejarForm(forms.Form):
         queryset=Setor.objects.none(),
         label='Novo setor destino',
         empty_label='Selecione o setor destino...',
+        widget=forms.Select(attrs={'class': 'form-select'}),
     )
 
     def __init__(self, *args, unidade=None, setor_atual=None, **kwargs):
