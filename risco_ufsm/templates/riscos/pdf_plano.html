@@ -6,12 +6,61 @@
   <style>
     @page { size: A4; margin: 2cm; }
     body { font-family: Arial, sans-serif; font-size: 11pt; color: #222; }
-    h1 { font-size: 18pt; margin: 0 0 4px; }
     h2 { font-size: 13pt; margin: 22px 0 8px; color: #1f4e79; }
-    .cabecalho { border-bottom: 2px solid #1f4e79; padding-bottom: 12px; margin-bottom: 18px; }
-    .logo-ufsm { width: 190px; height: auto; margin-bottom: 10px; }
-    .orgao { font-size: 10pt; font-weight: bold; color: #555; text-transform: uppercase; }
-    .meta { font-size: 10pt; color: #444; margin-top: 8px; }
+    .cabecalho { margin-bottom: 22px; }
+    .identidade {
+      width: 100%;
+      margin: 0 0 12px;
+      border-collapse: collapse;
+    }
+    .identidade td { border: 0; padding: 0; vertical-align: middle; }
+    .marca { width: 43%; }
+    .logo-ufsm { width: 155px; height: auto; display: block; }
+    .instituicao {
+      text-align: right;
+      color: #333;
+      font-size: 9.5pt;
+      line-height: 1.45;
+    }
+    .instituicao strong {
+      display: block;
+      color: #111;
+      font-size: 11pt;
+      text-transform: uppercase;
+    }
+    .titulo-documento {
+      border-top: 2px solid #1f4e79;
+      border-bottom: 2px solid #1f4e79;
+      background: #f3f6f9;
+      padding: 11px 10px 9px;
+      text-align: center;
+    }
+    .titulo-documento h1 {
+      margin: 0;
+      color: #173b62;
+      font-size: 17pt;
+      text-transform: uppercase;
+    }
+    .titulo-documento p {
+      margin: 4px 0 0;
+      color: #555;
+      font-size: 9pt;
+    }
+    .metadados {
+      width: 100%;
+      margin: 9px 0 0;
+      border-collapse: collapse;
+      font-size: 9pt;
+    }
+    .metadados td {
+      border: 0;
+      border-bottom: 1px solid #c8cdd2;
+      padding: 5px 4px;
+      vertical-align: top;
+    }
+    .metadados td:first-child { padding-left: 0; }
+    .metadados td:last-child { padding-right: 0; text-align: right; }
+    .rotulo { color: #555; font-weight: bold; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
     th, td { border: 1px solid #999; padding: 7px; vertical-align: top; }
     th { width: 28%; background: #f0f3f6; text-align: left; }
@@ -25,14 +74,31 @@
 </head>
 <body>
   <div class="cabecalho">
-    <img class="logo-ufsm" src="{{ logo_url }}" alt="Universidade Federal de Santa Maria">
-    <div class="orgao">Universidade Federal de Santa Maria - UFSM</div>
-    <h1>Plano de Análise de Risco</h1>
-    <div class="meta">
-      Plano #{{ plano.pk }} |
-      Setor: {{ plano.setor }} |
-      Data de geração: {% now "d/m/Y H:i" %}
+    <table class="identidade">
+      <tr>
+        <td class="marca">
+          <img class="logo-ufsm" src="{{ logo_url }}" alt="Universidade Federal de Santa Maria">
+        </td>
+        <td class="instituicao">
+          <strong>Universidade Federal de Santa Maria</strong>
+          Sistema de Gestão de Riscos Institucionais<br>
+          Relatório de gerenciamento de riscos
+        </td>
+      </tr>
+    </table>
+
+    <div class="titulo-documento">
+      <h1>Plano de Análise de Risco</h1>
+      <p>Identificação, avaliação, tratamento e monitoramento</p>
     </div>
+
+    <table class="metadados">
+      <tr>
+        <td><span class="rotulo">Plano:</span> nº {{ plano.pk }}</td>
+        <td><span class="rotulo">Setor:</span> {{ plano.setor }}</td>
+        <td><span class="rotulo">Emissão:</span> {% now "d/m/Y H:i" %}</td>
+      </tr>
+    </table>
   </div>
 
   <h2>1. Identificação e Análise</h2>
