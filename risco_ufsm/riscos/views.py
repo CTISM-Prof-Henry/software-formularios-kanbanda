@@ -13,14 +13,15 @@ from accounts.decorators import requer_admin
 from organizacional.models import Setor, UsuarioSetor
 
 from .services import qs_planos, pode_editar
-from .models import PlanoDeRisco, Notificacao
+from .models import PlanoDeRisco, Notificacao, IdentificacaoRisco, AvaliacaoRisco
 from .forms import IdentificacaoForm, AvaliacaoForm, TratamentoForm, RemanejarForm
 
-# Valores do campo perfil no modelo de usuário — mantenha em sincronia com accounts/models.py
-PERFIL_ADMINISTRADOR = 'administrador'
-PERFIL_GESTOR_UNIDADE = 'gestor_unidade'
-PERFIL_GESTOR_SETOR = 'gestor_setor'
-PERFIL_SERVIDOR = 'servidor'
+# Valores do campo perfil no modelo de usuário — devem ser idênticos aos de
+# accounts.models.Perfil (TextChoices), que usa valores em maiúsculas.
+PERFIL_ADMINISTRADOR = 'ADMIN'
+PERFIL_GESTOR_UNIDADE = 'GESTOR_UNIDADE'
+PERFIL_GESTOR_SETOR = 'GESTOR_SETOR'
+PERFIL_SERVIDOR = 'SERVIDOR'
 
 
 def _setor_qs_para_usuario(user):
@@ -54,7 +55,7 @@ def painel_riscos(request):
         PlanoDeRisco.objects
         .filter(deleted_at__isnull=True)
         .select_related('setor', 'criado_por')
-        .order_by('-data_criacao')
+        .order_by('-criado_em')
     )
     return render(request, 'riscos/painel_riscos.html', {'planos': planos})
 
@@ -75,7 +76,8 @@ def detalhe_plano(request, pk):
 def lista_planos(request):
     """
     Exibe os planos conforme o escopo do usuário (definido por qs_planos).
-    Suporta busca por texto livre e exibe contadores de totais.
+    Suporta busca por texto livre, filtros por tipologia, nível de risco
+    residual e status, e exibe contadores de totais.
     """
     u = request.user
     qs = qs_planos(u)
@@ -84,20 +86,40 @@ def lista_planos(request):
     total_sem_tratamento = qs.filter(status='sem_tratamento').count()
 
     busca = request.GET.get('q', '').strip()
+    tipologia = request.GET.get('tipologia', '').strip()
+    nivel = request.GET.get('nivel', '').strip()
+    status = request.GET.get('status', '').strip()
+
     if busca:
         qs = qs.filter(
             Q(identificacao__tipologia__icontains=busca)
             | Q(identificacao__descricao_evento__icontains=busca)
-            | Q(avaliacao__nivel_risco_residual__icontains=busca)
+            | Q(avaliacao__nivel_residual__icontains=busca)
             | Q(setor__nome__icontains=busca)
             | Q(status__icontains=busca)
         )
 
+    if tipologia:
+        qs = qs.filter(identificacao__tipologia=tipologia)
+
+    if nivel:
+        qs = qs.filter(avaliacao__nivel_residual=nivel)
+
+    if status:
+        qs = qs.filter(status=status)
+
     context = {
-        'planos': qs.select_related('setor', 'criado_por').order_by('-criado_em'),
+        'planos': qs.select_related('setor', 'criado_por',
+                                     'identificacao', 'avaliacao').order_by('-criado_em'),
         'total_geral': total_geral,
         'total_sem_tratamento': total_sem_tratamento,
         'busca': busca,
+        'filtro_tipologia': tipologia,
+        'filtro_nivel': nivel,
+        'filtro_status': status,
+        'tipologia_choices': IdentificacaoRisco.TIPOLOGIA_CHOICES,
+        'nivel_choices': AvaliacaoRisco.NIVEL_CHOICES,
+        'status_choices': PlanoDeRisco.STATUS_CHOICES,
     }
     return render(request, 'riscos/lista_planos.html', context)
 

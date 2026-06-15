@@ -1,0 +1,71 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Remanejar Plano #{{ plano.pk }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Remanejar Plano de Risco #{{ plano.pk }}</h1>
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'painel' %}">Painel</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'riscos:lista_planos' %}">Riscos</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'riscos:visualizar_plano' plano.pk %}">Plano #{{ plano.pk }}</a></li>
+    <li class="breadcrumb-item active">Remanejar</li>
+  </ol>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <!-- Resumo do plano -->
+    <div class="card mb-3" style="border-left:4px solid #1351B4;">
+      <div class="card-body py-2 px-3" style="font-size:.83rem;">
+        <div><strong>Plano:</strong> #{{ plano.pk }}</div>
+        {% if plano.identificacao %}
+        <div><strong>Evento de risco:</strong> {{ plano.identificacao.descricao_evento|truncatechars:140 }}</div>
+        {% endif %}
+        <div><strong>Unidade:</strong> {{ unidade }}</div>
+        <div><strong>Setor atual:</strong> {{ plano.setor }}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header py-2">
+        <strong style="font-size:.85rem;">🔁 Transferir para outro setor da mesma unidade</strong>
+      </div>
+      <div class="card-body">
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2">
+          {% for e in form.non_field_errors %}⚠ {{ e }}<br>{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Setor de destino <span class="text-danger">*</span></label>
+            {{ form.setor }}
+            {% for e in form.setor.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            <div class="form-text">
+              Apenas setores ativos da unidade <strong>{{ unidade }}</strong>, excluindo o setor atual, são exibidos.
+            </div>
+          </div>
+
+          <div class="alert alert-warning py-2" style="font-size:.8rem;">
+            O plano passará a pertencer ao setor selecionado. O histórico de remanejamentos
+            é preservado para auditoria.
+          </div>
+
+          <hr>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Confirmar Remanejamento</button>
+            <a href="{% url 'riscos:visualizar_plano' plano.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

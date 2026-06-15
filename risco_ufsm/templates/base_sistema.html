@@ -44,6 +44,20 @@
     <a href="{% url 'painel' %}" class="sidebar-link {% if request.resolver_match.url_name == 'painel' %}active{% endif %}">
       <span class="sidebar-icon">🏠</span> Painel
     </a>
+    <div class="sidebar-section-title" style="margin-top:.5rem;">Riscos</div>
+    <a href="{% url 'riscos:lista_planos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'lista_planos' %}active{% endif %}">
+      <span class="sidebar-icon">📑</span> Listar Planos
+    </a>
+    {% if not request.user.is_servidor %}
+    <a href="{% url 'riscos:novo_plano' %}" class="sidebar-link {% if request.resolver_match.url_name == 'novo_plano' %}active{% endif %}">
+      <span class="sidebar-icon">📝</span> Novo Plano
+    </a>
+    {% endif %}
+    {% if request.user.is_admin %}
+    <a href="{% url 'riscos:painel_riscos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'painel_riscos' %}active{% endif %}">
+      <span class="sidebar-icon">📊</span> Visão Geral (Admin)
+    </a>
+    {% endif %}
 
     {% if request.user.pode_gerenciar_usuarios %}
     <div class="sidebar-section-title" style="margin-top:.5rem;">Usuários</div>

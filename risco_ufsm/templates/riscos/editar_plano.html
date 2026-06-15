@@ -1,1 +1,30 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Editar Plano #{{ plano.pk }}{% endblock %}
 
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>Editar Plano de Risco #{{ plano.pk }}</h1>
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'painel' %}">Painel</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'riscos:lista_planos' %}">Riscos</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'riscos:visualizar_plano' plano.pk %}">Plano #{{ plano.pk }}</a></li>
+      <li class="breadcrumb-item active">Editar</li>
+    </ol>
+  </div>
+  <span class="badge {% if plano.status == 'com_tratamento' %}badge-com-tratamento{% else %}badge-sem-tratamento{% endif %}">
+    {{ plano.get_status_display }}
+  </span>
+</div>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {% include 'riscos/_form_secoes.html' %}
+
+  <div class="d-flex gap-2 mb-4">
+    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+    <a href="{% url 'riscos:visualizar_plano' plano.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

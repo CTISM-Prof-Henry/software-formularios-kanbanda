@@ -1,0 +1,139 @@
+{% extends 'base_sistema.html' %}
+{% block title %}Planos de Risco{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+  <div>
+    <h1>Planos de Risco <span class="badge bg-secondary fw-normal">{{ total_geral }}</span></h1>
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'painel' %}">Painel</a></li>
+      <li class="breadcrumb-item active">Riscos</li>
+    </ol>
+  </div>
+  {% if not request.user.is_servidor %}
+  <a href="{% url 'riscos:novo_plano' %}" class="btn btn-primary btn-sm">➕ Novo Plano</a>
+  {% endif %}
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-sm-6 col-md-4">
+    <div class="stat-card">
+      <div class="stat-card-value text-primary">{{ total_geral }}</div>
+      <div class="stat-card-label">📑 Total de planos no seu escopo</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="stat-card">
+      <div class="stat-card-value text-warning">{{ total_sem_tratamento }}</div>
+      <div class="stat-card-label">⏳ Sem tratamento</div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-sm-6 col-md-4">
+        <label class="form-label fw-semibold" style="font-size:.78rem;">Buscar</label>
+        <input type="text" name="q" class="form-control form-control-sm"
+               placeholder="Tipologia, descrição, setor, nível ou status..."
+               value="{{ busca }}">
+      </div>
+      <div class="col-sm-4 col-md-2">
+        <label class="form-label fw-semibold" style="font-size:.78rem;">Tipologia</label>
+        <select name="tipologia" class="form-select form-select-sm">
+          <option value="">Todas</option>
+          {% for valor, rotulo in tipologia_choices %}
+          <option value="{{ valor }}" {% if filtro_tipologia == valor %}selected{% endif %}>{{ rotulo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-4 col-md-2">
+        <label class="form-label fw-semibold" style="font-size:.78rem;">Nível (residual)</label>
+        <select name="nivel" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          {% for valor, rotulo in nivel_choices %}
+          <option value="{{ valor }}" {% if filtro_nivel == valor %}selected{% endif %}>{{ rotulo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-4 col-md-2">
+        <label class="form-label fw-semibold" style="font-size:.78rem;">Status</label>
+        <select name="status" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          {% for valor, rotulo in status_choices %}
+          <option value="{{ valor }}" {% if filtro_status == valor %}selected{% endif %}>{{ rotulo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+        <a href="{% url 'riscos:lista_planos' %}" class="btn btn-outline-secondary btn-sm">Limpar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover table-sm mb-0 table-gov">
+      <thead>
+        <tr>
+          <th>Setor</th>
+          <th>Tipologia</th>
+          <th>Nível de Risco Residual</th>
+          <th>Status</th>
+          <th>Data de Criação</th>
+          <th>Criado por</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for plano in planos %}
+        <tr>
+          <td style="font-size:.83rem;">{{ plano.setor }}</td>
+          <td style="font-size:.83rem;">
+            {% if plano.identificacao %}{{ plano.identificacao.get_tipologia_display }}{% else %}—{% endif %}
+          </td>
+          <td>
+            {% if plano.avaliacao %}
+            <span class="badge badge-risco-{{ plano.avaliacao.nivel_residual|lower }}">{{ plano.avaliacao.get_nivel_residual_display }}</span>
+            <span class="text-muted ms-1" style="font-size:.78rem;">({{ plano.avaliacao.risco_residual }})</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <span class="badge {% if plano.status == 'com_tratamento' %}badge-com-tratamento{% else %}badge-sem-tratamento{% endif %}">
+              {{ plano.get_status_display }}
+            </span>
+          </td>
+          <td style="font-size:.78rem;">{{ plano.criado_em|date:"d/m/Y" }}</td>
+          <td style="font-size:.83rem;">{{ plano.criado_por.get_nome_completo|default:plano.criado_por }}</td>
+          <td>
+            <div class="d-flex gap-1 flex-wrap">
+              <a href="{% url 'riscos:visualizar_plano' plano.pk %}" class="btn btn-outline-primary btn-sm py-0 px-1" style="font-size:.72rem;">Ver</a>
+              {% if not request.user.is_servidor %}
+              <a href="{% url 'riscos:editar_plano' plano.pk %}" class="btn btn-outline-secondary btn-sm py-0 px-1" style="font-size:.72rem;">Editar</a>
+              <a href="{% url 'riscos:excluir_plano' plano.pk %}" class="btn btn-outline-danger btn-sm py-0 px-1" style="font-size:.72rem;">Excluir</a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            {% if busca or filtro_tipologia or filtro_nivel or filtro_status %}
+            Nenhum plano encontrado para os filtros informados.
+            {% else %}
+            Nenhum plano de risco cadastrado ainda.
+            {% endif %}
+            {% if not request.user.is_servidor %}
+            <br><a href="{% url 'riscos:novo_plano' %}" class="btn btn-primary btn-sm mt-2">Cadastrar primeiro plano</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
