@@ -1,0 +1,264 @@
+<div class="card mb-3">
+  <div class="card-header py-2 d-flex align-items-center">
+    <span class="form-section-num">1</span>
+    <span class="form-section-title">Identificação e Análise</span>
+  </div>
+  <div class="card-body">
+
+    {% for e in form_identificacao.non_field_errors %}
+    <div class="alert alert-danger py-2">⚠ {{ e }}</div>
+    {% endfor %}
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Setor / Departamento responsável <span class="text-danger">*</span></label>
+      {{ form_identificacao.setor }}
+      {% for e in form_identificacao.setor.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Tipologia / Categoria de risco <span class="text-danger">*</span></label>
+        {{ form_identificacao.tipologia }}
+        {% for e in form_identificacao.tipologia.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Macroprocesso institucional</label>
+        {{ form_identificacao.macroprocesso }}
+        {% for e in form_identificacao.macroprocesso.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+        <div class="form-text">Opcional</div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Objetivo do PDI</label>
+        {{ form_identificacao.objetivo_pdi }}
+        {% for e in form_identificacao.objetivo_pdi.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+        <div class="form-text">Opcional</div>
+      </div>
+    </div>
+
+    <div class="mb-3 mt-3">
+      <label class="form-label fw-semibold">Descrição do evento de risco <span class="text-danger">*</span></label>
+      {{ form_identificacao.descricao_evento }}
+      {% for e in form_identificacao.descricao_evento.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Causas do risco <span class="text-danger">*</span></label>
+        {{ form_identificacao.causas }}
+        {% for e in form_identificacao.causas.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Consequências / efeitos <span class="text-danger">*</span></label>
+        {{ form_identificacao.consequencias }}
+        {% for e in form_identificacao.consequencias.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header py-2 d-flex align-items-center">
+    <span class="form-section-num">2</span>
+    <span class="form-section-title">Avaliação</span>
+  </div>
+  <div class="card-body">
+
+    {% for e in form_avaliacao.non_field_errors %}
+    <div class="alert alert-danger py-2">⚠ {{ e }}</div>
+    {% endfor %}
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Probabilidade <span class="text-danger">*</span></label>
+        {{ form_avaliacao.probabilidade }}
+        {% for e in form_avaliacao.probabilidade.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Impacto <span class="text-danger">*</span></label>
+        {{ form_avaliacao.impacto }}
+        {% for e in form_avaliacao.impacto.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="row g-3 mt-3">
+      <div class="col-md-6">
+        <div class="calc-box h-100">
+          <div class="text-muted" style="font-size:.78rem;">Risco Inerente (Probabilidade × Impacto)</div>
+          <div class="d-flex align-items-center gap-2 mt-1">
+            <span class="calc-box-value" id="risco-inerente-display">0</span>
+            <span class="badge badge-risco-baixo" id="calc-inerente-nivel">Baixo</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="calc-box h-100">
+          <div class="text-muted" style="font-size:.78rem;">Risco Residual (Inerente × Fator de Controle)</div>
+          <div class="d-flex align-items-center gap-2 mt-1">
+            <span class="calc-box-value" id="risco-residual-display">0</span>
+            <span class="badge badge-risco-baixo" id="calc-residual-nivel">Baixo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-text mt-1">Os valores são calculados automaticamente conforme você preenche os campos abaixo e serão recalculados pelo sistema ao salvar.</div>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Eficácia dos controles internos existentes <span class="text-danger">*</span></label>
+        {{ form_avaliacao.eficacia_controles }}
+        {% for e in form_avaliacao.eficacia_controles.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-8">
+        <label class="form-label fw-semibold">Descrição dos controles internos aplicados</label>
+        {{ form_avaliacao.descricao_controles }}
+        {% for e in form_avaliacao.descricao_controles.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header py-2 d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+      <span class="form-section-num">3</span>
+      <span class="form-section-title">Tratamento</span>
+    </div>
+    <span class="badge bg-light text-secondary border" style="font-size:.7rem;">Opcional</span>
+  </div>
+  <div class="card-body">
+
+    <div class="alert alert-light border py-2" style="font-size:.8rem;">
+      Esta seção pode ser preenchida posteriormente. O plano ficará com status
+      <span class="badge badge-sem-tratamento">Sem Tratamento</span> até que a
+      <strong>descrição da ação de mitigação/contingência</strong> seja informada.
+    </div>
+
+    {% for e in form_tratamento.non_field_errors %}
+    <div class="alert alert-danger py-2">⚠ {{ e }}</div>
+    {% endfor %}
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Resposta ao risco</label>
+        {{ form_tratamento.resposta }}
+        {% for e in form_tratamento.resposta.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Tipo de ação</label>
+        {{ form_tratamento.tipo_acao }}
+        {% for e in form_tratamento.tipo_acao.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Situação do tratamento</label>
+        {{ form_tratamento.situacao }}
+        {% for e in form_tratamento.situacao.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-3 mt-3">
+      <label class="form-label fw-semibold">Descrição da ação de mitigação / contingência</label>
+      {{ form_tratamento.descricao_acao }}
+      {% for e in form_tratamento.descricao_acao.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Data de início</label>
+        {{ form_tratamento.data_inicio }}
+        {% for e in form_tratamento.data_inicio.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Conclusão prevista</label>
+        {{ form_tratamento.data_conclusao_prevista }}
+        {% for e in form_tratamento.data_conclusao_prevista.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Responsável pela execução</label>
+        {{ form_tratamento.responsavel }}
+        {% for e in form_tratamento.responsavel.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-3 mt-3">
+      <label class="form-label fw-semibold">Parceiros / Intervenientes</label>
+      {{ form_tratamento.parceiros }}
+      {% for e in form_tratamento.parceiros.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Observações</label>
+        {{ form_tratamento.observacoes }}
+        {% for e in form_tratamento.observacoes.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Resultados observados</label>
+        {{ form_tratamento.resultados_observados }}
+        {% for e in form_tratamento.resultados_observados.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Análise crítica da efetividade</label>
+        {{ form_tratamento.analise_critica }}
+        {% for e in form_tratamento.analise_critica.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var FATORES_EFICACIA = {
+    'INEXISTENTE': 1.0,
+    'FRACO': 0.8,
+    'MEDIANO': 0.6,
+    'SATISFATORIO': 0.4,
+    'FORTE': 0.2
+  };
+
+  function classificarNivelRisco(valor) {
+    if (valor < 4)  return ['BAIXO', 'Baixo'];
+    if (valor < 12) return ['MODERADO', 'Moderado'];
+    if (valor < 20) return ['ALTO', 'Alto'];
+    return ['EXTREMO', 'Extremo'];
+  }
+
+  function aplicarBadgeNivel(elId, chaveNivel, label) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    el.classList.remove(
+      'badge-risco-baixo', 'badge-risco-moderado',
+      'badge-risco-alto', 'badge-risco-extremo'
+    );
+    el.classList.add('badge-risco-' + chaveNivel.toLowerCase());
+    el.textContent = label;
+  }
+
+  function calcularRisco() {
+    var prob = parseInt(document.getElementById('id_probabilidade').value, 10) || 0;
+    var impact = parseInt(document.getElementById('id_impacto').value, 10) || 0;
+
+    var inerente = prob * impact;
+    document.getElementById('risco-inerente-display').textContent = inerente;
+
+    var nivelIner = classificarNivelRisco(inerente);
+    aplicarBadgeNivel('calc-inerente-nivel', nivelIner[0], nivelIner[1]);
+
+    var eficaciaSel = document.getElementById('id_eficacia_controles');
+    var eficacia = eficaciaSel ? eficaciaSel.value : '';
+    var fator = (eficacia in FATORES_EFICACIA) ? FATORES_EFICACIA[eficacia] : 1.0;
+
+    var residual = (inerente * fator).toFixed(2);
+    document.getElementById('risco-residual-display').textContent = residual;
+
+    var nivelRes = classificarNivelRisco(parseFloat(residual));
+    aplicarBadgeNivel('calc-residual-nivel', nivelRes[0], nivelRes[1]);
+  }
+
+  document.getElementById('id_probabilidade').addEventListener('change', calcularRisco);
+  document.getElementById('id_impacto').addEventListener('change', calcularRisco);
+  document.getElementById('id_eficacia_controles').addEventListener('change', calcularRisco);
+
+  document.addEventListener('DOMContentLoaded', calcularRisco);
+</script>

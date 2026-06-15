@@ -234,3 +234,73 @@ body {
     top: 56px;
     z-index: 999;
 }
+
+/* Níveis de risco (inerente / residual) */
+.badge-risco-baixo {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.badge-risco-moderado {
+    background: #f39c12;
+    color: #fff;
+}
+
+.badge-risco-alto {
+    background: #e67e22;
+    color: #fff;
+}
+
+.badge-risco-extremo {
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* Status do plano */
+.badge-com-tratamento {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-sem-tratamento {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* Seções do formulário de plano de risco */
+.form-section-title {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--gov-dark);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0;
+}
+
+.form-section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--gov-blue);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    margin-right: .5rem;
+    flex-shrink: 0;
+}
+
+.calc-box {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: .85rem 1rem;
+}
+
+.calc-box-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+}
