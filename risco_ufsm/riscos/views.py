@@ -2,6 +2,7 @@
 
 from django.db import transaction
 from django.db.models import Q
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -226,7 +227,11 @@ def gerar_pdf(request, pk):
     # Verificar se o usuário tem acesso a este plano
     if not qs_planos(request.user).filter(pk=plano.pk).exists():
         return HttpResponse(status=403)
-    html_string = render_to_string('riscos/pdf_plano.html', {'plano': plano})
+    logo_url = (settings.BASE_DIR / 'riscos' / 'assets' / 'ufsm-logo.png').as_uri()
+    html_string = render_to_string('riscos/pdf_plano.html', {
+        'plano': plano,
+        'logo_url': logo_url,
+    })
     pdf = HTML(string=html_string).write_pdf()
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="plano_risco_{pk}.pdf"'
