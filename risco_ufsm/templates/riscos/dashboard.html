@@ -1,0 +1,153 @@
+{% extends 'base_sistema.html' %}
+
+{% block title %}Dashboard de Riscos{% endblock %}
+
+{% block extra_css %}
+<style>
+  .matriz-risco td.matriz-celula { padding: 0; }
+  .matriz-risco td.matriz-celula a {
+    display: block;
+    padding: .9rem .5rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+  }
+  .matriz-risco td.matriz-celula a:hover { opacity: .85; }
+  .nivel-baixo    { background-color: #2ecc71; }
+  .nivel-moderado { background-color: #f39c12; }
+  .nivel-alto     { background-color: #e67e22; }
+  .nivel-extremo  { background-color: #e74c3c; }
+  .card-extremo { border-left: 4px solid #e74c3c; }
+  .card-extremo .display-6 { color: #e74c3c; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Dashboard de Riscos</h1>
+  </div>
+
+  {% if unidades %}
+  <form method="get" class="mb-4" style="max-width: 360px;">
+    <label for="unidade" class="form-label mb-1">Filtrar por unidade</label>
+    <select name="unidade" id="unidade" class="form-select" onchange="this.form.submit()">
+      <option value="">Todas as unidades</option>
+      {% for unidade in unidades %}
+      <option value="{{ unidade.id }}" {% if unidade.id|stringformat:"s" == unidade_id %}selected{% endif %}>
+        {{ unidade }}
+      </option>
+      {% endfor %}
+    </select>
+  </form>
+  {% endif %}
+
+  <!-- Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="text-muted small">Total de Planos</div>
+          <div class="display-6">{{ total }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="text-muted small">Sem Tratamento</div>
+          <div class="display-6">{{ sem_tratamento }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="text-muted small">Com Tratamento</div>
+          <div class="display-6">{{ com_tratamento }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100 card-extremo">
+        <div class="card-body">
+          <div class="text-muted small">Risco Extremo</div>
+          <div class="display-6">{{ por_nivel.EXTREMO }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matriz probabilidade × impacto -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Matriz de Risco (Probabilidade × Impacto)</h2>
+      <table class="table text-center matriz-risco align-middle mb-0">
+        <thead>
+          <tr><th></th><th colspan="5">Impacto →</th></tr>
+        </thead>
+        <tbody>
+          {% for linha in matriz %}
+          <tr>
+            <th class="align-middle">P{{ linha.prob }}</th>
+            {% for c in linha.celulas %}
+            <td class="matriz-celula nivel-{{ c.nivel|lower }}">
+              <a href="{% url 'riscos:lista_planos' %}?probabilidade={{ c.prob }}&impacto={{ c.imp }}">
+                {{ c.count }}
+              </a>
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Riscos por Tipologia</h2>
+          <canvas id="graficoTipologia"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Riscos por Setor (Top 10)</h2>
+          <canvas id="graficoSetor"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  new Chart(document.getElementById('graficoTipologia'), {
+    type: 'doughnut',
+    data: {
+      labels: {{ labels_tipologia|safe }},
+      datasets: [{
+        data: {{ dados_tipologia|safe }},
+        backgroundColor: ['#3498db','#e74c3c','#f39c12','#2ecc71','#9b59b6','#1abc9c','#e67e22']
+      }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+
+  new Chart(document.getElementById('graficoSetor'), {
+    type: 'bar',
+    data: {
+      labels: {{ labels_setor|safe }},
+      datasets: [{ label: 'Riscos', data: {{ dados_setor|safe }}, backgroundColor: '#3498db' }]
+    },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+  });
+</script>
+{% endblock %}
