@@ -18,8 +18,7 @@ from accounts.decorators import requer_admin
 from organizacional.models import Setor, Unidade, UsuarioSetor
 
 from .services import qs_planos, pode_editar
-from .models import PlanoDeRisco, AvaliacaoRisco, Notificacao
-from .models import PlanoDeRisco, Notificacao, IdentificacaoRisco, AvaliacaoRisco
+from .models import PlanoDeRisco, AvaliacaoRisco, IdentificacaoRisco, Notificacao
 from .forms import IdentificacaoForm, AvaliacaoForm, TratamentoForm, RemanejarForm
 
 # Valores do campo perfil no modelo de usuário — devem ser idênticos aos de
@@ -105,6 +104,13 @@ def lista_planos(request):
             | Q(status__icontains=busca)
         )
 
+    # Filtro vindo das células da matriz do dashboard (probabilidade × impacto).
+    # Só aplica quando ambos vêm preenchidos e numéricos.
+    prob = request.GET.get('probabilidade')
+    imp = request.GET.get('impacto')
+    if prob and imp and prob.isdigit() and imp.isdigit():
+        qs = qs.filter(avaliacao__probabilidade=int(prob),
+                       avaliacao__impacto=int(imp))
     if tipologia:
         qs = qs.filter(identificacao__tipologia=tipologia)
 
@@ -177,13 +183,14 @@ def dashboard(request):
         'EXTREMO':  avaliacoes.filter(nivel_residual='EXTREMO').count(),
     }
 
-    # --- Gráfico de rosca por tipologia ---
+    # --- Gráfico de rosca por tipologia (Categoria de Risco) ---
+    TIPOS = dict(IdentificacaoRisco.TIPOLOGIA_CHOICES)
     por_tipologia = (
         planos.values('identificacao__tipologia')
               .annotate(total=Count('id'))
               .order_by('-total')
     )
-    labels_tipologia = [item['identificacao__tipologia'] or 'Sem tipologia'
+    labels_tipologia = [TIPOS.get(item['identificacao__tipologia'], 'Sem tipologia')
                         for item in por_tipologia]
     dados_tipologia = [item['total'] for item in por_tipologia]
 
@@ -215,6 +222,55 @@ def dashboard(request):
             })
         matriz.append({'prob': prob, 'celulas': celulas})
 
+    # --- Categoria × Nível de Risco (barras empilhadas) ---
+    # TIPOS já definido na seção de tipologia.
+    NIVEIS = ['EXTREMO', 'ALTO', 'MODERADO', 'BAIXO']
+    COR = {'EXTREMO': '#e74c3c', 'ALTO': '#e67e22',
+           'MODERADO': '#f39c12', 'BAIXO': '#2ecc71'}
+    NOMES_NIVEL = dict(AvaliacaoRisco.NIVEL_CHOICES)
+
+    cn = (planos.values('identificacao__tipologia', 'avaliacao__nivel_residual')
+                .annotate(total=Count('id')))
+    base = {k: {n: 0 for n in NIVEIS} for k in TIPOS}
+    for r in cn:
+        t, n = r['identificacao__tipologia'], r['avaliacao__nivel_residual']
+        if t in base and n in base[t]:
+            base[t][n] = r['total']
+
+    labels_categoria = json.dumps(list(TIPOS.values()), cls=DjangoJSONEncoder)
+    datasets_categoria = json.dumps([
+        {'label': NOMES_NIVEL[n], 'data': [base[k][n] for k in TIPOS],
+         'backgroundColor': COR[n]}
+        for n in NIVEIS
+    ], cls=DjangoJSONEncoder)
+
+    # --- Riscos por Macroprocesso (um doughnut por macroprocesso) ---
+    macros = (planos.values('identificacao__macroprocesso__nome',
+                            'avaliacao__nivel_residual')
+                    .annotate(total=Count('id')))
+    nomes = sorted({(m['identificacao__macroprocesso__nome'] or 'Sem macroprocesso')
+                    for m in macros})
+    bm = {nome: {n: 0 for n in NIVEIS} for nome in nomes}
+    for m in macros:
+        nome = m['identificacao__macroprocesso__nome'] or 'Sem macroprocesso'
+        n = m['avaliacao__nivel_residual']
+        if n in bm[nome]:
+            bm[nome][n] = m['total']
+
+    # Uma entrada por macroprocesso → vira um minigráfico no grid.
+    # Oculta macroprocessos sem nenhum risco no escopo atual.
+    graficos_macro = json.dumps([
+        {
+            'nome': nome,
+            'data': [bm[nome][n] for n in NIVEIS],
+            'total': sum(bm[nome].values()),
+        }
+        for nome in nomes
+        if sum(bm[nome].values()) > 0
+    ], cls=DjangoJSONEncoder)
+    niveis_macro = json.dumps([NOMES_NIVEL[n] for n in NIVEIS], cls=DjangoJSONEncoder)
+    cores_macro = json.dumps([COR[n] for n in NIVEIS], cls=DjangoJSONEncoder)
+
     context = {
         'unidades': unidades,
         'unidade_id': unidade_id,
@@ -227,6 +283,11 @@ def dashboard(request):
         'dados_tipologia': json.dumps(dados_tipologia, cls=DjangoJSONEncoder),
         'labels_setor': json.dumps(labels_setor, cls=DjangoJSONEncoder),
         'dados_setor': json.dumps(dados_setor, cls=DjangoJSONEncoder),
+        'labels_categoria': labels_categoria,
+        'datasets_categoria': datasets_categoria,
+        'graficos_macro': graficos_macro,
+        'niveis_macro': niveis_macro,
+        'cores_macro': cores_macro,
     }
     return render(request, 'riscos/dashboard.html', context)
 
