@@ -19,6 +19,24 @@
   .nivel-extremo  { background-color: #e74c3c; }
   .card-extremo { border-left: 4px solid #e74c3c; }
   .card-extremo .display-6 { color: #e74c3c; }
+
+  /* Grid de minigráficos por macroprocesso (legenda única acima do grid) */
+  .legenda-macro {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 16px; font-size: .85rem;
+  }
+  .legenda-macro span { display: inline-flex; align-items: center; gap: 6px; }
+  .legenda-macro i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .grid-macro {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .grid-macro .mini { text-align: center; }
+  .grid-macro .mini h4 {
+    font-size: .78rem; margin: 0 0 6px; line-height: 1.2;
+    min-height: 2.4em; display: flex; align-items: center; justify-content: center;
+  }
+  .grid-macro .mini .wrap { position: relative; max-width: 140px; margin: 0 auto; }
 </style>
 {% endblock %}
 
@@ -109,7 +127,7 @@
     <div class="col-md-6">
       <div class="card h-100">
         <div class="card-body">
-          <h2 class="h5 mb-3">Riscos por Tipologia</h2>
+          <h2 class="h5 mb-3">Categoria de Risco</h2>
           <canvas id="graficoTipologia"></canvas>
         </div>
       </div>
@@ -121,6 +139,23 @@
           <canvas id="graficoSetor"></canvas>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Categoria × Nível de Risco (barras empilhadas) -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Categoria × Nível de Risco</h2>
+      <canvas id="graficoCategoriaNivel"></canvas>
+    </div>
+  </div>
+
+  <!-- Riscos por Macroprocesso (grid de minigráficos) -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Riscos por Macroprocesso</h2>
+      <div id="legendaMacro" class="legenda-macro"></div>
+      <div id="gridMacro" class="grid-macro"></div>
     </div>
   </div>
 </div>
@@ -149,5 +184,69 @@
     },
     options: { indexAxis: 'y', plugins: { legend: { display: false } } }
   });
+
+  // Categoria × Nível de Risco — barras empilhadas (X = tipologias, série por nível)
+  new Chart(document.getElementById('graficoCategoriaNivel'), {
+    type: 'bar',
+    data: {
+      labels: {{ labels_categoria|safe }},
+      datasets: {{ datasets_categoria|safe }}
+    },
+    options: {
+      plugins: { legend: { position: 'bottom' } },
+      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+    }
+  });
+
+  // Riscos por Macroprocesso — um doughnut por macroprocesso, gerado em forEach
+  (function () {
+    const dados  = {{ graficos_macro|safe }};
+    const niveis = {{ niveis_macro|safe }};
+    const cores  = {{ cores_macro|safe }};
+    const grid   = document.getElementById('gridMacro');
+
+    // legenda única do grid
+    document.getElementById('legendaMacro').innerHTML =
+      niveis.map((n, i) => `<span><i style="background:${cores[i]}"></i>${n}</span>`).join('');
+
+    // total no centro de cada doughnut
+    const centro = {
+      id: 'centro',
+      afterDraw(chart) {
+        const {ctx, chartArea:{left, right, top, bottom}} = chart;
+        const t = chart.options.plugins.centro.total;
+        ctx.save();
+        ctx.font = '600 16px sans-serif';
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(t, (left + right) / 2, (top + bottom) / 2);
+        ctx.restore();
+      }
+    };
+
+    dados.forEach((m, idx) => {
+      const card = document.createElement('div');
+      card.className = 'mini';
+      card.innerHTML = `<h4 title="${m.nome}">${m.nome}</h4>
+                        <div class="wrap"><canvas id="macro_${idx}"></canvas></div>`;
+      grid.appendChild(card);
+
+      new Chart(card.querySelector('canvas'), {
+        type: 'doughnut',
+        data: { labels: niveis,
+                datasets: [{ data: m.data, backgroundColor: cores, borderWidth: 1 }] },
+        options: {
+          cutout: '62%',
+          plugins: {
+            legend: { display: false },          // legenda é a única, lá em cima
+            centro: { total: m.total },
+            tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed}` } }
+          }
+        },
+        plugins: [centro]
+      });
+    });
+  })();
 </script>
 {% endblock %}
