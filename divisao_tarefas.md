@@ -404,7 +404,7 @@ No arquivo `templates/base_sistema.html`, adicionar uma seção "Riscos" no menu
 
 ### Parte 3 — Dashboard
 
-Responsável: a ser definido pela equipe.
+Responsável: Lorena.
 
 Esta parte cria a tela de indicadores e gráficos visível ao acessar `/dashboard/`.
 
@@ -799,8 +799,8 @@ Parte 1 (Eduarda): app configuracao (DesafioPDI, ObjetivoPDI, Macroprocesso) + a
 
 Parte 2 (Ana): CRUD completo de riscos com a função de escopo por perfil, formulário em três seções com cálculo visual em JavaScript, templates de listagem, criação, edição e visualização, controle de permissão de edição e exclusão.
 
-Parte 3: dashboard com contadores, matriz probabilidade x impacto em HTML colorido, gráfico de rosca por tipologia e gráfico de barras por setor usando Chart.js, scoping por perfil.
+Parte 3 (Lorena): dashboard com contadores, matriz probabilidade x impacto em HTML colorido, gráfico de rosca por tipologia e gráfico de barras por setor usando Chart.js, scoping por perfil.
 
 Parte 4 (Pedro): geração de PDF com WeasyPrint, model Notificacao, management command de verificação de atrasos, badge de notificações no header.
 
-Parte 5: signals conectando LogAlteracao aos modelos de risco, histórico visual na tela do plano, testes das regras de cálculo e de scoping, polimento do menu lateral por perfil.
+Parte 5 (Jõao Pedro): signals conectando LogAlteracao aos modelos de risco, histórico visual na tela do plano, testes das regras de cálculo e de scoping, polimento do menu lateral por perfil.
