@@ -1,7 +1,12 @@
 """CRUD completo de planos de risco."""
 
+import json
+
 from django.db import transaction
+from django.db.models import Q, Count
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,10 +15,10 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 
 from accounts.decorators import requer_admin
-from organizacional.models import Setor, UsuarioSetor
+from organizacional.models import Setor, Unidade, UsuarioSetor
 
 from .services import qs_planos, pode_editar
-from .models import PlanoDeRisco, Notificacao, IdentificacaoRisco, AvaliacaoRisco
+from .models import PlanoDeRisco, AvaliacaoRisco, IdentificacaoRisco, Notificacao
 from .forms import IdentificacaoForm, AvaliacaoForm, TratamentoForm, RemanejarForm
 
 # Valores do campo perfil no modelo de usuário — devem ser idênticos aos de
@@ -99,6 +104,13 @@ def lista_planos(request):
             | Q(status__icontains=busca)
         )
 
+    # Filtro vindo das células da matriz do dashboard (probabilidade × impacto).
+    # Só aplica quando ambos vêm preenchidos e numéricos.
+    prob = request.GET.get('probabilidade')
+    imp = request.GET.get('impacto')
+    if prob and imp and prob.isdigit() and imp.isdigit():
+        qs = qs.filter(avaliacao__probabilidade=int(prob),
+                       avaliacao__impacto=int(imp))
     if tipologia:
         qs = qs.filter(identificacao__tipologia=tipologia)
 
@@ -122,6 +134,182 @@ def lista_planos(request):
         'status_choices': PlanoDeRisco.STATUS_CHOICES,
     }
     return render(request, 'riscos/lista_planos.html', context)
+
+
+def _nivel_por_produto(produto):
+    """Régua de cor da matriz, espelhando AvaliacaoRisco.calcular_nivel:
+    <4 BAIXO, <12 MODERADO, <20 ALTO, senão EXTREMO."""
+    if produto < 4:
+        return 'BAIXO'
+    if produto < 12:
+        return 'MODERADO'
+    if produto < 20:
+        return 'ALTO'
+    return 'EXTREMO'
+
+
+@login_required
+def dashboard(request):
+    """
+    Painel analítico dos planos de risco no escopo do usuário.
+    Mostra contadores, distribuição por nível residual, gráficos por
+    tipologia e por setor, e a matriz probabilidade × impacto.
+    """
+    planos = qs_planos(request.user)
+
+    # --- Filtro opcional de unidade (Gestor da Unidade / Admin) ---
+    unidade_id = request.GET.get('unidade')
+    if unidade_id:
+        planos = planos.filter(setor__unidade_id=unidade_id)
+
+    # Lista de unidades para o seletor — só para quem enxerga mais de uma.
+    unidades = None
+    if request.user.is_admin:
+        unidades = Unidade.objects.filter(ativo=True, deleted_at__isnull=True).order_by('nome')
+    elif request.user.is_gestor_unidade:
+        unidades = request.user.get_unidades_ativas().order_by('nome')
+
+    # --- Contadores gerais ---
+    total = planos.count()
+    sem_tratamento = planos.filter(status='sem_tratamento').count()
+    com_tratamento = planos.filter(status='com_tratamento').count()
+
+    # --- Distribuição por nível residual ---
+    avaliacoes = AvaliacaoRisco.objects.filter(plano__in=planos)
+    por_nivel = {
+        'BAIXO':    avaliacoes.filter(nivel_residual='BAIXO').count(),
+        'MODERADO': avaliacoes.filter(nivel_residual='MODERADO').count(),
+        'ALTO':     avaliacoes.filter(nivel_residual='ALTO').count(),
+        'EXTREMO':  avaliacoes.filter(nivel_residual='EXTREMO').count(),
+    }
+
+    # --- Gráfico de rosca por tipologia (Categoria de Risco) ---
+    TIPOS = dict(IdentificacaoRisco.TIPOLOGIA_CHOICES)
+    por_tipologia = (
+        planos.values('identificacao__tipologia')
+              .annotate(total=Count('id'))
+              .order_by('-total')
+    )
+    labels_tipologia = [TIPOS.get(item['identificacao__tipologia'], 'Sem tipologia')
+                        for item in por_tipologia]
+    dados_tipologia = [item['total'] for item in por_tipologia]
+
+    # --- Gráfico de barras por setor (top 10) ---
+    por_setor = (
+        planos.values('setor__nome')
+              .annotate(total=Count('id'))
+              .order_by('-total')[:10]
+    )
+    labels_setor = [item['setor__nome'] for item in por_setor]
+    dados_setor = [item['total'] for item in por_setor]
+
+    # --- Matriz probabilidade × impacto ---
+    # Decisão técnica: a matriz é pré-montada aqui em Python (uma lista de
+    # linhas pronta para iterar), evitando filtros de template com dois
+    # argumentos / chaves de tupla, que o Django não suporta.
+    contagens = avaliacoes.values('probabilidade', 'impacto').annotate(total=Count('id'))
+    mapa = {(c['probabilidade'], c['impacto']): c['total'] for c in contagens}
+
+    siglas_nivel = {
+        'BAIXO': 'RB',
+        'MODERADO': 'RM',
+        'ALTO': 'RA',
+        'EXTREMO': 'RE',
+    }
+    rotulos_impacto = {
+        5: '5 - Catastrofico',
+        4: '4 - Grande',
+        3: '3 - Moderado',
+        2: '2 - Pequeno',
+        1: '1 - Insignificante',
+    }
+
+    matriz = []  # linhas de cima (impacto=5) para baixo (impacto=1)
+    for imp in range(5, 0, -1):
+        celulas = []
+        for prob in range(1, 6):
+            nivel = _nivel_por_produto(prob * imp)
+            celulas.append({
+                'prob': prob,
+                'imp': imp,
+                'count': mapa.get((prob, imp), 0),
+                'nivel': nivel,
+                'sigla': siglas_nivel[nivel],
+            })
+        matriz.append({
+            'imp': imp,
+            'impacto_rotulo': rotulos_impacto[imp],
+            'celulas': celulas,
+        })
+
+    # --- Categoria × Nível de Risco (barras empilhadas) ---
+    # TIPOS já definido na seção de tipologia.
+    NIVEIS = ['EXTREMO', 'ALTO', 'MODERADO', 'BAIXO']
+    COR = {'EXTREMO': '#e74c3c', 'ALTO': '#e67e22',
+           'MODERADO': '#f39c12', 'BAIXO': '#2ecc71'}
+    NOMES_NIVEL = dict(AvaliacaoRisco.NIVEL_CHOICES)
+
+    cn = (planos.values('identificacao__tipologia', 'avaliacao__nivel_residual')
+                .annotate(total=Count('id')))
+    base = {k: {n: 0 for n in NIVEIS} for k in TIPOS}
+    for r in cn:
+        t, n = r['identificacao__tipologia'], r['avaliacao__nivel_residual']
+        if t in base and n in base[t]:
+            base[t][n] = r['total']
+
+    labels_categoria = json.dumps(list(TIPOS.values()), cls=DjangoJSONEncoder)
+    datasets_categoria = json.dumps([
+        {'label': NOMES_NIVEL[n], 'data': [base[k][n] for k in TIPOS],
+         'backgroundColor': COR[n]}
+        for n in NIVEIS
+    ], cls=DjangoJSONEncoder)
+
+    # --- Riscos por Macroprocesso (um doughnut por macroprocesso) ---
+    macros = (planos.values('identificacao__macroprocesso__nome',
+                            'avaliacao__nivel_residual')
+                    .annotate(total=Count('id')))
+    nomes = sorted({(m['identificacao__macroprocesso__nome'] or 'Sem macroprocesso')
+                    for m in macros})
+    bm = {nome: {n: 0 for n in NIVEIS} for nome in nomes}
+    for m in macros:
+        nome = m['identificacao__macroprocesso__nome'] or 'Sem macroprocesso'
+        n = m['avaliacao__nivel_residual']
+        if n in bm[nome]:
+            bm[nome][n] = m['total']
+
+    # Uma entrada por macroprocesso → vira um minigráfico no grid.
+    # Oculta macroprocessos sem nenhum risco no escopo atual.
+    graficos_macro = json.dumps([
+        {
+            'nome': nome,
+            'data': [bm[nome][n] for n in NIVEIS],
+            'total': sum(bm[nome].values()),
+        }
+        for nome in nomes
+        if sum(bm[nome].values()) > 0
+    ], cls=DjangoJSONEncoder)
+    niveis_macro = json.dumps([NOMES_NIVEL[n] for n in NIVEIS], cls=DjangoJSONEncoder)
+    cores_macro = json.dumps([COR[n] for n in NIVEIS], cls=DjangoJSONEncoder)
+
+    context = {
+        'unidades': unidades,
+        'unidade_id': unidade_id,
+        'total': total,
+        'sem_tratamento': sem_tratamento,
+        'com_tratamento': com_tratamento,
+        'por_nivel': por_nivel,
+        'matriz': matriz,
+        'labels_tipologia': json.dumps(labels_tipologia, cls=DjangoJSONEncoder),
+        'dados_tipologia': json.dumps(dados_tipologia, cls=DjangoJSONEncoder),
+        'labels_setor': json.dumps(labels_setor, cls=DjangoJSONEncoder),
+        'dados_setor': json.dumps(dados_setor, cls=DjangoJSONEncoder),
+        'labels_categoria': labels_categoria,
+        'datasets_categoria': datasets_categoria,
+        'graficos_macro': graficos_macro,
+        'niveis_macro': niveis_macro,
+        'cores_macro': cores_macro,
+    }
+    return render(request, 'riscos/dashboard.html', context)
 
 
 @login_required
@@ -226,7 +414,11 @@ def gerar_pdf(request, pk):
     # Verificar se o usuário tem acesso a este plano
     if not qs_planos(request.user).filter(pk=plano.pk).exists():
         return HttpResponse(status=403)
-    html_string = render_to_string('riscos/pdf_plano.html', {'plano': plano})
+    logo_url = (settings.BASE_DIR / 'riscos' / 'assets' / 'ufsm-logo.png').as_uri()
+    html_string = render_to_string('riscos/pdf_plano.html', {
+        'plano': plano,
+        'logo_url': logo_url,
+    })
     pdf = HTML(string=html_string).write_pdf()
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="plano_risco_{pk}.pdf"'
