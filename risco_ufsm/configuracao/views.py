@@ -29,7 +29,14 @@ def desafio_criar(request):
     if form.is_valid():
         form.save()
         return redirect('configuracao:painel_configuracao')
-    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Criar Desafio PDI'})
+    contexto = {
+        'form': form,
+        'titulo': 'Criar Desafio PDI',
+        'action_label': 'Criar',
+        'volta_label': 'Voltar para o Painel',
+        'volta_url': 'configuracao:painel_configuracao'
+    }
+    return render(request, 'configuracao/form.html', contexto)
 
 
 @requer_pode_configurar
@@ -40,8 +47,16 @@ def desafio_editar(request, pk):
     if form.is_valid():
         form.save()
         return redirect('configuracao:painel_configuracao')
-    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Editar Desafio PDI'})
 
+    contexto = {
+        'form': form,
+        'titulo': 'Editar Desafio PDI',
+        'action_label': 'Editar',
+        'volta_label': 'Voltar para o Painel',
+        'volta_url':'configuracao:painel_configuracao' 
+    }
+    
+    return render(request, 'configuracao/form.html', contexto)
 
 @requer_pode_configurar
 def desafio_deletar(request, pk):
@@ -66,7 +81,14 @@ def objetivo_criar(request):
     if form.is_valid():
         form.save()
         return redirect('configuracao:painel_configuracao')
-    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Criar Objetivo PDI'})
+    contexto = {
+        'form': form,
+        'titulo': 'Criar Objetivo PDI',
+        'action_label': 'Criar',
+        'volta_label': 'Voltar para o Painel',
+        'volta_url': 'configuracao:painel_configuracao'
+    }
+    return render(request, 'configuracao/form.html', contexto)
 
 
 @requer_pode_configurar
@@ -77,8 +99,14 @@ def objetivo_editar(request, pk):
     if form.is_valid():
         form.save()
         return redirect('configuracao:painel_configuracao')
-    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Editar Objetivo PDI'})
-
+    contexto = {
+        'form': form,
+        'titulo': 'Editar Objetivo PDI',
+        'action_label': 'Editar',
+        'volta_label': 'Voltar para o Painel',
+        'volta_url': 'configuracao:painel_configuracao'
+    }
+    return render(request, 'configuracao/form.html', contexto)
 
 @requer_pode_configurar
 def objetivo_deletar(request, pk):
@@ -103,7 +131,14 @@ def macroprocesso_criar(request):
     if form.is_valid():
         form.save()
         return redirect('configuracao:painel_configuracao')
-    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Criar Macroprocesso'})
+    contexto = {
+        'form': form,
+        'titulo': 'Criar Macroprocesso',
+        'action_label': 'Criar',
+        'volta_label': 'Voltar para o Painel',
+        'volta_url': 'configuracao:painel_configuracao'
+    }
+    return render(request, 'configuracao/form.html', contexto)
 
 
 @requer_pode_configurar
@@ -114,7 +149,14 @@ def macroprocesso_editar(request, pk):
     if form.is_valid():
         form.save()
         return redirect('configuracao:painel_configuracao')
-    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Editar Macroprocesso'})
+    contexto = {
+        'form': form,
+        'titulo': 'Editar Macroprocesso',
+        'action_label': 'Editar',
+        'volta_label': 'Voltar para o Painel',
+        'volta_url': 'configuracao:painel_configuracao'
+    }
+    return render(request, 'configuracao/form.html', contexto)
 
 
 @requer_pode_configurar
