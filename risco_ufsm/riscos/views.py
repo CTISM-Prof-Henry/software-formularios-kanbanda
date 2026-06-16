@@ -6,13 +6,11 @@ from django.db import transaction
 from django.db.models import Q, Count
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
-from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.http import HttpResponse
-from django.template.loader import render_to_string
 
 from accounts.decorators import requer_admin
 from organizacional.models import Setor, Unidade, UsuarioSetor
@@ -400,26 +398,23 @@ def visualizar_plano(request, pk):
 @login_required
 def gerar_pdf(request, pk):
     """Gera o PDF do plano de risco, respeitando o escopo do usuário."""
+    plano = get_object_or_404(PlanoDeRisco, pk=pk, deleted_at__isnull=True)
+    # Verificar se o usuário tem acesso a este plano
+    if not qs_planos(request.user).filter(pk=plano.pk).exists():
+        return HttpResponse(status=403)
+
     try:
-        from weasyprint import HTML
-    except (ImportError, OSError) as exc:
+        from .pdf_report import gerar_plano_pdf
+        pdf = gerar_plano_pdf(plano)
+    except ImportError as exc:
         return HttpResponse(
-            'WeasyPrint não está configurado corretamente neste ambiente. '
+            'ReportLab não está instalado neste ambiente. '
+            'Execute: pip install -r requirements.txt. '
             f'Detalhe: {exc}',
             status=500,
             content_type='text/plain; charset=utf-8',
         )
 
-    plano = get_object_or_404(PlanoDeRisco, pk=pk, deleted_at__isnull=True)
-    # Verificar se o usuário tem acesso a este plano
-    if not qs_planos(request.user).filter(pk=plano.pk).exists():
-        return HttpResponse(status=403)
-    logo_url = (settings.BASE_DIR / 'riscos' / 'assets' / 'ufsm-logo.png').as_uri()
-    html_string = render_to_string('riscos/pdf_plano.html', {
-        'plano': plano,
-        'logo_url': logo_url,
-    })
-    pdf = HTML(string=html_string).write_pdf()
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="plano_risco_{pk}.pdf"'
     return response
