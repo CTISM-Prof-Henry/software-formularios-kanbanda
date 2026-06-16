@@ -6,3 +6,6 @@ class RiscosConfig(AppConfig):
     '''configuração do app'''
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'riscos'
+
+    def ready(self):
+        import riscos.signals #noqa
