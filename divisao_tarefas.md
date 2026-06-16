@@ -563,13 +563,61 @@ Para o Gestor da Unidade, adicionar um select de unidade no topo do dashboard qu
 
 Responsável: Pedro
 
-**Configuração do WeasyPrint**
+**Configuração do ReportLab**
 
-Instalar com `pip install weasyprint` e adicionar `weasyprint` ao `requirements.txt`.
+Instalar com `pip install reportlab` e adicionar `reportlab>=4.0` ao `requirements.txt`.
 
-**Template do PDF**
+**Gerador do PDF**
 
-Criar o arquivo `templates/riscos/pdf_plano.html`. Este template não herda de `base_sistema.html`. É um HTML auto-contido, pensado para impressão em A4. Ele tem CSS interno com `@page { size: A4; margin: 2cm; }` e `body { font-family: Arial, sans-serif; font-size: 11pt; }`. Deve conter: cabeçalho com logotipo textual da UFSM, título "Plano de Análise de Risco", número do plano, setor e data de geração. Depois as três seções do plano (Identificação, Avaliação, Tratamento) em tabelas com bordas. Os níveis de risco devem aparecer com fundo colorido mesmo no PDF: WeasyPrint renderiza CSS de fundo.
+Criar o arquivo `riscos/pdf_report.py`. Esse arquivo fica responsável por montar o PDF diretamente em Python usando ReportLab, sem depender de HTML, CSS, WeasyPrint, MSYS2 ou Pango. O relatório deve ser gerado em tamanho A4 e conter cabeçalho institucional com a marca da UFSM, título "Plano de Análise de Risco", número do plano, setor, data de emissão e as três seções principais do plano: Identificação e Análise, Avaliação e Tratamento. As informações devem ser organizadas em tabelas, e os níveis de risco devem aparecer com destaque colorido.
+
+Estrutura principal usada no gerador:
+
+```python
+from io import BytesIO
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+
+
+def gerar_plano_pdf(plano):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=2 * cm,
+        leftMargin=2 * cm,
+        topMargin=1.7 * cm,
+        bottomMargin=1.7 * cm,
+    )
+
+    estilos = getSampleStyleSheet()
+    elementos = []
+
+    elementos.append(Paragraph('PLANO DE ANÁLISE DE RISCO', estilos['Title']))
+    elementos.append(Spacer(1, 12))
+
+    tabela = Table([
+        ['Plano', f'#{plano.pk}'],
+        ['Setor', str(plano.setor)],
+        ['Status', plano.get_status_display()],
+    ])
+    tabela.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f0f3f6')),
+    ]))
+    elementos.append(tabela)
+
+    doc.build(elementos)
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
+```
+
+No projeto, esse exemplo foi expandido com funções auxiliares para evitar repetição, incluir a logo da UFSM, formatar textos longos, montar as tabelas das seções do plano e exibir os níveis de risco com cores.
 
 **View de geração do PDF**
 
@@ -577,17 +625,17 @@ Adicionar em `riscos/views.py`:
 
 ```python
 from django.http import HttpResponse
-from django.template.loader import render_to_string
-from weasyprint import HTML
 
 @login_required
 def gerar_pdf(request, pk):
     plano = get_object_or_404(PlanoDeRisco, pk=pk, deleted_at__isnull=True)
     # Verificar se o usuário tem acesso a este plano
-    if plano not in qs_planos(request.user):
+    if not qs_planos(request.user).filter(pk=plano.pk).exists():
         return HttpResponse(status=403)
-    html_string = render_to_string('riscos/pdf_plano.html', {'plano': plano})
-    pdf = HTML(string=html_string).write_pdf()
+
+    from .pdf_report import gerar_plano_pdf
+    pdf = gerar_plano_pdf(plano)
+
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="plano_risco_{pk}.pdf"'
     return response
@@ -801,6 +849,6 @@ Parte 2 (Ana): CRUD completo de riscos com a função de escopo por perfil, form
 
 Parte 3: dashboard com contadores, matriz probabilidade x impacto em HTML colorido, gráfico de rosca por tipologia e gráfico de barras por setor usando Chart.js, scoping por perfil.
 
-Parte 4 (Pedro): geração de PDF com WeasyPrint, model Notificacao, management command de verificação de atrasos, badge de notificações no header.
+Parte 4 (Pedro): geração de PDF com ReportLab, model Notificacao, management command de verificação de atrasos, badge de notificações no header.
 
 Parte 5: signals conectando LogAlteracao aos modelos de risco, histórico visual na tela do plano, testes das regras de cálculo e de scoping, polimento do menu lateral por perfil.
