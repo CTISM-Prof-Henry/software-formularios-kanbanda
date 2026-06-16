@@ -64,7 +64,11 @@
     </div>
 
     <div class="row g-3 mt-1">
-      <div class="col-md-12">
+      <div class="col-md-6">
+        <div class="text-muted" style="font-size:.78rem;">Desafio do PDI</div>
+        <div class="fw-semibold">{{ identificacao.desafio_pdi|default:"—" }}</div>
+      </div>
+      <div class="col-md-6">
         <div class="text-muted" style="font-size:.78rem;">Objetivo do PDI</div>
         <div class="fw-semibold">{{ identificacao.objetivo_pdi|default:"—" }}</div>
       </div>

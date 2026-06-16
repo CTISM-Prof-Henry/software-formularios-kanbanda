@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 from organizacional.models import Setor
-from configuracao.models import Macroprocesso, ObjetivoPDI
+from configuracao.models import Macroprocesso, ObjetivoPDI, DesafioPDI
 
 
 class PlanoDeRisco(models.Model):
@@ -66,6 +66,8 @@ class IdentificacaoRisco(models.Model):
                                         on_delete=models.SET_NULL, null=True, blank=True)
     objetivo_pdi    = models.ForeignKey(ObjetivoPDI,
                                         on_delete=models.SET_NULL, null=True, blank=True)
+    desafio_pdi     = models.ForeignKey(DesafioPDI,
+                                            on_delete=models.SET_NULL, null=True, blank=True)
     descricao_evento = models.TextField('Descrição do Evento de Risco')
     causas          = models.TextField('Causas')
     consequencias   = models.TextField('Consequências')

@@ -59,6 +59,32 @@
     </a>
     {% endif %}
 
+    {% if request.user.pode_criar_usuario %}
+    <div class="sidebar-section-title" style="margin-top:.5rem;">Estrutura</div>
+    <a href="{% url 'lista_unidades' %}" class="sidebar-link {% if 'unidade' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="sidebar-icon">🏛️</span> Unidades
+    </a>
+    <a href="{% url 'lista_setores' %}" class="sidebar-link {% if 'setor' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="sidebar-icon">🗂️</span> Setores
+    </a>
+    {% endif %}
+
+    {% if request.user.is_admin or request.user.is_gestor_unidade %}
+    <div class="sidebar-section-title" style="margin-top:.5rem;">PDI e Macroprocessos</div>
+    <a href="{% url 'configuracao:painel_configuracao' %}" class="sidebar-link {% if 'configuracao' in request.resolver_match.app_names %}active{% endif %}">
+      <span class="sidebar-icon">⚙️</span> Configurações PDI
+    </a>
+    <a href="{% url 'configuracao:desafio_criar' %}" class="sidebar-link {% if 'desafio_criar' in request.resolver_match.app_names %}active{% endif %}">
+      <span class="sidebar-icon">➕</span> Novo Desafio PDI
+    </a>
+    <a href="{% url 'configuracao:objetivo_criar' %}" class="sidebar-link {% if 'objetivo_criar' in request.resolver_match.app_names %}active{% endif %}">
+      <span class="sidebar-icon">➕</span> Novo Objetivo PDI
+    </a>
+    <a href="{% url 'configuracao:macroprocesso_criar' %}" class="sidebar-link {% if 'macroprocesso_criar' in request.resolver_match.app_names %}active{% endif %}">
+      <span class="sidebar-icon">➕</span> Novo macroprocesso
+    </a>
+    {% endif %}
+
     {% if request.user.pode_gerenciar_usuarios %}
     <div class="sidebar-section-title" style="margin-top:.5rem;">Usuários</div>
     <a href="{% url 'lista_usuarios' %}" class="sidebar-link {% if request.resolver_match.url_name == 'lista_usuarios' %}active{% endif %}">
@@ -75,16 +101,6 @@
     <a href="{% url 'meu_perfil' %}" class="sidebar-link {% if request.resolver_match.url_name == 'meu_perfil' %}active{% endif %}">
       <span class="sidebar-icon" >👤</span> Meu Perfil
     </a>
-
-    {% if request.user.pode_criar_usuario %}
-    <div class="sidebar-section-title" style="margin-top:.5rem;">Estrutura</div>
-    <a href="{% url 'lista_unidades' %}" class="sidebar-link {% if 'unidade' in request.resolver_match.url_name %}active{% endif %}">
-      <span class="sidebar-icon">🏛️</span> Unidades
-    </a>
-    <a href="{% url 'lista_setores' %}" class="sidebar-link {% if 'setor' in request.resolver_match.url_name %}active{% endif %}">
-      <span class="sidebar-icon">🗂️</span> Setores
-    </a>
-    {% endif %}
 
     {% if request.user.pode_ver_logs %}
     <div class="sidebar-section-title" style="margin-top:.5rem;">Segurança</div>

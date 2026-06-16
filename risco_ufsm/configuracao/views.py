@@ -1,14 +1,14 @@
 """Views e controle de fluxo para o módulo de configuração do PDI e Macroprocessos."""
 
 from django.shortcuts import render, redirect, get_object_or_404
-from accounts.decorators import requer_admin
+from accounts.decorators import requer_pode_configurar
 from .models import DesafioPDI, ObjetivoPDI, Macroprocesso
 from .forms import DesafioPDIForm, ObjetivoPDIForm, MacroprocessoForm
 
-@requer_admin
-def painel_configuracao(request):
-    """View principal do painel de configuracao"""
 
+@requer_pode_configurar
+def painel_configuracao(request):
+    """View principal do painel de configuracao."""
     desafios = DesafioPDI.objects.filter(deleted_at__isnull=True)
     objetivos = ObjetivoPDI.objects.filter(deleted_at__isnull=True)
     macroprocessos = Macroprocesso.objects.filter(deleted_at__isnull=True)
@@ -17,116 +17,115 @@ def painel_configuracao(request):
         'desafios': desafios,
         'objetivos': objetivos,
         'macroprocessos': macroprocessos,
-    }) #aq passa os objetos ativos para a template
+    })
 
-#crud do desafiopdi
 
-@requer_admin
+# CRUD DesafioPDI
+
+@requer_pode_configurar
 def desafio_criar(request):
     """View para criar um novo desafio PDI."""
-    form= DesafioPDIForm(request.POST or None)
+    form = DesafioPDIForm(request.POST or None)
     if form.is_valid():
         form.save()
-        return redirect('configuracao:painel')
-    return render(request, 'configuracao/form.html',{'form': form, 'titulo': 'Criar Desafio PDI'})
+        return redirect('configuracao:painel_configuracao')
+    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Criar Desafio PDI'})
 
-@requer_admin
+
+@requer_pode_configurar
 def desafio_editar(request, pk):
     """View para editar um desafio PDI existente."""
-    desafio= get_object_or_404(DesafioPDI, pk=pk, deleted_at__isnull=True)
-    form= DesafioPDIForm(request.POST or None, instance=desafio)
+    desafio = get_object_or_404(DesafioPDI, pk=pk, deleted_at__isnull=True)
+    form = DesafioPDIForm(request.POST or None, instance=desafio)
     if form.is_valid():
         form.save()
-        return redirect('configuracao:painel')
-    return render(request, 'configuracao/form.html',{'form':form, 'titulo': 'Editar Desafio PDI'})
+        return redirect('configuracao:painel_configuracao')
+    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Editar Desafio PDI'})
 
-@requer_admin
-def desafio_deletar(request,pk):
+
+@requer_pode_configurar
+def desafio_deletar(request, pk):
     """View para deletar um desafio PDI."""
-    desafio= get_object_or_404(DesafioPDI, pk=pk, deleted_at__isnull=True)
+    desafio = get_object_or_404(DesafioPDI, pk=pk, deleted_at__isnull=True)
     if request.method == 'POST':
         desafio.soft_delete()
-        return redirect('configuracao:painel')
+        return redirect('configuracao:painel_configuracao')
     return render(
         request,
         'configuracao/confirmar_exclusao.html',
         {'objeto': desafio, 'tipo': 'Desafio PDI'}
     )
 
-#crud objetivopdi
 
-@requer_admin
+# CRUD ObjetivoPDI
+
+@requer_pode_configurar
 def objetivo_criar(request):
     """View para criar um novo objetivo PDI."""
     form = ObjetivoPDIForm(request.POST or None)
     if form.is_valid():
         form.save()
-        return redirect('configuracao:painel')
-    return render(request,
-     'configuracao/form.html', 
-     {'form': form, 'titulo': 'Criar Objetivo PDI'}
-    )
+        return redirect('configuracao:painel_configuracao')
+    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Criar Objetivo PDI'})
 
-@requer_admin
+
+@requer_pode_configurar
 def objetivo_editar(request, pk):
     """View para editar um objetivo PDI existente."""
     objetivo = get_object_or_404(ObjetivoPDI, pk=pk, deleted_at__isnull=True)
     form = ObjetivoPDIForm(request.POST or None, instance=objetivo)
     if form.is_valid():
         form.save()
-        return redirect('configuracao:painel')
-    return render(request,
-     'configuracao/form.html',
-     {'form': form, 'titulo': 'Editar Objetivo PDI'}
-    )
+        return redirect('configuracao:painel_configuracao')
+    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Editar Objetivo PDI'})
 
-@requer_admin
+
+@requer_pode_configurar
 def objetivo_deletar(request, pk):
     """View para deletar um objetivo PDI."""
     objetivo = get_object_or_404(ObjetivoPDI, pk=pk, deleted_at__isnull=True)
     if request.method == 'POST':
         objetivo.soft_delete()
-        return redirect('configuracao:painel')
-    return render(request,
-     'configuracao/confirmar_exclusao.html',
-     {'objeto': objetivo, 'tipo': 'Objetivo PDI'}
+        return redirect('configuracao:painel_configuracao')
+    return render(
+        request,
+        'configuracao/confirmar_exclusao.html',
+        {'objeto': objetivo, 'tipo': 'Objetivo PDI'}
     )
 
 
-#crud macroprocesso
-@requer_admin
+# CRUD Macroprocesso
+
+@requer_pode_configurar
 def macroprocesso_criar(request):
     """View para criar um novo macroprocesso."""
     form = MacroprocessoForm(request.POST or None)
     if form.is_valid():
         form.save()
-        return redirect('configuracao:painel')
-    return render(request,
-     'configuracao/form.html',
-     {'form': form, 'titulo': 'Criar Macroprocesso'}
-    )
+        return redirect('configuracao:painel_configuracao')
+    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Criar Macroprocesso'})
 
-@requer_admin
+
+@requer_pode_configurar
 def macroprocesso_editar(request, pk):
     """View para editar um macroprocesso existente."""
     macro = get_object_or_404(Macroprocesso, pk=pk, deleted_at__isnull=True)
     form = MacroprocessoForm(request.POST or None, instance=macro)
     if form.is_valid():
         form.save()
-        return redirect('configuracao:painel')
-    return render(request,
-     'configuracao/form.html',
-     {'form': form, 'titulo': 'Editar Macroprocesso'}
-    )
+        return redirect('configuracao:painel_configuracao')
+    return render(request, 'configuracao/form.html', {'form': form, 'titulo': 'Editar Macroprocesso'})
 
-@requer_admin
+
+@requer_pode_configurar
 def macroprocesso_deletar(request, pk):
     """View para deletar um macroprocesso."""
     macro = get_object_or_404(Macroprocesso, pk=pk, deleted_at__isnull=True)
     if request.method == 'POST':
         macro.soft_delete()
-        return redirect('configuracao:painel')
-    return render(request,
-     'configuracao/confirmar_exclusao.html',
-     {'objeto': macro, 'tipo': 'Macroprocesso'}
+        return redirect('configuracao:painel_configuracao')
+    return render(
+        request,
+        'configuracao/confirmar_exclusao.html',
+        {'objeto': macro, 'tipo': 'Macroprocesso'}
     )

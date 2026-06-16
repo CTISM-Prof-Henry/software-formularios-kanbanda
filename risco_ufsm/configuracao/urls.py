@@ -4,7 +4,7 @@ from . import views
 app_name = 'configuracao'
 
 urlpatterns = [
-    path('', views.painel_configuracao, name='painel'),
+    path('', views.painel_configuracao, name='painel_configuracao'),
     
     #desafiopdi
     path('desafio/novo/', views.desafio_criar, name='desafio_criar'),

@@ -37,6 +37,7 @@
   <table>
     <tr><th>Tipologia</th><td>{{ plano.identificacao.get_tipologia_display|default:"-" }}</td></tr>
     <tr><th>Macroprocesso</th><td>{{ plano.identificacao.macroprocesso|default:"-" }}</td></tr>
+    <tr><th>Objetivo PDI</th><td>{{ plano.identificacao.desafio_pdi|default:"-" }}</td></tr>
     <tr><th>Objetivo PDI</th><td>{{ plano.identificacao.objetivo_pdi|default:"-" }}</td></tr>
     <tr><th>Evento de risco</th><td>{{ plano.identificacao.descricao_evento|linebreaksbr }}</td></tr>
     <tr><th>Causas</th><td>{{ plano.identificacao.causas|linebreaksbr }}</td></tr>

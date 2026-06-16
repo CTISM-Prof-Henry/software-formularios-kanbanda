@@ -25,12 +25,14 @@ class IdentificacaoForm(forms.ModelForm):
         fields = ['tipologia',
                 'macroprocesso',
                 'objetivo_pdi',
+                'desafio_pdi',
                 'descricao_evento',
                 'causas',
                 'consequencias',]
         widgets = {
             'tipologia': forms.Select(attrs={'class': 'form-select'}),
             'macroprocesso': forms.Select(attrs={'class': 'form-select'}),
+            'desafio_pdi': forms.Select(attrs={'class': 'form-select'}),
             'objetivo_pdi': forms.Select(attrs={'class': 'form-select'}),
             'descricao_evento': forms.Textarea(attrs={'class': 'form-control', 
                                                         'rows': 4, 'placeholder': 
@@ -45,6 +47,7 @@ class IdentificacaoForm(forms.ModelForm):
         labels = {
             'tipologia': 'Tipologia / Categoria de risco',
             'macroprocesso': 'Macroprocesso institucional',
+            'desafio_pdi': "Desafio do plano de Desenvolvimento Individual",
             'objetivo_pdi': "Objetivo do Plano de Desenvolvimento Individual",
             'descricao_evento': "Descrição do evento de risco",
             'causas': 'Causas do risco',
@@ -117,11 +120,9 @@ class TratamentoForm(forms.ModelForm):
                                                     'rows': 4, 'placeholder': 
                                                     'Descreva a ação'}),
             'situacao': forms.Select(attrs={'class': 'form-select'}),
-            'data_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}, 
-                                                    format='%Y-%m-%d'),
+            'data_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'data_conclusao_prevista': forms.DateInput(attrs={'type': 'date', 
-                                                                'class': 'form-control'}, 
-                                                                format='%Y-%m-%d'),
+                                                                'class': 'form-control'}),
             'responsavel': forms.TextInput(attrs={'class': 'form-control', 
                                                     'placeholder': 'Responsável pelo tratamento'}),
             'parceiros': forms.Textarea(attrs={'class': 'form-control',

@@ -1,10 +1,10 @@
 """
-Decoradores são funções especiais que envolvem outras funções 
+Decoradores são funções especiais que envolvem outras funções
 (normalmente views) para adicionar funcionalidades extras,
 como controle de acesso, verificação de perfil, etc.
 Eles são usados para garantir que apenas usuários com os perfis
-adequados possamacessar determinadas views, e para verificar se
-a conta do usuário está ativada antes de permitir o acesso
+adequados possam acessar determinadas views, e para verificar se
+a conta do usuário está ativada antes de permitir o acesso.
 """
 
 import functools
@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from .models import Perfil
+
 
 def _acesso_negado(request, mensagem='Você não tem permissão para acessar esta página.'):
     '''Renderiza uma página de acesso negado com a mensagem'''
@@ -44,6 +45,11 @@ def requer_pode_criar_usuario(view_func):
 def requer_pode_gerenciar_usuarios(view_func):
     """Admin, Gestor Unidade e Gestor Setor podem listar/gerenciar usuários."""
     return requer_perfil(Perfil.ADMIN, Perfil.GESTOR_UNIDADE, Perfil.GESTOR_SETOR)(view_func)
+
+
+def requer_pode_configurar(view_func):
+    """Admin e Gestor da Unidade podem acessar o módulo de configuração (PDI e Macroprocessos)."""
+    return requer_perfil(Perfil.ADMIN, Perfil.GESTOR_UNIDADE)(view_func)
 
 
 def requer_conta_ativada(view_func):
