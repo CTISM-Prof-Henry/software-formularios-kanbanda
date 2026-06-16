@@ -680,7 +680,7 @@ Criar a view `lista_notificacoes` que exibe as notificações do usuário e marc
 
 ### Parte 5 — Auditoria integrada, histórico visual, testes e polimento final
 
-Responsável: a ser definido pela equipe.
+Responsável: João Pedro.
 
 Esta parte é executada por último, depois que as outras quatro estão funcionando.
 
