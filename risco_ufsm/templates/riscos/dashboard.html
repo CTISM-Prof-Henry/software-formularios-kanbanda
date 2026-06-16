@@ -4,19 +4,87 @@
 
 {% block extra_css %}
 <style>
-  .matriz-risco td.matriz-celula { padding: 0; }
-  .matriz-risco td.matriz-celula a {
-    display: block;
-    padding: .9rem .5rem;
-    font-weight: 600;
-    color: #fff;
+  .mapa-risco-wrap { overflow-x: auto; }
+  .mapa-risco {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .mapa-risco th,
+  .mapa-risco td {
+    border: 1px solid #111;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .mapa-risco th {
+    background: #fff;
+    font-weight: 700;
+  }
+  .mapa-risco .titulo-mapa {
+    border: 0;
+    padding-bottom: .75rem;
+    font-size: 1.05rem;
+    letter-spacing: .04em;
+  }
+  .mapa-risco .eixo-impacto {
+    width: 36px;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: .35em;
+  }
+  .mapa-risco .rotulo-impacto {
+    width: 116px;
+    font-size: .86rem;
+  }
+  .mapa-risco .celula-risco {
+    height: 88px;
+    padding: 0;
+  }
+  .mapa-risco .celula-risco a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #000;
+    font-size: 1.05rem;
+    font-weight: 700;
     text-decoration: none;
   }
-  .matriz-risco td.matriz-celula a:hover { opacity: .85; }
-  .nivel-baixo    { background-color: #2ecc71; }
-  .nivel-moderado { background-color: #f39c12; }
-  .nivel-alto     { background-color: #e67e22; }
-  .nivel-extremo  { background-color: #e74c3c; }
+  .mapa-risco .celula-risco a:hover {
+    outline: 3px solid rgba(0, 0, 0, .22);
+    outline-offset: -3px;
+  }
+  .mapa-risco .rotulo-coluna {
+    padding-top: .45rem;
+    border: 0;
+    font-size: .84rem;
+  }
+  .mapa-risco .rotulo-probabilidade {
+    padding-top: .55rem;
+    letter-spacing: .35em;
+  }
+  .mapa-risco .nivel-baixo { background: #c6e0b4; --bs-table-bg: #c6e0b4; }
+  .mapa-risco .nivel-moderado { background: #ffe699; --bs-table-bg: #ffe699; }
+  .mapa-risco .nivel-alto { background: #ffc000; --bs-table-bg: #ffc000; }
+  .mapa-risco .nivel-extremo { background: #ff330f; --bs-table-bg: #ff330f; }
+  .legenda-risco {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    min-width: 680px;
+    margin-top: .75rem;
+    border: 1px solid #111;
+  }
+  .legenda-risco div {
+    padding: .45rem .6rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  .legenda-risco .nivel-baixo { background: #c6e0b4; }
+  .legenda-risco .nivel-moderado { background: #ffe699; }
+  .legenda-risco .nivel-alto { background: #ffc000; }
+  .legenda-risco .nivel-extremo { background: #ff330f; }
   .card-extremo { border-left: 4px solid #e74c3c; }
   .card-extremo .display-6 { color: #e74c3c; }
 
@@ -99,26 +167,49 @@
   <!-- Matriz probabilidade × impacto -->
   <div class="card mb-4">
     <div class="card-body">
-      <h2 class="h5 mb-3">Matriz de Risco (Probabilidade × Impacto)</h2>
-      <table class="table text-center matriz-risco align-middle mb-0">
-        <thead>
-          <tr><th></th><th colspan="5">Impacto →</th></tr>
-        </thead>
-        <tbody>
-          {% for linha in matriz %}
-          <tr>
-            <th class="align-middle">P{{ linha.prob }}</th>
-            {% for c in linha.celulas %}
-            <td class="matriz-celula nivel-{{ c.nivel|lower }}">
-              <a href="{% url 'riscos:lista_planos' %}?probabilidade={{ c.prob }}&impacto={{ c.imp }}">
-                {{ c.count }}
-              </a>
-            </td>
+      <div class="mapa-risco-wrap">
+        <table class="mapa-risco mb-0">
+          <thead>
+            <tr>
+              <th class="titulo-mapa" colspan="7">MAPA DE RISCO</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for linha in matriz %}
+            <tr>
+              {% if forloop.first %}
+              <th class="eixo-impacto" rowspan="5">IMPACTO</th>
+              {% endif %}
+              <th class="rotulo-impacto">{{ linha.impacto_rotulo }}</th>
+              {% for c in linha.celulas %}
+              <td class="celula-risco nivel-{{ c.nivel|lower }}">
+                <a href="{% url 'riscos:lista_planos' %}?probabilidade={{ c.prob }}&impacto={{ c.imp }}">
+                  {% if c.count %}{{ c.count }} {{ c.sigla }}{% endif %}
+                </a>
+              </td>
+              {% endfor %}
+            </tr>
             {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            <tr>
+              <th class="rotulo-coluna" colspan="2"></th>
+              <th class="rotulo-coluna">1 - Raro</th>
+              <th class="rotulo-coluna">2 - Improvavel</th>
+              <th class="rotulo-coluna">3 - Possivel</th>
+              <th class="rotulo-coluna">4 - Provavel</th>
+              <th class="rotulo-coluna">5 - Quase certo</th>
+            </tr>
+            <tr>
+              <th class="rotulo-probabilidade" colspan="7">PROBABILIDADE</th>
+            </tr>
+          </tbody>
+        </table>
+        <div class="legenda-risco">
+          <div class="nivel-extremo">Extremo (RE) 20 &le; Risco &lt; 25</div>
+          <div class="nivel-alto">Alto (RA) 12 &le; Risco &lt; 20</div>
+          <div class="nivel-moderado">Moderado (RM) 4 &le; Risco &lt; 12</div>
+          <div class="nivel-baixo">Baixo (RB) Risco &lt; 4</div>
+        </div>
+      </div>
     </div>
   </div>
 

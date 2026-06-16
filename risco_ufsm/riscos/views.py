@@ -210,17 +210,37 @@ def dashboard(request):
     contagens = avaliacoes.values('probabilidade', 'impacto').annotate(total=Count('id'))
     mapa = {(c['probabilidade'], c['impacto']): c['total'] for c in contagens}
 
-    matriz = []  # linhas de cima (prob=5) para baixo (prob=1)
-    for prob in range(5, 0, -1):
+    siglas_nivel = {
+        'BAIXO': 'RB',
+        'MODERADO': 'RM',
+        'ALTO': 'RA',
+        'EXTREMO': 'RE',
+    }
+    rotulos_impacto = {
+        5: '5 - Catastrofico',
+        4: '4 - Grande',
+        3: '3 - Moderado',
+        2: '2 - Pequeno',
+        1: '1 - Insignificante',
+    }
+
+    matriz = []  # linhas de cima (impacto=5) para baixo (impacto=1)
+    for imp in range(5, 0, -1):
         celulas = []
-        for imp in range(1, 6):
+        for prob in range(1, 6):
+            nivel = _nivel_por_produto(prob * imp)
             celulas.append({
                 'prob': prob,
                 'imp': imp,
                 'count': mapa.get((prob, imp), 0),
-                'nivel': _nivel_por_produto(prob * imp),
+                'nivel': nivel,
+                'sigla': siglas_nivel[nivel],
             })
-        matriz.append({'prob': prob, 'celulas': celulas})
+        matriz.append({
+            'imp': imp,
+            'impacto_rotulo': rotulos_impacto[imp],
+            'celulas': celulas,
+        })
 
     # --- Categoria × Nível de Risco (barras empilhadas) ---
     # TIPOS já definido na seção de tipologia.
