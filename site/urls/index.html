@@ -96,6 +96,11 @@
 <td>Tela de login</td>
 </tr>
 <tr>
+<td><code>/logout/</code></td>
+<td>Autenticado</td>
+<td>Encerrar sessão</td>
+</tr>
+<tr>
 <td><code>/recuperar-senha/</code></td>
 <td>Público</td>
 <td>Solicitar redefinição</td>
@@ -154,6 +159,171 @@
 <td><code>/admin/</code></td>
 <td>Admin</td>
 <td>Painel administrativo</td>
+</tr>
+<tr>
+<td><code>/riscos/</code></td>
+<td>Autenticado</td>
+<td>Listagem dos planos de risco conforme o escopo do usuário</td>
+</tr>
+<tr>
+<td><code>/riscos/novo/</code></td>
+<td>Autenticado (exceto Servidor)</td>
+<td>Criar um novo plano de risco</td>
+</tr>
+<tr>
+<td><code>/riscos/&lt;id&gt;/</code></td>
+<td>Conforme escopo</td>
+<td>Visualização detalhada de um plano de risco</td>
+</tr>
+<tr>
+<td><code>/riscos/&lt;id&gt;/editar/</code></td>
+<td>Conforme escopo</td>
+<td>Editar as seções de um plano de risco</td>
+</tr>
+<tr>
+<td><code>/riscos/&lt;id&gt;/excluir/</code></td>
+<td>Conforme escopo</td>
+<td>Excluir um plano de risco</td>
+</tr>
+<tr>
+<td><code>/riscos/&lt;id&gt;/remanejar/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Trocar o plano para outro setor</td>
+</tr>
+<tr>
+<td><code>/riscos/dashboard/</code></td>
+<td>Autenticado</td>
+<td>Painel com gráficos e matriz de riscos</td>
+</tr>
+<tr>
+<td><code>/riscos/&lt;id&gt;/pdf/</code></td>
+<td>Conforme escopo</td>
+<td>Gerar e baixar o relatório PDF de um plano de risco</td>
+</tr>
+<tr>
+<td><code>/riscos/notificacoes/</code></td>
+<td>Autenticado</td>
+<td>Visualizar as notificações do usuário</td>
+</tr>
+<tr>
+<td><code>/riscos/admin/painel/</code></td>
+<td>Admin</td>
+<td>Painel administrativo dos planos de risco</td>
+</tr>
+<tr>
+<td><code>/riscos/admin/&lt;id&gt;/detalhe/</code></td>
+<td>Admin</td>
+<td>Detalhe técnico de um plano no painel administrativo</td>
+</tr>
+<tr>
+<td><code>/riscos/admin/&lt;id&gt;/deletar/</code></td>
+<td>Admin</td>
+<td>Excluir plano pelo painel administrativo de riscos</td>
+</tr>
+<tr>
+<td><code>/configuracao/</code></td>
+<td>Admin</td>
+<td>Gerenciar Macroprocessos, Desafios PDI e Objetivos PDI</td>
+</tr>
+<tr>
+<td><code>/configuracao/desafio/novo/</code></td>
+<td>Admin</td>
+<td>Cadastrar Desafio PDI</td>
+</tr>
+<tr>
+<td><code>/configuracao/desafio/&lt;id&gt;/editar/</code></td>
+<td>Admin</td>
+<td>Editar Desafio PDI</td>
+</tr>
+<tr>
+<td><code>/configuracao/desafio/&lt;id&gt;/deletar/</code></td>
+<td>Admin</td>
+<td>Excluir Desafio PDI</td>
+</tr>
+<tr>
+<td><code>/configuracao/objetivo/novo/</code></td>
+<td>Admin</td>
+<td>Cadastrar Objetivo PDI</td>
+</tr>
+<tr>
+<td><code>/configuracao/objetivo/&lt;id&gt;/editar/</code></td>
+<td>Admin</td>
+<td>Editar Objetivo PDI</td>
+</tr>
+<tr>
+<td><code>/configuracao/objetivo/&lt;id&gt;/deletar/</code></td>
+<td>Admin</td>
+<td>Excluir Objetivo PDI</td>
+</tr>
+<tr>
+<td><code>/configuracao/macroprocesso/novo/</code></td>
+<td>Admin</td>
+<td>Cadastrar Macroprocesso</td>
+</tr>
+<tr>
+<td><code>/configuracao/macroprocesso/&lt;id&gt;/editar/</code></td>
+<td>Admin</td>
+<td>Editar Macroprocesso</td>
+</tr>
+<tr>
+<td><code>/configuracao/macroprocesso/&lt;id&gt;/deletar/</code></td>
+<td>Admin</td>
+<td>Excluir Macroprocesso</td>
+</tr>
+<tr>
+<td><code>/unidades/</code></td>
+<td>Admin</td>
+<td>Gerenciar Unidades da Instituição</td>
+</tr>
+<tr>
+<td><code>/unidades/nova/</code></td>
+<td>Admin</td>
+<td>Cadastrar Unidade</td>
+</tr>
+<tr>
+<td><code>/unidades/&lt;id&gt;/editar/</code></td>
+<td>Admin</td>
+<td>Editar Unidade</td>
+</tr>
+<tr>
+<td><code>/unidades/&lt;id&gt;/toggle/</code></td>
+<td>Admin</td>
+<td>Ativar/Desativar Unidade</td>
+</tr>
+<tr>
+<td><code>/setores/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Gerenciar Setores</td>
+</tr>
+<tr>
+<td><code>/setores/novo/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Cadastrar Setor</td>
+</tr>
+<tr>
+<td><code>/setores/&lt;id&gt;/editar/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Editar Setor</td>
+</tr>
+<tr>
+<td><code>/setores/&lt;id&gt;/toggle/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Ativar/Desativar Setor</td>
+</tr>
+<tr>
+<td><code>/setores/&lt;id&gt;/vinculos/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Gerenciar vínculos do setor</td>
+</tr>
+<tr>
+<td><code>/setores/&lt;id&gt;/vinculos/add/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Adicionar vínculo ao setor</td>
+</tr>
+<tr>
+<td><code>/vinculos/&lt;id&gt;/encerrar/</code></td>
+<td>Admin / G. Unidade</td>
+<td>Encerrar vínculo de usuário com setor</td>
 </tr>
 </tbody>
 </table>
