@@ -1,3 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://ctism-prof-henry.github.io/software-formularios-kanbanda/</loc>
+         <lastmod>2026-06-17</lastmod>
+    </url>
+    <url>
+         <loc>https://ctism-prof-henry.github.io/software-formularios-kanbanda/instalacao/</loc>
+         <lastmod>2026-06-17</lastmod>
+    </url>
+    <url>
+         <loc>https://ctism-prof-henry.github.io/software-formularios-kanbanda/seguranca/</loc>
+         <lastmod>2026-06-17</lastmod>
+    </url>
+    <url>
+         <loc>https://ctism-prof-henry.github.io/software-formularios-kanbanda/urls/</loc>
+         <lastmod>2026-06-17</lastmod>
+    </url>
 </urlset>
