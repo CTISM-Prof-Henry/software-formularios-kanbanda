@@ -95,7 +95,6 @@ Conta ativada → pode fazer login
 | `/riscos/<id>/pdf/` | Autenticado, com acesso ao plano | Gerar e baixar o relatório PDF de um plano de risco |
 | `/riscos/notificacoes/` | Autenticado | Visualizar as notificações do usuário |
 | `/admin/` | Admin | Painel administrativo |
-
 | `/riscos/` | Autenticado | Listagem de todos os planos de risco|
 | `/riscos/novo/` | Autenticado (exceto Servidor) | Criar um novo plano de risco |
 | `/riscos/<id>/` | Conforme escopo | Visualização detalhada de um plano de risco |
@@ -105,9 +104,7 @@ Conta ativada → pode fazer login
 | `/riscos/dashboard/` | Autenticado (exceto Servidor) | Painel com gráficos e matriz de riscos |
 | `/riscos/<id>/pdf/` | Conforme escopo | Gerar relatório em PDF de um plano |
 | `/riscos/notificacoes/` | Autenticado | Visualizar notificações |
-
 | `/configuracao/` | Admin | Gerenciar Macroprocessos, Desafios PDI e Objetivos PDI |
-
 | `/organizacional/unidades/` | Admin | Gerenciar Unidades da Instituição |
 | `/organizacional/setores/` | Admin / G. Unidade | Gerenciar Setores e vínculos |
 
