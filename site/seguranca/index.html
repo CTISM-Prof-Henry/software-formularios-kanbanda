@@ -50,7 +50,7 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Permissões e Segurança</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#perfis-e-permissoes-do-sistema">Perfis e Permissões do Sistema</a>
+    <li class="toctree-l2"><a class="reference internal" href="#resumo-da-hierarquia-de-escopo">Resumo da hierarquia de escopo</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#seguranca">Segurança</a>
     </li>
@@ -85,46 +85,18 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="permissoes-e-seguranca">Permissões e  Segurança</h1>
-<h3 id="perfis-e-permissoes-do-sistema">Perfis e Permissões do Sistema</h3>
+<h3 id="resumo-da-hierarquia-de-escopo">Resumo da hierarquia de escopo</h3>
 <table>
 <thead>
 <tr>
-<th>Funcionalidade</th>
+<th>Capacidade</th>
 <th style="text-align: center;">Admin</th>
-<th style="text-align: center;">G. Unidade</th>
-<th style="text-align: center;">G. Setor</th>
+<th style="text-align: center;">Gestor Unidade</th>
+<th style="text-align: center;">Gestor Setor</th>
 <th style="text-align: center;">Servidor</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>Criar usuários</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">❌</td>
-</tr>
-<tr>
-<td>Editar usuários</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup></td>
-<td style="text-align: center;">❌</td>
-</tr>
-<tr>
-<td>Ativar/desativar</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">❌</td>
-</tr>
-<tr>
-<td>Listar usuários</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅<sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup></td>
-<td style="text-align: center;">❌</td>
-</tr>
 <tr>
 <td>Logs de acesso</td>
 <td style="text-align: center;">✅</td>
@@ -133,18 +105,53 @@
 <td style="text-align: center;">❌</td>
 </tr>
 <tr>
-<td>Meu perfil / senha</td>
+<td>Criar usuários</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
 </tr>
 <tr>
-<td>Painel</td>
+<td>Alterar perfil</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>Config. PDI/Macroprocessos</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>Painel global de riscos</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>Criar planos de risco</td>
+<td style="text-align: center;">✅ (qualquer)</td>
+<td style="text-align: center;">✅ (unidade)</td>
+<td style="text-align: center;">✅ (setor)</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>Remanejar planos</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>Ver planos</td>
+<td style="text-align: center;">✅ (todos)</td>
+<td style="text-align: center;">✅ (unidade)</td>
+<td style="text-align: center;">✅ (setor)</td>
+<td style="text-align: center;">✅ (setor)</td>
 </tr>
 </tbody>
 </table>
@@ -163,14 +170,6 @@
 <li><strong>Histórico completo</strong> via <code>django-simple-history</code> em Usuario, Unidade, Setor, UsuarioSetor</li>
 <li><strong>Scoping organizacional</strong>: cada perfil vê apenas os dados do seu escopo</li>
 </ul>
-<div class="footnote">
-<hr />
-<ol>
-<li id="fn:1">
-<p><strong>Restrição:</strong> Restrito ao próprio setor do gestor.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
-</li>
-</ol>
-</div>
               
             </div>
           </div><footer>

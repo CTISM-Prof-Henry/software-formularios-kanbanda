@@ -1,19 +1,18 @@
 
 # Permissões e  Segurança
 
-### Perfis e Permissões do Sistema
+### Resumo da hierarquia de escopo
 
-| Funcionalidade | Admin | G. Unidade | G. Setor | Servidor |
+| Capacidade | Admin | Gestor Unidade | Gestor Setor | Servidor |
 |---|:---:|:---:|:---:|:---:|
-| Criar usuários | ✅ | ✅ | ❌ | ❌ |
-| Editar usuários | ✅ | ✅ | ✅[^1] | ❌ |
-| Ativar/desativar | ✅ | ✅ | ❌ | ❌ |
-| Listar usuários | ✅ | ✅ | ✅[^1] | ❌ |
 | Logs de acesso | ✅ | ❌ | ❌ | ❌ |
-| Meu perfil / senha | ✅ | ✅ | ✅ | ✅ |
-| Painel | ✅ | ✅ | ✅ | ✅ |
-
-[^1]: **Restrição:** Restrito ao próprio setor do gestor.
+| Criar usuários | ✅ | ✅ | ❌ | ❌ |
+| Alterar perfil | ✅ | ✅ | ❌ | ❌ |
+| Config. PDI/Macroprocessos | ✅ | ✅ | ❌ | ❌ |
+| Painel global de riscos | ✅ | ❌ | ❌ | ❌ |
+| Criar planos de risco | ✅ (qualquer) | ✅ (unidade) | ✅ (setor) | ❌ |
+| Remanejar planos | ✅ | ✅ | ❌ | ❌ |
+| Ver planos | ✅ (todos) | ✅ (unidade) | ✅ (setor) | ✅ (setor) |
 
 ---
 

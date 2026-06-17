@@ -32,17 +32,18 @@ python manage.py runserver
 
 ## Perfis e Permissões
 
-| Funcionalidade | Admin | G. Unidade | G. Setor | Servidor |
-|---|:---:|:---:|:---:|:---:|
-| Criar usuários | ✅ | ✅ | ❌ | ❌ |
-| Editar usuários | ✅ | ✅ | ✅** | ❌ |
-| Ativar/desativar | ✅ | ✅ | ❌ | ❌ |
-| Listar usuários | ✅ | ✅ | ✅** | ❌ |
-| Logs de acesso | ✅ | ❌ | ❌ | ❌ |
-| Meu perfil / senha | ✅ | ✅ | ✅ | ✅ |
-| Painel | ✅ | ✅ | ✅ | ✅ |
+### Resumo da hierarquia de escopo
 
-\*\* Restrito ao próprio setor
+| Capacidade | Admin | Gestor Unidade | Gestor Setor | Servidor |
+|---|:---:|:---:|:---:|:---:|
+| Logs de acesso | ✅ | ❌ | ❌ | ❌ |
+| Criar usuários | ✅ | ✅ | ❌ | ❌ |
+| Alterar perfil | ✅ | ✅ | ❌ | ❌ |
+| Config. PDI/Macroprocessos | ✅ | ✅ | ❌ | ❌ |
+| Painel global de riscos | ✅ | ❌ | ❌ | ❌ |
+| Criar planos de risco | ✅ (qualquer) | ✅ (unidade) | ✅ (setor) | ❌ |
+| Remanejar planos | ✅ | ✅ | ❌ | ❌ |
+| Ver planos | ✅ (todos) | ✅ (unidade) | ✅ (setor) | ✅ (setor) |
 
 ---
 
