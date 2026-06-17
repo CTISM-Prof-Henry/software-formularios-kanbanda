@@ -6,6 +6,8 @@ on:
 jobs:
   docs:
     runs-on: ubuntu-latest
+
+
     permissions:
       contents: 'read'  # permite ler o conteúdo do repositório (necessário para clonar o código)
       pages: 'write'  # permite escrever no GitHub Pages
