@@ -15,7 +15,6 @@
 | `/meu-perfil/` | Autenticado | Dados pessoais e senha |
 | `/logs/acesso/` | Admin | Auditoria de acessos |
 | `/admin/` | Admin | Painel administrativo |
-
 | `/riscos/` | Autenticado | Listagem de todos os planos de risco|
 | `/riscos/novo/` | Autenticado (exceto Servidor) | Criar um novo plano de risco |
 | `/riscos/<id>/` | Conforme escopo | Visualização detalhada de um plano de risco |
@@ -25,8 +24,6 @@
 | `/riscos/dashboard/` | Autenticado (exceto Servidor) | Painel com gráficos e matriz de riscos |
 | `/riscos/<id>/pdf/` | Conforme escopo | Gerar relatório em PDF de um plano |
 | `/riscos/notificacoes/` | Autenticado | Visualizar notificações |
-
 | `/configuracao/` | Admin | Gerenciar Macroprocessos, Desafios PDI e Objetivos PDI |
-
 | `/organizacional/unidades/` | Admin | Gerenciar Unidades da Instituição |
 | `/organizacional/setores/` | Admin / G. Unidade | Gerenciar Setores e vínculos |
