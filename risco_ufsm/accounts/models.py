@@ -415,6 +415,11 @@ class TentativaLogin(models.Model):
 
     def incrementar(self, max_tentativas=5, bloqueio_minutos=15):
         '''Incrementa o contador de tentativas e bloqueia o IP se atingir o limite.'''
+        # Se o bloqueio anterior já expirou, reinicia o contador
+        if self.bloqueado_ate and timezone.now() >= self.bloqueado_ate:
+            self.tentativas = 0
+            self.bloqueado_ate = None
+
         self.tentativas += 1
         if self.tentativas >= max_tentativas:
             self.bloqueado_ate = timezone.now() + timedelta(minutes=bloqueio_minutos)
