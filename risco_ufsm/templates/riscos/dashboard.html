@@ -292,40 +292,63 @@
     }
   });
 
-  // Riscos por Macroprocesso — um gráfico de barras por macroprocesso, gerado em forEach
-  (function () {
-    const dados  = {{ graficos_macro|safe }};
-    const niveis = {{ niveis_macro|safe }};
-    const cores  = {{ cores_macro|safe }};
-    const grid   = document.getElementById('gridMacro');
+  // Riscos por Macroprocesso — 22 minigráficos, número em cima da barra (igual à planilha)
+(function () {
+  const dados  = {{ graficos_macro|safe }};
+  const niveis = {{ niveis_macro|safe }};
+  const cores  = {{ cores_macro|safe }};
+  const grid   = document.getElementById('gridMacro');
 
-    // legenda única do grid
-    document.getElementById('legendaMacro').innerHTML =
-      niveis.map((n, i) => `<span><i style="background:${cores[i]}"></i>${n}</span>`).join('');
+  const TETO = Math.max(...dados.flatMap(m => m.data));
 
-    dados.forEach((m, idx) => {
-      const card = document.createElement('div');
-      card.className = 'mini';
-      card.innerHTML = `<h4 title="${m.nome}">${m.nome}</h4>
-                        <div class="wrap macro-chart-wrapper"><canvas id="macro_${idx}"></canvas></div>`;
-      grid.appendChild(card);
+  // legenda única acima do grid
+  document.getElementById('legendaMacro').innerHTML =
+    niveis.map((n, i) => `<span><i style="background:${cores[i]}"></i>${n}</span>`).join('');
 
-      new Chart(card.querySelector('canvas'), {
-        type: 'bar',
-        data: { labels: niveis,
-                datasets: [{ label: 'Riscos', data: m.data, backgroundColor: cores, borderWidth: 1 }] },
-        options: {
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed}` } }
-          },
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }
+  // escreve o valor em cima de cada barra (como no Excel)
+  const valorNaBarra = {
+    id: 'valorNaBarra',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      chart.getDatasetMeta(0).data.forEach((bar, i) => {
+        const v = chart.data.datasets[0].data[i];
+        ctx.save();
+        ctx.fillStyle = '#444';
+        ctx.font = '600 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(v, bar.x, bar.y - 3);
+        ctx.restore();
       });
+    }
+  };
+
+  dados.forEach((m, idx) => {
+    const card = document.createElement('div');
+    card.className = 'mini';
+    card.innerHTML = `<h4 title="${m.nome}">${m.nome}</h4>
+                      <div class="wrap macro-chart-wrapper"><canvas id="macro_${idx}"></canvas></div>`;
+    grid.appendChild(card);
+
+    new Chart(card.querySelector('canvas'), {
+      type: 'bar',
+      data: { labels: niveis,
+              datasets: [{ label: 'Riscos', data: m.data, backgroundColor: cores, borderWidth: 1 }] },
+      options: {
+        maintainAspectRatio: false,
+        layout: { padding: { top: 18 } },   // espaço pro número não cortar
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed.y}` } }
+        },
+        scales: {
+          x: { display: false },
+          y: { display: false, beginAtZero: true, max: TETO }   // teto fixo e compartilhado
+        }
+      },
+      plugins: [valorNaBarra]
     });
-  })();
+  });
+})();
 </script>
 {% endblock %}
