@@ -53,9 +53,11 @@
     <a href="{% url 'riscos:novo_plano' %}" class="sidebar-link {% if request.resolver_match.url_name == 'novo_plano' %}active{% endif %}">
       <span class="sidebar-icon">📝</span> Novo Plano
     </a>
+    {% if not request.user.is_gestor_setor %}
     <a href="{% url 'riscos:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
       <span class="sidebar-icon">📊</span> Dashboard
     </a>
+    {% endif %}
     {% endif %}
     {% if request.user.is_admin %}
     <a href="{% url 'riscos:painel_riscos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'painel_riscos' %}active{% endif %}">
@@ -73,7 +75,7 @@
     </a>
     {% endif %}
 
-    {% if request.user.is_admin or request.user.is_gestor_unidade %}
+    {% if request.user.is_admin %}
     <div class="sidebar-section-title" style="margin-top:.5rem;">PDI e Macroprocessos</div>
     <a href="{% url 'configuracao:painel_configuracao' %}" class="sidebar-link {% if 'configuracao' in request.resolver_match.app_names %}active{% endif %}">
       <span class="sidebar-icon">⚙️</span> Configurações PDI

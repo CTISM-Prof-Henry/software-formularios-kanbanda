@@ -225,4 +225,31 @@
   </div>
   {% endif %}
 </div>
+
+<div class="card mb-4">
+  <div class="card-header py-2"><strong style="font-size:.85rem;">🕒 Histórico de Alterações</strong></div>
+  <div class="card-body p-0">
+    {% with historico=plano.history.all %}
+    {% if historico %}
+    <table class="table table-sm mb-0 table-gov">
+      <thead>
+        <tr><th>Data/Hora</th><th>Tipo</th><th>Usuário</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for h in historico %}
+        <tr>
+          <td style="font-size:.78rem;">{{ h.history_date|date:"d/m/Y H:i" }}</td>
+          <td style="font-size:.78rem;">{{ h.get_history_type_display }}</td>
+          <td style="font-size:.78rem;">{{ h.history_user|default:"—" }}</td>
+          <td style="font-size:.78rem;">{{ h.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="p-3 text-muted text-center" style="font-size:.85rem;">Nenhum histórico registrado.</div>
+    {% endif %}
+    {% endwith %}
+  </div>
+</div>
 {% endblock %}
