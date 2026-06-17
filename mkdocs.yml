@@ -1,6 +1,11 @@
 site_name: Documentação Kanbanda
 site_url: https://ctism-prof-henry.github.io/software-formularios-kanbanda/
 theme: readthedocs
+nav:
+  - Início: index.md
+  - Instalação: instalacao.md
+  - Permissões e Segurança: seguranca.md
+  - URLs do Sistema: urls.md
 markdown_extensions:
   - attr_list
   - footnotes
