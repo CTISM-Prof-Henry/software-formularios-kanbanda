@@ -18,7 +18,7 @@ from riscos.models import (
 
 
 class Command(BaseCommand):
-    help = 'Cria 30 planos de risco de demonstracao sem duplicar registros existentes.'
+    help = 'Cria 50 planos de risco de demonstracao sem duplicar registros existentes.'
 
     def handle(self, *args, **options):
         usuario = self._usuario_responsavel()
@@ -29,20 +29,31 @@ class Command(BaseCommand):
 
         criados = 0
         ignorados = 0
+        atualizados = 0
 
         with transaction.atomic():
             for indice, dados in enumerate(self._dados_demo(), start=1):
                 descricao = f"[DEMO {indice:02d}] {dados['evento']}"
-                existe = IdentificacaoRisco.objects.filter(
-                    descricao_evento=descricao,
-                    plano__deleted_at__isnull=True,
-                ).exists()
+                setor = setores[(indice - 1) % len(setores)]
+                identificacao_existente = (
+                    IdentificacaoRisco.objects
+                    .select_related('plano')
+                    .filter(
+                        descricao_evento=descricao,
+                        plano__deleted_at__isnull=True,
+                    )
+                    .first()
+                )
 
-                if existe:
+                if identificacao_existente:
+                    plano = identificacao_existente.plano
+                    if plano.setor_id != setor.id:
+                        plano.setor = setor
+                        plano.save(update_fields=['setor'])
+                        atualizados += 1
                     ignorados += 1
                     continue
 
-                setor = setores[(indice - 1) % len(setores)]
                 plano = PlanoDeRisco.objects.create(
                     setor=setor,
                     criado_por=usuario,
@@ -90,6 +101,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Planos criados: {criados}'))
         self.stdout.write(f'Planos ignorados por ja existirem: {ignorados}')
+        self.stdout.write(f'Planos redistribuidos entre unidades: {atualizados}')
         self.stdout.write(
             'Para testar notificacoes de atraso, rode: python manage.py verificar_atrasos'
         )
@@ -108,32 +120,90 @@ class Command(BaseCommand):
         return usuario
 
     def _setores_disponiveis(self):
-        setores = list(Setor.objects.filter(ativo=True, deleted_at__isnull=True))
-        if setores:
-            return setores
+        estrutura = [
+            (
+                'PROGRAD',
+                'Pro-Reitoria de Graduacao',
+                'PRO_REITORIA',
+                [
+                    ('Coordenadoria de Ensino', 'ENS'),
+                    ('Coordenadoria de Projetos Pedagogicos', 'CPP'),
+                    ('Secretaria Academica', 'SEC'),
+                ],
+            ),
+            (
+                'CT',
+                'Centro de Tecnologia',
+                'CENTRO',
+                [
+                    ('Departamento de Informatica', 'INF'),
+                    ('Departamento de Eletricidade', 'ELE'),
+                    ('Laboratorio de Inovacao', 'LAB'),
+                ],
+            ),
+            (
+                'CCSH',
+                'Centro de Ciencias Sociais e Humanas',
+                'CENTRO',
+                [
+                    ('Departamento de Administracao', 'ADM'),
+                    ('Nucleo de Apoio a Pesquisa', 'NAP'),
+                ],
+            ),
+            (
+                'REITO',
+                'Reitoria',
+                'REITORIA',
+                [
+                    ('Gabinete do Reitor', 'GAB'),
+                    ('Assessoria de Planejamento', 'PLAN'),
+                ],
+            ),
+            (
+                'PRA',
+                'Pro-Reitoria de Administracao',
+                'PRO_REITORIA',
+                [
+                    ('Departamento de Compras', 'COMP'),
+                    ('Departamento de Patrimonio', 'PAT'),
+                ],
+            ),
+            (
+                'CPD',
+                'Centro de Processamento de Dados',
+                'ORGAO',
+                [
+                    ('Infraestrutura e Redes', 'REDES'),
+                    ('Sistemas Institucionais', 'SIS'),
+                ],
+            ),
+        ]
 
-        unidade, _ = Unidade.objects.get_or_create(
-            sigla='DEMO',
-            defaults={
-                'nome': 'Unidade de Demonstracao',
-                'tipo': 'ORGAO',
-                'ativo': True,
-            },
+        setores_demo = []
+        for sigla_unidade, nome_unidade, tipo, setores in estrutura:
+            unidade, _ = Unidade.objects.get_or_create(
+                sigla=sigla_unidade,
+                defaults={
+                    'nome': nome_unidade,
+                    'tipo': tipo,
+                    'ativo': True,
+                },
+            )
+            for nome_setor, sigla_setor in setores:
+                setor, _ = Setor.objects.get_or_create(
+                    unidade=unidade,
+                    nome=nome_setor,
+                    defaults={'sigla': sigla_setor, 'ativo': True},
+                )
+                setores_demo.append(setor)
+
+        setores_existentes = list(
+            Setor.objects
+            .filter(ativo=True, deleted_at__isnull=True)
+            .exclude(id__in=[setor.id for setor in setores_demo])
+            .select_related('unidade')
         )
-        nomes = [
-            ('Coordenadoria de Ensino', 'ENS'),
-            ('Departamento de Tecnologia', 'DTI'),
-            ('Secretaria Administrativa', 'SEC'),
-            ('Nucleo de Projetos', 'NPROJ'),
-        ]
-        return [
-            Setor.objects.get_or_create(
-                unidade=unidade,
-                nome=nome,
-                defaults={'sigla': sigla, 'ativo': True},
-            )[0]
-            for nome, sigla in nomes
-        ]
+        return setores_demo + setores_existentes
 
     def _dados_demo(self):
         hoje = timezone.localdate()
@@ -204,13 +274,15 @@ class Command(BaseCommand):
             True, True, True, True, False, True, True, False, True, True,
             True, True, False, True, True, True, True, False, True, True,
             True, True, True, False, True, True, True, True, False, True,
+            True, True, False, True, True, True, False, True, True, True,
+            True, False, True, True, True, True, False, True, True, True,
         ]
         respostas = ['MITIGAR', 'MITIGAR', 'EVITAR', 'TRANSFERIR', 'ACEITAR']
         tipos_acao = ['PREVENTIVA', 'CORRETIVA', 'COMPENSATORIA']
         situacoes = ['NAO_INICIADO', 'EM_EXECUCAO', 'CONCLUIDO']
 
         dados = []
-        for indice in range(30):
+        for indice in range(50):
             evento, tipologia, prob, impacto, eficacia, causas, consequencias = (
                 eventos[indice % len(eventos)]
             )
