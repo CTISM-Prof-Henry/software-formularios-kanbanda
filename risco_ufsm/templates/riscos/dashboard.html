@@ -256,6 +256,7 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
   new Chart(document.getElementById('graficoTipologia'), {
     type: 'doughnut',
@@ -266,7 +267,32 @@
         backgroundColor: ['#3498db','#e74c3c','#f39c12','#2ecc71','#9b59b6','#1abc9c','#e67e22']
       }]
     },
-    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        datalabels: {
+          formatter(value, ctx) {
+            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+            if (!value) return null;
+            return (value / total * 100).toFixed(1).replace('.', ',') + '%';
+          },
+          color: '#fff',
+          font: { weight: 'bold', size: 13 }
+        },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const v = ctx.dataset.data[ctx.dataIndex];
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              const pct = (v / total * 100).toFixed(1).replace('.', ',');
+              return `${ctx.label}: ${v} (${pct}%)`;
+            }
+          }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
   });
 
   new Chart(document.getElementById('graficoSetor'), {
