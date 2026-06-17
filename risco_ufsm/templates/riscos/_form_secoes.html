@@ -22,17 +22,17 @@
         {% for e in form_identificacao.tipologia.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
       </div>
       <div class="col-md-4">
-        <label class="form-label fw-semibold">Macroprocesso institucional</label>
+        <label class="form-label fw-semibold">Macroprocesso institucional <span class="text-danger">*</span></label>
         {{ form_identificacao.macroprocesso }}
         {% for e in form_identificacao.macroprocesso.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
       </div>
       <div class="col-md-4">
-        <label class="form-label fw-semibold">Desafio do PDI</label>
+        <label class="form-label fw-semibold">Desafio do PDI <span class="text-danger">*</span></label>
         {{ form_identificacao.desafio_pdi}}
         {% for e in form_identificacao.desafio_pdi.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
       </div>
       <div class="col-md-4">
-        <label class="form-label fw-semibold">Objetivo do PDI</label>
+        <label class="form-label fw-semibold">Objetivo do PDI <span class="text-danger">*</span></label>
         {{ form_identificacao.objetivo_pdi }}
         {% for e in form_identificacao.objetivo_pdi.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
       </div>

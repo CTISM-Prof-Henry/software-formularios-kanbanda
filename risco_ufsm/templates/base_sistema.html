@@ -53,12 +53,10 @@
     <a href="{% url 'riscos:novo_plano' %}" class="sidebar-link {% if request.resolver_match.url_name == 'novo_plano' %}active{% endif %}">
       <span class="sidebar-icon">📝</span> Novo Plano
     </a>
-    {% if not request.user.is_gestor_setor %}
+    {% endif %}
     <a href="{% url 'riscos:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
       <span class="sidebar-icon">📊</span> Dashboard
     </a>
-    {% endif %}
-    {% endif %}
     {% if request.user.is_admin %}
     <a href="{% url 'riscos:painel_riscos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'painel_riscos' %}active{% endif %}">
       <span class="sidebar-icon">📊</span> Visão Geral (Admin)
