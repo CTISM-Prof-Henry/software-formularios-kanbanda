@@ -6,6 +6,11 @@ on:
 jobs:
   docs:
     runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     permissions:
       contents: 'read'  # permite ler o conteúdo do repositório (necessário para clonar o código)
       pages: 'write'  # permite escrever no GitHub Pages
