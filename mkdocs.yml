@@ -1,4 +1,5 @@
 site_name: Documentação Kanbanda
+site_url: https://ctism-prof-henry.github.io/software-formularios-kanbanda/
 theme: readthedocs
 markdown_extensions:
   - attr_list
