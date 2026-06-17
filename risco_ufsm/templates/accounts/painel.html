@@ -43,19 +43,27 @@
       <div class="ms-auto">
         <span class="badge badge-{% if usuario.is_admin %}
             
+            
             admin
+
 
           {% elif usuario.is_gestor_unidade %}
             
+            
             gu
+
 
           {% elif usuario.is_gestor_setor %}
             
+            
             gs
+
 
           {% else %}
             
+            
             serv
+
 
           {% endif %} rounded-pill px-3 py-2">
           {{ usuario.get_perfil_display }}
@@ -122,37 +130,37 @@
       <a href="{% url 'riscos:lista_planos' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
         <div class="card-body">
           <div class="fw-bold">📑 Planos de Risco</div>
-          <div class="text-muted" style="font-size:.8rem;">Criar, ver, editar e excluir planos</div>
+          <div class="text-muted" style="font-size:.8rem;">Gestão de planos de risco</div>
         </div>
       </a>
     </div>
     {% if request.user.is_admin or request.user.is_gestor_unidade %}
-    <div class="col-sm-6 col-md-4">
-      <a href="{% url 'configuracao:painel_configuracao' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
-        <div class="card-body">
+      <div class="col-sm-6 col-md-4">
+        <a href="{% url 'configuracao:painel_configuracao' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
+          <div class="card-body">
             <div class="fw-bold">⚙️ Configurações PDI</div>
-            <div class="text-muted" style="font-size:.8rem;">Desafios, Objetivos e Macroporocessos PDI</div>
-        </div>
-      </a>
-    </div>
+            <div class="text-muted" style="font-size:.8rem;">Gestão de Desafios, Objetivos e Macroporocessos PDI</div>
+          </div>
+        </a>
+      </div>
     {% endif %}
     {% if request.user.pode_criar_usuario %}
-    <div class="col-sm-6 col-md-4">
-      <a href="{% url 'lista_unidades' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
-        <div class="card-body">
-              <div class="fw-bold">🏛️ Unidades</div>
-              <div class="text-muted" style="font-size:.8rem;">Desafios, Objetivos e Macroporocessos PDI</div>
+      <div class="col-sm-6 col-md-4">
+        <a href="{% url 'lista_unidades' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
+          <div class="card-body">
+            <div class="fw-bold">🏛️ Unidades</div>
+            <div class="text-muted" style="font-size:.8rem;">Gestão de Unidades</div>
           </div>
-      </a>
-    </div>
-    <div class="col-sm-6 col-md-4">
-      <a href="{% url 'lista_setores' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
-        <div class="card-body">
+        </a>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <a href="{% url 'lista_setores' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
+          <div class="card-body">
             <div class="fw-bold">🗂️ Setores</div>
-            <div class="text-muted" style="font-size:.8rem;">Desafios, Objetivos e Macroporocessos PDI</div>
-        </div>
-      </a>
-    </div>
+            <div class="text-muted" style="font-size:.8rem;">Gestão de Setores</div>
+          </div>
+        </a>
+      </div>
     {% endif %}
     <div class="col-sm-6 col-md-4">
       <a href="{% url 'meu_perfil' %}" class="card text-decoration-none h-100" style="border-left:4px solid #888;">
