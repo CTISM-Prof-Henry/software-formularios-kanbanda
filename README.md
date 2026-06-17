@@ -106,16 +106,16 @@ Conta ativada → pode fazer login
 | `/riscos/admin/painel/` | Admin | Painel administrativo dos planos de risco |
 | `/riscos/admin/<id>/detalhe/` | Admin | Detalhe técnico de um plano no painel administrativo |
 | `/riscos/admin/<id>/deletar/` | Admin | Excluir plano pelo painel administrativo de riscos |
-| `/configuracao/` | Admin | Gerenciar Macroprocessos, Desafios PDI e Objetivos PDI |
-| `/configuracao/desafio/novo/` | Admin | Cadastrar Desafio PDI |
-| `/configuracao/desafio/<id>/editar/` | Admin | Editar Desafio PDI |
-| `/configuracao/desafio/<id>/deletar/` | Admin | Excluir Desafio PDI |
-| `/configuracao/objetivo/novo/` | Admin | Cadastrar Objetivo PDI |
-| `/configuracao/objetivo/<id>/editar/` | Admin | Editar Objetivo PDI |
-| `/configuracao/objetivo/<id>/deletar/` | Admin | Excluir Objetivo PDI |
-| `/configuracao/macroprocesso/novo/` | Admin | Cadastrar Macroprocesso |
-| `/configuracao/macroprocesso/<id>/editar/` | Admin | Editar Macroprocesso |
-| `/configuracao/macroprocesso/<id>/deletar/` | Admin | Excluir Macroprocesso |
+| `/configuracao/` | Admin / G. Unidade | Gerenciar Macroprocessos, Desafios PDI e Objetivos PDI |
+| `/configuracao/desafio/novo/` | Admin / G. Unidade | Cadastrar Desafio PDI |
+| `/configuracao/desafio/<id>/editar/` | Admin / G. Unidade | Editar Desafio PDI |
+| `/configuracao/desafio/<id>/deletar/` | Admin / G. Unidade | Excluir Desafio PDI |
+| `/configuracao/objetivo/novo/` | Admin / G. Unidade | Cadastrar Objetivo PDI |
+| `/configuracao/objetivo/<id>/editar/` | Admin / G. Unidade | Editar Objetivo PDI |
+| `/configuracao/objetivo/<id>/deletar/` | Admin / G. Unidade | Excluir Objetivo PDI |
+| `/configuracao/macroprocesso/novo/` | Admin / G. Unidade | Cadastrar Macroprocesso |
+| `/configuracao/macroprocesso/<id>/editar/` | Admin / G. Unidade | Editar Macroprocesso |
+| `/configuracao/macroprocesso/<id>/deletar/` | Admin / G. Unidade | Excluir Macroprocesso |
 | `/unidades/` | Admin | Gerenciar Unidades da Instituição |
 | `/unidades/nova/` | Admin | Cadastrar Unidade |
 | `/unidades/<id>/editar/` | Admin | Editar Unidade |
