@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    container_name: riskshield_web
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./logs:/app/logs
+      - ./risco_ufsm/db.sqlite3:/app/risco_ufsm/db.sqlite3
+  
