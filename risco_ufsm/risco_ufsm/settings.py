@@ -182,14 +182,32 @@ LOGGING = {
         },
     },
     'handlers': {
-        'console': {'class': 'logging.StreamHandler', 'formatter': 'verbose'},
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            # O caminho do arquivo de log. BASE_DIR.parent aponta para /app
+            'filename': BASE_DIR.parent / 'logs' / 'django.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 2,
+            'formatter': 'verbose',
+        },
     },
     'root': {
-        'handlers': ['console'],
+        # Usa ambos os handlers: console e arquivo
+        'handlers': ['console', 'file'],
         'level': 'INFO',
     },
     'loggers': {
-        'accounts': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
-        'auditoria': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
+        'accounts': {'handlers': ['console', 'file'], 'level': 'DEBUG', 'propagate': False},
+        'auditoria': {'handlers': ['console', 'file'], 'level': 'DEBUG', 'propagate': False},
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
